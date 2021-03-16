@@ -16,6 +16,7 @@ template<std::size_t n>
 struct constraint_coeffs {
     Matrix<double, n, 1> coeffs;
     double cons;
+    double sign;
 };
 
 template<std::size_t n> double biased_objective(const std::vector<double>& x, std::vector<double>& grad, void*data )
@@ -45,4 +46,5 @@ template<std::size_t n> double linear_constraint(const std::vector<double>& x, s
     }
     return x_vec.transpose() * c->coeffs - c->cons;
 }
+
 
