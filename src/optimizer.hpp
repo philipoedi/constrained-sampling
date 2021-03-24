@@ -20,9 +20,12 @@ struct bias {
 
 template<std::size_t n>
 struct constraint_coeffs {
-    Matrix<double, n, 1> coeffs;
+    Matrix<double, n, 1> coeffs = Matrix<double, n, 1>::Zero();
+    Matrix<double, n, 1> q = Matrix<double, n, 1>::Zero();
+    Matrix<double, n, n> P = Matrix<double, n, n>::Zero();
     double cons;
     double sign;
+    double r{0};
     std::string type;
 };
 
@@ -45,21 +48,27 @@ template<std::size_t n> double linear_constraint(const std::vector<double>& x, s
     typedef Matrix<double, n, 1> vec;
     constraint_coeffs<n> *c = (constraint_coeffs<n>*) data;
     vec x_vec(x.data());
-    vec coeffs(c->coeffs.data());
     if (!grad.empty()){
-        utils::copy_eig2vec(coeffs, grad);
-        /*for (std::size_t i = 0; i<x_vec.size(); ++i){
-           grad[i] = coeffs[i];
-        }*/
+        utils::copy_eig2vec(c->coeffs, grad);
     }
     return x_vec.transpose() * c->coeffs - c->cons;
 }
 
-/*
+
 template<std::size_t n> double quadratic_constraint(const std::vector<double> x, std::vector<double>& grad, void* data)
 {
     typedef Matrix<double, n, 1> vec;
-}*/
+    double res = 0;
+    constraint_coeffs<n> *c = (constraint_coeffs<n>*) data;
+    vec x_vec(x.data());
+    // 0.5 * x.T@P@x + q.T@x+ r
+    if (!grad.empty()){
+        utils::copy_eig2vec(c->P.transpose()*x_vec + c->q, grad);
+    }
+    res += 0.5 * x_vec.transpose() * c->P * x_vec; 
+    res += x_vec.transpose()*c->q;  
+    return res + c->r;
+}
 
 
 template<std::size_t n>
@@ -88,7 +97,7 @@ class biased_optimizer
         void set_bounds(const std::vector<double>& lb, const std::vector<double>& ub);
 
         std::vector<std::vector<double>> results;
-        std::vector<Vector> samples;
+        std::vector<std::vector<double>> samples;
     private:
         
         opt opt_{"AUGLAG_EQ",n};
@@ -170,7 +179,7 @@ void biased_optimizer<n>::run(const int niter)
 {
     std::vector<double> x(n);
     results.resize(niter);
-    samples.resize(niter)
+    samples.resize(niter);
     for (int i=0; i<niter; ++i)
     {
         b_.x0 = uni_.sample();

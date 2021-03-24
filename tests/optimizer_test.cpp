@@ -55,6 +55,28 @@ int main()
         }
         std::cout << "\n";
     }
-
+    
+    // test quadratic constraint
+    constraint_coeffs<n> quad;
+    double res;
+    quad.P = Matrix2d::Identity();
+    // test P term - identity
+    std::vector<double> gradient(n);
+    res = quadratic_constraint<n>(ub, gradient, &quad);
+    std::cout << res <<std::endl;
+    assert (res == 10.);
+    quad.q(0) = 1;
+    quad.q(1) = 1;  
+    quad.r = 1;
+    res = quadratic_constraint<n>(ub, gradient, &quad);
+    std::cout << res <<std::endl;
+    assert (res == 17);
+    std::cout << gradient[0] << " " << gradient[1] << std::endl;
+    Vector2d grad_true{3,5};
+    // check gradient
+    for (int i=0; i<n; i++)
+    {
+        assert (grad_true(i) == gradient[i]);
+    }
     return 0;
 }
