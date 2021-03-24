@@ -27,6 +27,7 @@ struct constraint_coeffs {
     double sign;
     double r{0};
     std::string type;
+    std::string constype;
 };
 
 template<std::size_t n> double biased_objective(const std::vector<double>& x, std::vector<double>& grad, void*data )
@@ -36,9 +37,10 @@ template<std::size_t n> double biased_objective(const std::vector<double>& x, st
     vec x_vec(x.data());
     vec x_x0 = x_vec - b->x0;
     if(!grad.empty()){       
-        for (std::size_t i = 0; i<x_x0.size() ;++i){
+        utils::copy_eig2vec(2*x_x0, grad);
+/*    for (std::size_t i = 0; i<x_x0.size() ;++i){
             grad[i] = 2*x_x0[i];
-        }
+        }*/
     }   
     return x_x0.transpose()*x_x0;    
 }
@@ -55,7 +57,7 @@ template<std::size_t n> double linear_constraint(const std::vector<double>& x, s
 }
 
 
-template<std::size_t n> double quadratic_constraint(const std::vector<double> x, std::vector<double>& grad, void* data)
+template<std::size_t n> double quadratic_constraint(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
     typedef Matrix<double, n, 1> vec;
     double res = 0;
@@ -67,7 +69,7 @@ template<std::size_t n> double quadratic_constraint(const std::vector<double> x,
     }
     res += 0.5 * x_vec.transpose() * c->P * x_vec; 
     res += x_vec.transpose()*c->q;  
-    return res + c->r;
+    return res - c->r;
 }
 
 
@@ -98,6 +100,7 @@ class biased_optimizer
 
         std::vector<std::vector<double>> results;
         std::vector<std::vector<double>> samples;
+
     private:
         
         opt opt_{"AUGLAG_EQ",n};
@@ -156,20 +159,52 @@ void biased_optimizer<n>::add_constraints(
     constraint_coeffs<n>& eqcons,
     constraint_coeffs<n>& ineqcons)
 {
-    opt_.add_equality_constraint(linear_constraint<n>, &eqcons, 1e-8);
-    opt_.add_inequality_constraint(linear_constraint<n>, &ineqcons, 1e-8);
+    assert (eqcons.constype == "linear" || eqcons.constype == "quadratic");
+    if (eqcons.constype == "linear")
+    {
+        opt_.add_equality_constraint(linear_constraint<n>, &eqcons, 1e-8);
+    }
+    else 
+    {
+        opt_.add_equality_constraint(quadratic_constraint<n>, &eqcons, 1e-8);
+    }
+    assert (ineqcons.constype == "linear" || ineqcons.constype == "quadratic");
+    if (ineqcons.constype == "linear") 
+    {
+        opt_.add_inequality_constraint(linear_constraint<n>, &ineqcons, 1e-8);
+    }
+    else
+    {
+       opt_.add_inequality_constraint(quadratic_constraint<n>, &ineqcons, 1e-8);
+    }
 }
 
 template<std::size_t n>
 void biased_optimizer<n>::add_constraints(constraint_coeffs<n>& cons)
 {
+    assert (cons.constype == "linear" || cons.constype == "quadratic");
+    assert (cons.type == "eq" || cons.type == "ineq");
     if (cons.type == "eq")
     {
-        opt_.add_equality_constraint(linear_constraint<n>, &cons, 1e-8);
+        if (cons.constype == "linear")
+        {
+            opt_.add_equality_constraint(linear_constraint<n>, &cons, 1e-8);
+        }
+        else 
+        {
+            opt_.add_equality_constraint(quadratic_constraint<n>, &cons, 1e-8);
+        }
     }
-    else if (cons.type == "ineq")
+    else 
     {
-        opt_.add_inequality_constraint(linear_constraint<n>, &cons, 1e-8);
+        if (cons.constype == "linear")
+        {
+            opt_.add_inequality_constraint(linear_constraint<n>, &cons, 1e-8);
+        }
+        else 
+        {
+            opt_.add_inequality_constraint(quadratic_constraint<n>, &cons, 1e-8);
+        }
     }
 }
 
