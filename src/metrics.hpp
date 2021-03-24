@@ -1,3 +1,6 @@
+#ifndef METRICS_H
+#define METRICS_H
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -43,4 +46,19 @@ template<std::size_t n> double coverage_constraint(const std::vector<double>& x,
 };
 
 */
+
+// kernel llo function to add, where predict other arg index given -> this index is not included in eval
+double loo_entropy()
+    
+    kernel_estimator<n-1,d> ( ) 
+    vec llo_new ; // vector left out
+    vec llo_old ;
+    for ( i in range) 
+        llo_old = llo_new;
+        llo_new  = kernel.data[i] 
+        
+    
+#endif
+
+
 

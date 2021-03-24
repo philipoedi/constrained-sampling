@@ -4,6 +4,7 @@
 #include <cassert>
 #include <limits>
 #include <Eigen/Dense>
+#include <string>
 
 int main(){
     // training data declaration
@@ -31,6 +32,10 @@ int main(){
     res = k2.evaluate(x_predeig);
     std::cout << res << std::endl;
     assert (round(res*10000)/10000 ==  0.0056);
+    // find optimal bandwidth
+    k2.find_optimal_bandwidth("scott");
+    res = k2.evaluate(x_predeig);
+    std::cout << res << std::endl;
     // kernel estimator test
     std::vector<Vector2d> x_pred_kde{x_predeig,x_predeig};
     std::vector<double> res_kde;
