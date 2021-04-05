@@ -23,9 +23,11 @@ namespace utils
     void copy_vec2vec(const std::vector<double>& src, std::vector<double>& dst);
 
     void copy_eig2vec(const VectorXd& src, std::vector<double>& dst);
+    
+    void copy_matvec2matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst);
 
 //    void write2file_results(const std::vector<std::vector<double>>& seeds, const std::vector<std::vector>>& samples);
-}
+};
 // over load add eigen to vector
 
 #endif

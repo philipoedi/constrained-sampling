@@ -4,6 +4,18 @@
 
 using namespace Eigen;
 
+
+struct ad{
+    double d{0};
+};
+
+void func(void *data){
+    ad* b = (ad*) data;
+    std::cout << b->d <<std::endl;
+    b->d = 2;
+    std::cout << b->d <<std::endl;
+}
+
 int main()
 {
     std::vector<double> a{1,2};
@@ -13,4 +25,7 @@ int main()
     };
     std::cout << b << std::endl;
 
+    ad da;
+    func(&da);
+    std::cout << da.d << std::endl;
 }

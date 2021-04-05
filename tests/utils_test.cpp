@@ -32,6 +32,22 @@ int main(){
         std::cout << vec1[i] << std::endl;
         assert (vec1[i] == eig1(i));
      }
+    std::vector<std::vector<double>> mat1;
+    std::vector<std::vector<double>> mat2;
+    mat1.resize(2);
+    for (int i=0; i<mat1.size(); i++)
+    {
+        mat1[i].resize(2);
+        mat1[i][0] = 1;
+        mat1[i][1] = 2;
+    }
+    utils::copy_matvec2matvec(mat1, mat2);
+     for (int i=0; i<mat1.size(); i++)
+    {
+        assert (mat1[i][0] = mat2[i][0]);
+        assert (mat1[i][1] = mat2[i][1]);
+    }
+     
     return 0;
 }
 

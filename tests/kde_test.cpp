@@ -48,4 +48,27 @@ int main(){
         assert (round(r*10000)/10000 == 0.0056);
         std::cout << r << std::endl;
     }
+    
+    // init with bandwidht est method
+    kernel_estimator<d,n> kdest2();
+    
+    // predit over 2d grid
+    std::vector<double> lb{0,0};
+    std::vector<double> ub{3,3};
+    double step{1};
+    kdest.predict(lb, ub, step);
+    const std::size_t d2{3};
+    kernel_estimator<d2,n> kdest3;
+    std::vector<std::vector<double>> da;
+    da.resize(d2);
+    for (int i=0; i<da.size(); i++)
+    {
+        da[i].resize(n);
+        da[i][0] = 0;
+        da[i][1] = 1;
+    }
+
+    kdest3.fit(da);
+
+
 }
