@@ -9,43 +9,57 @@
 int main(){
     // training data declaration
     const std::size_t n = 2; // num samples
-    const std::size_t d = 2; // dim per sample
+    const std::size_t d = 3; // dim per sample
     MatrixXd xeig(d,n);
-    xeig << 1,1,2,2;
+    xeig << 1,1,2,2,3,3;
     double res; // result
     // bandwitdh
     std::vector<double> b{0.1,0.1};
     Vector2d beig(b.data());
+    std::cout << xeig*beig << std::endl;
+    std::cout << xeig << std::endl;
+    std::cout <<beig << std::endl;
+    Matrix<double,3,2> de;
+    de << 1,1,2,2,3,3;
+    std::cout << de << std::endl;
+    
+
     // to predict
     std::vector<double> x_pred{1.5,1.5};
     Vector2d x_predeig(x_pred.data());
     //Map<MatrixXd> x_mat(x.data(),n,d);
     kernel<d,n> k(beig);
-    k.fit(xeig);
+    k.fit(de);
     res = k.evaluate(x_predeig);
     std::cout << res << std::endl;
-    assert (round(res*10000)/10000 ==  0.0056);
+    assert (round(res*10000)/10000 ==  0.0055);
+    
     kernel<d,n> k2;
     // default constructor test and set_bandwidth
     k2.set_bandwidth(beig);
     k2.fit(xeig);
     res = k2.evaluate(x_predeig);
     std::cout << res << std::endl;
-    assert (round(res*10000)/10000 ==  0.0056);
+    assert (round(res*10000)/10000 ==  0.0055);
+    
     // find optimal bandwidth
     k2.find_optimal_bandwidth("scott");
+    k2.find_optimal_bandwidth("silverman");
+
+    
     res = k2.evaluate(x_predeig);
     std::cout << res << std::endl;
+    
     // kernel estimator test
     std::vector<Vector2d> x_pred_kde{x_predeig,x_predeig};
     std::vector<double> res_kde;
     res_kde.resize(2);
     kernel_estimator<d,n> kdest;
     kdest.set_bandwidth(beig);
-    kdest.fit(xeig);
+    kdest.fit(de);
     kdest.predict(x_pred_kde, res_kde);
     for (const auto& r:res_kde){
-        assert (round(r*10000)/10000 == 0.0056);
+        assert (round(r*10000)/10000 == 0.0055);
         std::cout << r << std::endl;
     }
     
@@ -70,5 +84,5 @@ int main(){
 
     kdest3.fit(da);
 
-
+    return 0; 
 }

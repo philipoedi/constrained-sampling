@@ -72,7 +72,7 @@ void kernel<n,d>::add_data(const std::vector<double> data, const std::size_t i)
 template<std::size_t n, std::size_t d>
 double kernel<n,d>::evaluate(const Vector& x)
 {
-    distances_ = (data_- x.transpose().replicate(1,n)).cwiseProduct(bandwidth_.replicate(1,n));
+    distances_ = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
     distances_ = (distances_.array().abs() > 1.0).select(0, distances_); 
     distances_ = 3./4. *( 1.0 - distances_.array().square());
     return distances_.rowwise().prod().sum()*nh_;
@@ -142,7 +142,7 @@ template<std::size_t n, std::size_t d> class kernel_estimator
 {
     
     typedef Matrix<double, d, 1> Vector;
-    typedef Matrix<double, d, n> dataMatrix;
+    typedef Matrix<double, n, d> dataMatrix;
 
     public:
         
