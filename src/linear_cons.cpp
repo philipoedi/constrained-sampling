@@ -4,6 +4,8 @@
 #include "kde.hpp"
 #include <string>
 #include <Eigen/Dense>
+#include "utils.hpp"
+#include <cassert>
 
 using namespace Eigen;
 
@@ -37,7 +39,7 @@ double b{1};
 ////////////////////
 
 // number of samples
-const int n_iter{1000};
+const int n_iter{30};
 
 
 ////////////////////
@@ -47,7 +49,7 @@ const int n_iter{1000};
 // bandwidth estimator {"silverman", "scott"}
 const std::string band_est{"scott"};
 // grid spacing
-const double step{0.1};
+const double step{0.5};
 
 int main()
 {
@@ -64,6 +66,7 @@ int main()
     kernel_estimator<n_iter,n> kdest;
     std::vector<std::vector<double>> res;
 
+    assert (method == "biased" || method == "slack");
     if (method == "biased")
     {
         biased_optimizer<n> opti(ineqc, lb, ub);
@@ -74,7 +77,7 @@ int main()
         kdest.predict(lb, ub, step);
 
     }
-    else if(method == "slack")
+    else 
     {
         slack_optimizer<n,m,l> opti(ineqc, lb, ub);
         opti.run(n_iter);
@@ -82,13 +85,23 @@ int main()
         kdest.fit(res);
         kdest.find_optimal_bandwidth(band_est);
         kdest.predict(lb, ub, step);
-    }
-    else
-    {
-        std::cout << "choose method 'slack' or 'biased'" << std::endl;
+
     };
-       /*opt.results(results);
-    kdest.fit(results);
+     // saving results
+    std::string name = utils::get_date_string()+"_"+ method + "_linear";
+
+    // writing samples to file
+    utils::write_vec2file(res,name);
+    // writing seeds to file
+    //utils::write_vec2file(,name);
+    // writing probability densities to file
+    //utils::write_vec2file(,name);
+    // writnig metadata
+    utils::write_metadata2file("linear_cons.cpp",name);
+
+   // ndvector2file(res, samples_name);
+  /*opt.results(results);
+    kdest.fit(ressults);
     kdest.predict(lb,ub,step);
 */
     return 0;

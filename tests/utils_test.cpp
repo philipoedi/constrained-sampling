@@ -3,7 +3,6 @@
 #include <cassert>
 #include <vector>
 
-
 int main(){
     
 
@@ -48,6 +47,17 @@ int main(){
         assert (mat1[i][1] = mat2[i][1]);
     }
      
+    // test write_vec2file
+    std::cout << "test writing to file" << std::endl;
+    std::vector<std::vector<double>> data(2,std::vector<double>(4));
+    std::string name{"example_file"};
+    utils::write_vec2file(data, name);
+    
+    name = "../src/linear_cons.cpp";
+    utils::write_metadata2file(name,"example_file");
+    
+    std::string today = utils::get_date_string();
+    std::cout << today << std::endl;
     return 0;
 }
 

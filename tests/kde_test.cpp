@@ -47,6 +47,7 @@ int main(){
     k2.find_optimal_bandwidth("silverman");
 
     
+    std::cout << "Test optimal bandwidth" << std::endl;
     res = k2.evaluate(x_predeig);
     std::cout << res << std::endl;
     

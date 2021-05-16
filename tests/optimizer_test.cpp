@@ -127,8 +127,7 @@ int main()
     std::cout << "slack: " << slack << std::endl;
     assert (slack == 2);
 
-    std::vector<double> x_slacked{1,2,3};
-    std::vector<double> g_slacked(3);
+
     slack_data<n,m,l> sl_data;
     init_slack_data(sl_data);
     // test initialization of slack data 

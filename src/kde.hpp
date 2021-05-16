@@ -72,10 +72,21 @@ void kernel<n,d>::add_data(const std::vector<double> data, const std::size_t i)
 template<std::size_t n, std::size_t d>
 double kernel<n,d>::evaluate(const Vector& x)
 {
+    double prob;
+    std::cout << "data_: \n" << data_ << std::endl;
+    std::cout << "x: \n" << x << std::endl;
+    std::cout << "data_ - x.transpose().repliacete(n,1): \n" << data_ - x.transpose().replicate(n,1) <<std::endl;
+    std::cout << "bandwidth transpose replicate: \n" << bandwidth_.transpose().replicate(n,1)<<std::endl;
     distances_ = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
-    distances_ = (distances_.array().abs() > 1.0).select(0, distances_); 
-    distances_ = 3./4. *( 1.0 - distances_.array().square());
-    return distances_.rowwise().prod().sum()*nh_;
+    std::cout << "d-x.t*b" << distances_ << std::endl;
+    std::cout << ">1: " << distances_ << std::endl;
+    distances_ = (distances_.array().abs() > 1.0).select(1, distances_);  // select(1 instead of 0 -> 
+    distances_ = 3./4. *( 1.0 - distances_.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
+    std::cout << "distances_ : " << distances_ << std::endl;
+    std::cout << "distances_ filter: " << distances_ << std::endl;
+    prob = distances_.rowwise().prod().sum()*nh_; 
+    std::cout << "dist prod:" << distances_.rowwise().prod() << std::endl; 
+    return prob;
 }
 
 template<std::size_t n, std::size_t d>
@@ -126,7 +137,9 @@ void kernel<n,d>::find_optimal_bandwidth(std::string method)
     if (method == "scott") C = this->scott();
     else C = this->silverman();
     bandwidth_ = C*((data_.rowwise() - data_.colwise().mean()).array().square().colwise().sum() / (n_-1.)).sqrt();
+    std::cout << "bandwidth:" << bandwidth_.array().pow(-1) << std::endl;
     this->set_bandwidth(bandwidth_.array().pow(-1)) ;
+    //this->set_bandwidth(bandwidth_) ;
 }
 
 
@@ -160,8 +173,8 @@ template<std::size_t n, std::size_t d> class kernel_estimator
     private:
         
         kernel<n,d> k_;
-        std::size_t n_;
-        std::size_t d_;
+        std::size_t n_{n};
+        std::size_t d_{d};
 
 };
 
@@ -220,7 +233,7 @@ void kernel_estimator<n,d>::predict(const std::vector<double>& lb, const std::ve
         {
             p(1) = y;
             std::cout << p << std::endl;
-            std::cout << "prob: " << k_.evaluate(p) << std::endl;
+            std::cout << "prob: " << k_.evaluate(p)  <<"\n eval end"  << std::endl;
             
             y += step;
         }
