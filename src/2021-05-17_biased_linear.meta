@@ -27,7 +27,7 @@ double b{1};
 ////////////////////
 
 // number of samples
-const int n_iter{30};
+const int n_iter{300};
 
 
 ////////////////////

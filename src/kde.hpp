@@ -168,14 +168,14 @@ template<std::size_t n, std::size_t d> class kernel_estimator
         void predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step);
         void set_bandwidth(const Vector& bandwidth);
         void find_optimal_bandwidth(const std::string bandwidth_est);
-
+        void save_pdes(const std::string name);
 
     private:
         
         kernel<n,d> k_;
         std::size_t n_{n};
         std::size_t d_{d};
-
+        std::vector<std::vector<double>> pdes_;
 };
 
 
@@ -226,6 +226,10 @@ void kernel_estimator<n,d>::predict(const std::vector<double>& lb, const std::ve
     Vector p;
     double x{lb[0]};
     double y{lb[1]};
+    double prob;
+    pdes_.clear();
+    std::vector<double> data;
+    data.resize(d+1);
     while (x <= ub[0])
     {
         p(0) = x;
@@ -233,9 +237,13 @@ void kernel_estimator<n,d>::predict(const std::vector<double>& lb, const std::ve
         {
             p(1) = y;
             std::cout << p << std::endl;
-            std::cout << "prob: " << k_.evaluate(p)  <<"\n eval end"  << std::endl;
-            
+            prob = k_.evaluate(p);
+            std::cout << "prob: " << prob <<"\n eval end"  << std::endl;
+            data[0] = x;
+            data[1] = y;
+            data[2] = prob; 
             y += step;
+            pdes_.push_back(data);
         }
         x += step;
         y = lb[1];
@@ -251,6 +259,13 @@ void kernel_estimator<n,d>::fit(const std::vector<std::vector<double>>& data)
         k_.add_data(data[i], i);
     }
 }
+
+template<std::size_t n, std::size_t d>
+void kernel_estimator<n,d>::save_pdes(const std::string name)
+{
+    utils::write_vec2file(pdes_, name);
+}
+
 #endif
 
 

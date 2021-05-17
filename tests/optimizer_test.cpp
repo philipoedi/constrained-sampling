@@ -156,5 +156,10 @@ int main()
     std::cout << "cehcking samples of slack optimizer" << std::endl;
     sopt2.samples(samples);
     print_matrix(samples);
+    std::vector<std::vector<double>>
+
+
     return 0;
+
+
 }

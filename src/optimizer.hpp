@@ -143,6 +143,9 @@ class base_optimizer
         void results(std::vector<std::vector<double>>& dst);
         std::vector<std::vector<double>> results();
         void samples(std::vector<std::vector<double>>& dst);
+        std::vector<std::vector<double>> samples();
+        void save_results(const std::string &name);
+        void save_samples(const std::string &name);
 
    protected:
 
@@ -331,7 +334,7 @@ void base_optimizer<n>::add_constraints(constraint_coeffs<n>& cons)
 template<std::size_t n>
 void base_optimizer<n>::results(std::vector<std::vector<double>>& dst)
 {
-utils::copy_matvec2matvec(results_, dst);
+    utils::copy_matvec2matvec(results_, dst);
 }
 
 template<std::size_t n>
@@ -340,11 +343,32 @@ std::vector<std::vector<double>> base_optimizer<n>::results()
     return results_;
 }
 
+
 template<std::size_t n>
 void base_optimizer<n>::samples(std::vector<std::vector<double>>& dst)
 {
     utils::copy_matvec2matvec(samples_, dst);
 }
+
+template<std::size_t n>
+std::vector<std::vector<double>> base_optimizer<n>::samples()
+{
+    return samples_;
+};  
+
+
+template<std::size_t n>
+void base_optimizer<n>::save_results(const std::string &name)
+{
+    utils::write_vec2file(results_, name);
+};
+
+
+template<std::size_t n>
+void base_optimizer<n>::save_samples(const std::string &name)
+{
+    utils::write_vec2file(samples_, name);
+};
 
 // base_optimizer member functions finished
 // biased_optimizer below

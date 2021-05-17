@@ -22,7 +22,7 @@ const std::size_t l{0};
 
 // method to for sampling
 // {"biased", "slack"}
-const std::string method{"slack"};
+const std::string method{"biased"};
 
 // lower bounds
 const std::vector<double> lb{0,0};
@@ -39,7 +39,7 @@ double b{1};
 ////////////////////
 
 // number of samples
-const int n_iter{30};
+const int n_iter{300};
 
 
 ////////////////////
@@ -64,36 +64,40 @@ int main()
     ineqc.constype = "linear";
 
     kernel_estimator<n_iter,n> kdest;
-    std::vector<std::vector<double>> res;
-
+    //std::vector<std::vector<double>> res;
+    base_optimizer<n> opti();
     assert (method == "biased" || method == "slack");
+    std::string name = utils::get_date_string()+"_"+ method + "_linear";
     if (method == "biased")
     {
         biased_optimizer<n> opti(ineqc, lb, ub);
         opti.run(n_iter);
-        opti.results(res);
-        kdest.fit(res);
+        //opti.results(res);
+        opti.save_results(name+"_results");
+        opti.save_samples(name+"_samples");
+        kdest.fit(opti.results());
         kdest.find_optimal_bandwidth(band_est);
         kdest.predict(lb, ub, step);
-
+        kdest.save_pdes(name+"_pdes");
     }
     else 
     {
         slack_optimizer<n,m,l> opti(ineqc, lb, ub);
         opti.run(n_iter);
-        opti.results(res);
-        kdest.fit(res);
+        //opti.results(res);
+        opti.save_results(name+"_results");
+        opti.save_samples(name+"_samples");
+        kdest.fit(opti.results());
         kdest.find_optimal_bandwidth(band_est);
         kdest.predict(lb, ub, step);
-
+        kdest.save_pdes(name+"_pdes");
     };
      // saving results
-    std::string name = utils::get_date_string()+"_"+ method + "_linear";
 
-    // writing samples to file
-    utils::write_vec2file(res,name);
-    // writing seeds to file
-    //utils::write_vec2file(,name);
+    // writing resúlts to file
+    //utils::write_vec2file(res,name+"_results");
+    // writing samples/seeds to file
+    //utils::write_vec2file(opti.samples(), name+"_seeds");
     // writing probability densities to file
     //utils::write_vec2file(,name);
     // writnig metadata
