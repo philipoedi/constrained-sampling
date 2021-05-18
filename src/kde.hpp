@@ -73,19 +73,19 @@ template<std::size_t n, std::size_t d>
 double kernel<n,d>::evaluate(const Vector& x)
 {
     double prob;
-    std::cout << "data_: \n" << data_ << std::endl;
+/*    std::cout << "data_: \n" << data_ << std::endl;
     std::cout << "x: \n" << x << std::endl;
     std::cout << "data_ - x.transpose().repliacete(n,1): \n" << data_ - x.transpose().replicate(n,1) <<std::endl;
     std::cout << "bandwidth transpose replicate: \n" << bandwidth_.transpose().replicate(n,1)<<std::endl;
-    distances_ = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
-    std::cout << "d-x.t*b" << distances_ << std::endl;
+  */  distances_ = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
+    /*std::cout << "d-x.t*b" << distances_ << std::endl;
     std::cout << ">1: " << distances_ << std::endl;
-    distances_ = (distances_.array().abs() > 1.0).select(1, distances_);  // select(1 instead of 0 -> 
+    */distances_ = (distances_.array().abs() > 1.0).select(1, distances_);  // select(1 instead of 0 -> 
     distances_ = 3./4. *( 1.0 - distances_.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
-    std::cout << "distances_ : " << distances_ << std::endl;
+    /*std::cout << "distances_ : " << distances_ << std::endl;
     std::cout << "distances_ filter: " << distances_ << std::endl;
-    prob = distances_.rowwise().prod().sum()*nh_; 
-    std::cout << "dist prod:" << distances_.rowwise().prod() << std::endl; 
+   */ prob = distances_.rowwise().prod().sum()*nh_; 
+   // std::cout << "dist prod:" << distances_.rowwise().prod() << std::endl; 
     return prob;
 }
 

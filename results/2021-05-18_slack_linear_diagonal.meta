@@ -1,6 +1,8 @@
 // 1. Problem spcifications////
 ///////////////////////////////
 
+std::string name_suffix = "diagonal";
+
 // dimension - number of decision variables
 const std::size_t n{2};
 // number of inequalitiy constraints
@@ -15,7 +17,7 @@ const std::string method{"slack"};
 // lower bounds
 const std::vector<double> lb{0,0};
 // upper bounds
-const std::vector<double> ub{2,2};
+const std::vector<double> ub{1,1};
 
 // linear constraint coefficients
 // c.T@x - b
@@ -27,7 +29,7 @@ double b{1};
 ////////////////////
 
 // number of samples
-const int n_iter{30};
+const int n_iter{1000};
 
 
 ////////////////////
@@ -35,7 +37,9 @@ const int n_iter{30};
 ////////////////////
 
 // bandwidth estimator {"silverman", "scott"}
-const std::string band_est{"scott"};
+const std::string band_est{"silverman"};
 // grid spacing
-const double step{0.5};
+const double step{0.05};
+
+
 

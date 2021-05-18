@@ -13,6 +13,8 @@ using namespace Eigen;
 // 1. Problem spcifications////
 ///////////////////////////////
 
+std::string name_suffix = "diagonal_2";
+
 // dimension - number of decision variables
 const std::size_t n{2};
 // number of inequalitiy constraints
@@ -22,24 +24,30 @@ const std::size_t l{0};
 
 // method to for sampling
 // {"biased", "slack"}
-const std::string method{"biased"};
+const std::string method{"slack"};
 
 // lower bounds
 const std::vector<double> lb{0,0};
 // upper bounds
-const std::vector<double> ub{2,2};
+const std::vector<double> ub{1,1};
 
 // linear constraint coefficients
 // c.T@x - b
-std::vector<double> c{1,1};
-double b{1};
+
+const double cs[m][n]{
+    {-1,-1}};
+const double bs[m]{-1};
+std::vector<double> c{-1,-1};
+double b{-1};
+
+
 
 ////////////////////
 // 2. Simulations///
 ////////////////////
 
 // number of samples
-const int n_iter{300};
+const int n_iter{1000};
 
 
 ////////////////////
@@ -47,13 +55,16 @@ const int n_iter{300};
 ////////////////////
 
 // bandwidth estimator {"silverman", "scott"}
-const std::string band_est{"scott"};
+const std::string band_est{"silverman"};
 // grid spacing
-const double step{0.5};
+const double step{0.05};
+
+
 
 int main()
 {
-    // 1. problem
+
+   // 1. problem
     constraint_coeffs<n> ineqc;
     for (int i=0; i<n; i++)
     {
@@ -67,7 +78,7 @@ int main()
     //std::vector<std::vector<double>> res;
     base_optimizer<n> opti();
     assert (method == "biased" || method == "slack");
-    std::string name = utils::get_date_string()+"_"+ method + "_linear";
+    std::string name = utils::get_date_string()+"_"+ method + "_linear"+"_"+name_suffix;
     if (method == "biased")
     {
         biased_optimizer<n> opti(ineqc, lb, ub);
