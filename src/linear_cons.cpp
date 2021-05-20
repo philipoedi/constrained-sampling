@@ -13,12 +13,12 @@ using namespace Eigen;
 // 1. Problem spcifications////
 ///////////////////////////////
 
-std::string name_suffix = "diagonal_2";
+std::string name_suffix = "island";
 
 // dimension - number of decision variables
 const std::size_t n{2};
 // number of inequalitiy constraints
-const std::size_t m{1};
+const std::size_t m{2};
 // number of equality constraints
 const std::size_t l{0};
 
@@ -29,17 +29,20 @@ const std::string method{"slack"};
 // lower bounds
 const std::vector<double> lb{0,0};
 // upper bounds
-const std::vector<double> ub{1,1};
+const std::vector<double> ub{2,2};
 
 // linear constraint coefficients
 // c.T@x - b
 
-const double cs[m][n]{
-    {-1,-1}};
-const double bs[m]{-1};
+const double cs[m][n] ={ 
+    {-1,-1},
+    {1,1}};
+const double bs[m]{-1,2};
 std::vector<double> c{-1,-1};
 double b{-1};
 
+std::vector<double> c2{1,1};
+double b2{2};
 
 
 ////////////////////
@@ -65,6 +68,14 @@ int main()
 {
 
    // 1. problem
+    
+
+
+   /* for (int i=0; i<m; i++)
+    {
+        std::cout << cs[i][0] << " "<< cs[i][1]  << std::endl;
+    };*/
+
     constraint_coeffs<n> ineqc;
     for (int i=0; i<n; i++)
     {
@@ -74,6 +85,15 @@ int main()
     ineqc.type = "ineq";
     ineqc.constype = "linear";
 
+    constraint_coeffs<n> ineqc2;
+    for (int i=0; i<n; i++)
+    {
+        ineqc2.coeffs(i) = c2[i];
+    };
+    ineqc2.cons = b2;
+    ineqc2.type = "ineq";
+    ineqc2.constype = "linear";
+
     kernel_estimator<n_iter,n> kdest;
     //std::vector<std::vector<double>> res;
     base_optimizer<n> opti();
@@ -82,6 +102,7 @@ int main()
     if (method == "biased")
     {
         biased_optimizer<n> opti(ineqc, lb, ub);
+        opti.add_constraints(ineqc2);
         opti.run(n_iter);
         //opti.results(res);
         opti.save_results(name+"_results");
@@ -93,7 +114,8 @@ int main()
     }
     else 
     {
-        slack_optimizer<n,m,l> opti(ineqc, lb, ub);
+        slack_optimizer<n,m,l> opti(ineqc2, lb, ub);
+        opti.add_constraints(ineqc);
         opti.run(n_iter);
         //opti.results(res);
         opti.save_results(name+"_results");

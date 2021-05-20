@@ -546,7 +546,7 @@ void slack_optimizer<n,m,l>::sample(std::vector<double> &x)
 {
     // loop over ineq constraint coeffs find slack
     constraint_coeffs<n>*  coeffs_temp;
-    double slack;
+    double slack{0}, slack_temp{0};
     std::vector<double> x0;
     utils::copy_eig2vec(this->uni_.sample(),x);
     utils::copy_vec2vec(x, x0);
@@ -556,11 +556,13 @@ void slack_optimizer<n,m,l>::sample(std::vector<double> &x)
     for (int i=0; i<m; i++)
     {
         coeffs_temp = ineq_cons_[i];
-        slack = this->find_slack(x0 ,coeffs_temp);
-        slack = (slack < 0) ? 0 : slack;
+        slack_temp = this->find_slack(x0 ,coeffs_temp);
+        slack_temp = (slack_temp < 0) ? 0 : slack_temp;
+        slack = (slack_temp > slack) ? slack_temp : slack;
         x[n+i] = slack;
             
     };
+    slack = 0;
     for (int i=0; i<l; i++)
     {
         coeffs_temp = eq_cons_[i];
