@@ -20,7 +20,7 @@ namespace utils
         return result;
     };
 
-    void copy_vec2vec(const std::vector<double>& src, std::vector<double>& dst)
+    void copyVec2Vec(const std::vector<double>& src, std::vector<double>& dst)
     {
         //assert (src.size() == dst.size());
         dst.resize(src.size());
@@ -30,7 +30,7 @@ namespace utils
         }
     };
 
-    void copy_eig2vec(const VectorXd& src, std::vector<double>& dst)
+    void copyEig2Vec(const VectorXd& src, std::vector<double>& dst)
     {
         assert (src.size() == dst.size());
         for (int i=0; i<src.size(); i++)
@@ -39,18 +39,18 @@ namespace utils
         }
     };
     
-    void copy_matvec2matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst)
+    void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst)
     {
         std::size_t d{src.size()};
         dst.resize(d);
         for (int i=0; i<d; i++)
         {
             dst[i].resize(src[i].size());
-            copy_vec2vec(src[i], dst[i]);
+            copyVec2Vec(src[i], dst[i]);
         }
     };
 
-    void write_vec2file(const std::vector<std::vector<double>> &data, const std::string &name)
+    void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name)
     {
         std::ofstream file;
         std::string file_name;
@@ -81,7 +81,7 @@ namespace utils
 
     };
 
-    void write_metadata2file(const std::string &problem_file, const std::string &name)
+    void writeMetadata2File(const std::string &problem_file, const std::string &name)
     {
         std::ifstream file;
         file.open(problem_file);
@@ -113,7 +113,7 @@ namespace utils
         }
     };
     
-    std::string get_date_string()
+    std::string getDateString()
     {
         time_t now;
         char date_string[10];

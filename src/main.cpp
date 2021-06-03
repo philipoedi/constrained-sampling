@@ -19,22 +19,22 @@ int main(int argc, char** argv){
     Vector2d ub_v(ub.data());
 
     // sampler setup
-    uniform_sampler<n> u(lb_v, ub_v);
+    UniformSampler<n> u(lb_v, ub_v);
     
     // optimizer setup
-    bias<n> b;
-    constraint_coeffs<n> c;
+    Bias<n> b;
+    ConstraintCoeffs<n> c;
     c.coeffs << 1., 1. ;
     c.cons = 6.;
-    opt biased("AUGLAG_EQ", n);
-   // opt biased("LD_MMA", n);
+    opt Biased("AUGLAG_EQ", n);
+   // opt Biased("LD_MMA", n);
     opt local_opt("LD_SLSQP", n);
     local_opt.set_xtol_rel(1e-4);
-    biased.set_local_optimizer(local_opt);
-    biased.set_upper_bounds(ub);
-    biased.set_lower_bounds(lb);
-    biased.add_inequality_constraint(linear_constraint<n>, &c, 1e-8);
-    biased.set_xtol_rel(1e-4);
+    Biased.set_local_optimizer(local_opt);
+    Biased.set_upper_bounds(ub);
+    Biased.set_lower_bounds(lb);
+    Biased.add_inequality_constraint(linearConstraint<n>, &c, 1e-8);
+    Biased.set_xtol_rel(1e-4);
 
     // loop random sample optimize
     const int n_iter = 100000;
@@ -46,9 +46,9 @@ int main(int argc, char** argv){
         for (std::size_t i = 0; i < b.x0.size(); ++i) {
             x[i] = b.x0[i];
         }
-        biased.set_min_objective(biased_objective<n>, &b);
+        Biased.set_min_objective(Biased_objective<n>, &b);
         try{
-            biased.optimize(x, minf);
+            Biased.optimize(x, minf);
 //            std::cout << "f(x): " << minf << std::endl;
             std::cout << minf << ", "  << x[0] << ", " << x[1] << ", "<<b.x0[0]  <<", "<< b.x0[1] << std::endl;
         }

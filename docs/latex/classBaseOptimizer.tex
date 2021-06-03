@@ -1,0 +1,429 @@
+\hypertarget{classBaseOptimizer}{}\doxysection{Base\+Optimizer$<$ n $>$ Class Template Reference}
+\label{classBaseOptimizer}\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+
+
+{\ttfamily \#include $<$optimizer.\+hpp$>$}
+
+Inheritance diagram for Base\+Optimizer$<$ n $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classBaseOptimizer}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}{Base\+Optimizer}} ()
+\item 
+\mbox{\hyperlink{classBaseOptimizer_a6d6e37a3409682a18a85c71435d3c970}{Base\+Optimizer}} (\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&eqcons, \mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&ineqcons, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+\mbox{\hyperlink{classBaseOptimizer_a2e9b0566000cbf2349a8400589c60914}{Base\+Optimizer}} (\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&cons, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_ab258b46efe9af7261cbd86713a1b8224}{run}} (const int niter)
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}{add\+Constraints}} (\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&eqcons, \mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&ineqcons)
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_ae21fb2bfe8ff0fba4ef18dafcc8261a0}{add\+Constraints}} (\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&cons)
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_aad6f1dd65df8a0179c8857fb6fc8ba74}{set\+Bounds}} (const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_a4ce63f5a931fb3dac6b4935df117b82d}{results}} (std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&dst)
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classBaseOptimizer_a6824f9702de784b25722c966b7f4fc41}{results}} ()
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_a6cced4cc29c7d15d7b71a944ad50ec50}{samples}} (std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&dst)
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classBaseOptimizer_a4ae51c0a025db20b6066d7bca60184b6}{samples}} ()
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_adcf7e9ac4031ec3b0936f3c6d0b369ec}{save\+Results}} (const std\+::string \&name)
+\item 
+void \mbox{\hyperlink{classBaseOptimizer_aa9686375d34ba7fb159616254ddfbce9}{save\+\_\+samples}} (const std\+::string \&name)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}{results\+\_\+}}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}{samples\+\_\+}}
+\item 
+opt \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\+\_\+}} \{\char`\"{}AUGLAG\+\_\+\+EQ\char`\"{},n\}
+\item 
+opt \mbox{\hyperlink{classBaseOptimizer_a4c1dd6bbaf576d4ef671d463eac9c2ff}{local\+\_\+opt\+\_\+}} \{\char`\"{}LD\+\_\+\+SLSQP\char`\"{},n\}
+\item 
+double \mbox{\hyperlink{classBaseOptimizer_a41156c97f7627179043b2672f3e2e5d3}{minf\+\_\+}}
+\item 
+\mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \mbox{\hyperlink{classBaseOptimizer_ad2de4dfb8aac760e0aad414a5cc1b4db}{uni\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$std\+::size\+\_\+t n$>$\newline
+class Base\+Optimizer$<$ n $>$}
+
+
+Definition at line 173 of file optimizer.\+hpp.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}\label{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!BaseOptimizer@{BaseOptimizer}}
+\index{BaseOptimizer@{BaseOptimizer}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{BaseOptimizer()}{BaseOptimizer()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+\mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::\mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}}
+
+
+
+Definition at line 285 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{286 \{}
+\DoxyCodeLine{287     std::cout<<\textcolor{stringliteral}{"{}base"{}}<<std::endl;}
+\DoxyCodeLine{288     \mbox{\hyperlink{classBaseOptimizer_a4c1dd6bbaf576d4ef671d463eac9c2ff}{local\_opt\_}}.set\_xtol\_rel(1e-\/4);}
+\DoxyCodeLine{289     \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.set\_xtol\_rel(1e-\/4);}
+\DoxyCodeLine{290     \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.set\_local\_optimizer(\mbox{\hyperlink{classBaseOptimizer_a4c1dd6bbaf576d4ef671d463eac9c2ff}{local\_opt\_}});}
+\DoxyCodeLine{291 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_a6d6e37a3409682a18a85c71435d3c970}\label{classBaseOptimizer_a6d6e37a3409682a18a85c71435d3c970}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!BaseOptimizer@{BaseOptimizer}}
+\index{BaseOptimizer@{BaseOptimizer}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{BaseOptimizer()}{BaseOptimizer()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+\mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::\mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{eqcons,  }\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{ineqcons,  }\item[{const std\+::vector$<$ double $>$ \&}]{lb,  }\item[{const std\+::vector$<$ double $>$ \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 294 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{299     : \mbox{\hyperlink{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}{BaseOptimizer}}()}
+\DoxyCodeLine{300 \{}
+\DoxyCodeLine{301     this-\/>\mbox{\hyperlink{classBaseOptimizer_aad6f1dd65df8a0179c8857fb6fc8ba74}{setBounds}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{302     this-\/>\mbox{\hyperlink{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}{addConstraints}}(eqcons, ineqcons);}
+\DoxyCodeLine{303 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_a2e9b0566000cbf2349a8400589c60914}\label{classBaseOptimizer_a2e9b0566000cbf2349a8400589c60914}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!BaseOptimizer@{BaseOptimizer}}
+\index{BaseOptimizer@{BaseOptimizer}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{BaseOptimizer()}{BaseOptimizer()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+\mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::\mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{cons,  }\item[{const std\+::vector$<$ double $>$ \&}]{lb,  }\item[{const std\+::vector$<$ double $>$ \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 306 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{310     : \mbox{\hyperlink{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}{BaseOptimizer}}()}
+\DoxyCodeLine{311 \{}
+\DoxyCodeLine{312     this-\/>\mbox{\hyperlink{classBaseOptimizer_aad6f1dd65df8a0179c8857fb6fc8ba74}{setBounds}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{313     this-\/>\mbox{\hyperlink{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}{addConstraints}}(cons);}
+\DoxyCodeLine{314 \}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classBaseOptimizer_ae21fb2bfe8ff0fba4ef18dafcc8261a0}\label{classBaseOptimizer_ae21fb2bfe8ff0fba4ef18dafcc8261a0}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!addConstraints@{addConstraints}}
+\index{addConstraints@{addConstraints}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{addConstraints()}{addConstraints()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::add\+Constraints (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{cons }\end{DoxyParamCaption})}
+
+
+
+Definition at line 357 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{358 \{}
+\DoxyCodeLine{359     assert (cons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}} || cons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}quadratic"{}});}
+\DoxyCodeLine{360     assert (cons.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} == \textcolor{stringliteral}{"{}eq"{}} || cons.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} == \textcolor{stringliteral}{"{}ineq"{}});}
+\DoxyCodeLine{361     \textcolor{keywordflow}{if} (cons.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} == \textcolor{stringliteral}{"{}eq"{}})}
+\DoxyCodeLine{362     \{}
+\DoxyCodeLine{363         \textcolor{keywordflow}{if} (cons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}})}
+\DoxyCodeLine{364         \{}
+\DoxyCodeLine{365             \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_equality\_constraint(linearConstraint<n>, \&cons, 1e-\/8);}
+\DoxyCodeLine{366         \}}
+\DoxyCodeLine{367         \textcolor{keywordflow}{else} }
+\DoxyCodeLine{368         \{}
+\DoxyCodeLine{369             \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_equality\_constraint(quadraticConstraint<n>, \&cons, 1e-\/8);}
+\DoxyCodeLine{370         \}}
+\DoxyCodeLine{371     \}}
+\DoxyCodeLine{372     \textcolor{keywordflow}{else} }
+\DoxyCodeLine{373     \{}
+\DoxyCodeLine{374         \textcolor{keywordflow}{if} (cons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}})}
+\DoxyCodeLine{375         \{}
+\DoxyCodeLine{376             std::cout << \textcolor{stringliteral}{"{}constraint added "{}} << std::endl;}
+\DoxyCodeLine{377             \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_inequality\_constraint(linearConstraint<n>, \&cons, 1e-\/8);}
+\DoxyCodeLine{378         \}}
+\DoxyCodeLine{379         \textcolor{keywordflow}{else} }
+\DoxyCodeLine{380         \{}
+\DoxyCodeLine{381             \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_inequality\_constraint(quadraticConstraint<n>, \&cons, 1e-\/8);}
+\DoxyCodeLine{382         \}}
+\DoxyCodeLine{383     \}}
+\DoxyCodeLine{384 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}\label{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!addConstraints@{addConstraints}}
+\index{addConstraints@{addConstraints}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{addConstraints()}{addConstraints()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::add\+Constraints (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{eqcons,  }\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{ineqcons }\end{DoxyParamCaption})}
+
+
+
+Definition at line 332 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{335 \{}
+\DoxyCodeLine{336     assert (eqcons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}} || eqcons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}quadratic"{}});}
+\DoxyCodeLine{337     \textcolor{keywordflow}{if} (eqcons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}})}
+\DoxyCodeLine{338     \{}
+\DoxyCodeLine{339         \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_equality\_constraint(linearConstraint<n>, \&eqcons, 1e-\/8);}
+\DoxyCodeLine{340     \}}
+\DoxyCodeLine{341     \textcolor{keywordflow}{else} }
+\DoxyCodeLine{342     \{}
+\DoxyCodeLine{343         \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_equality\_constraint(quadraticConstraint<n>, \&eqcons, 1e-\/8);}
+\DoxyCodeLine{344     \}}
+\DoxyCodeLine{345     assert (ineqcons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}} || ineqcons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}quadratic"{}});}
+\DoxyCodeLine{346     \textcolor{keywordflow}{if} (ineqcons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}}) }
+\DoxyCodeLine{347     \{}
+\DoxyCodeLine{348         \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_inequality\_constraint(linearConstraint<n>, \&ineqcons, 1e-\/8);}
+\DoxyCodeLine{349     \}}
+\DoxyCodeLine{350     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{351     \{}
+\DoxyCodeLine{352        \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.add\_inequality\_constraint(quadraticConstraint<n>, \&ineqcons, 1e-\/8);}
+\DoxyCodeLine{353     \}}
+\DoxyCodeLine{354 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_a6824f9702de784b25722c966b7f4fc41}\label{classBaseOptimizer_a6824f9702de784b25722c966b7f4fc41}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!results@{results}}
+\index{results@{results}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{results()}{results()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::results}
+
+
+
+Definition at line 393 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{394 \{}
+\DoxyCodeLine{395     \textcolor{keywordflow}{return} \mbox{\hyperlink{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}{results\_}};}
+\DoxyCodeLine{396 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_a4ce63f5a931fb3dac6b4935df117b82d}\label{classBaseOptimizer_a4ce63f5a931fb3dac6b4935df117b82d}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!results@{results}}
+\index{results@{results}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{results()}{results()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::results (\begin{DoxyParamCaption}\item[{std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&}]{dst }\end{DoxyParamCaption})}
+
+
+
+Definition at line 387 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{388 \{}
+\DoxyCodeLine{389     \mbox{\hyperlink{namespaceutils_a8e5920c5d2512f02b180029ede5832a3}{utils::copyMatvec2Matvec}}(\mbox{\hyperlink{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}{results\_}}, dst);}
+\DoxyCodeLine{390 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_ab258b46efe9af7261cbd86713a1b8224}\label{classBaseOptimizer_ab258b46efe9af7261cbd86713a1b8224}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!run@{run}}
+\index{run@{run}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::run (\begin{DoxyParamCaption}\item[{const int}]{niter }\end{DoxyParamCaption})}
+
+
+
+Definition at line 325 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{326 \{}
+\DoxyCodeLine{327     std::cout << \textcolor{stringliteral}{"{}base run"{}} << std::endl;   }
+\DoxyCodeLine{328 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_a4ae51c0a025db20b6066d7bca60184b6}\label{classBaseOptimizer_a4ae51c0a025db20b6066d7bca60184b6}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!samples@{samples}}
+\index{samples@{samples}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{samples()}{samples()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::samples}
+
+
+
+Definition at line 406 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{407 \{}
+\DoxyCodeLine{408     \textcolor{keywordflow}{return} \mbox{\hyperlink{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}{samples\_}};}
+\DoxyCodeLine{409 \};  }
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_a6cced4cc29c7d15d7b71a944ad50ec50}\label{classBaseOptimizer_a6cced4cc29c7d15d7b71a944ad50ec50}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!samples@{samples}}
+\index{samples@{samples}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{samples()}{samples()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::samples (\begin{DoxyParamCaption}\item[{std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&}]{dst }\end{DoxyParamCaption})}
+
+
+
+Definition at line 400 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{401 \{}
+\DoxyCodeLine{402     \mbox{\hyperlink{namespaceutils_a8e5920c5d2512f02b180029ede5832a3}{utils::copyMatvec2Matvec}}(\mbox{\hyperlink{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}{samples\_}}, dst);}
+\DoxyCodeLine{403 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_aa9686375d34ba7fb159616254ddfbce9}\label{classBaseOptimizer_aa9686375d34ba7fb159616254ddfbce9}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!save\_samples@{save\_samples}}
+\index{save\_samples@{save\_samples}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{save\_samples()}{save\_samples()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::save\+\_\+samples (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Definition at line 420 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{421 \{}
+\DoxyCodeLine{422     \mbox{\hyperlink{namespaceutils_af8f9643236794137a27bc85869f5aa3e}{utils::writeVec2File}}(\mbox{\hyperlink{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}{samples\_}}, name);}
+\DoxyCodeLine{423 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_adcf7e9ac4031ec3b0936f3c6d0b369ec}\label{classBaseOptimizer_adcf7e9ac4031ec3b0936f3c6d0b369ec}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!saveResults@{saveResults}}
+\index{saveResults@{saveResults}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{saveResults()}{saveResults()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::save\+Results (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Definition at line 413 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{414 \{}
+\DoxyCodeLine{415     \mbox{\hyperlink{namespaceutils_af8f9643236794137a27bc85869f5aa3e}{utils::writeVec2File}}(\mbox{\hyperlink{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}{results\_}}, name);}
+\DoxyCodeLine{416 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classBaseOptimizer_aad6f1dd65df8a0179c8857fb6fc8ba74}\label{classBaseOptimizer_aad6f1dd65df8a0179c8857fb6fc8ba74}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!setBounds@{setBounds}}
+\index{setBounds@{setBounds}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{setBounds()}{setBounds()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::set\+Bounds (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{lb,  }\item[{const std\+::vector$<$ double $>$ \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 317 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{318 \{}
+\DoxyCodeLine{319     \mbox{\hyperlink{classBaseOptimizer_ad2de4dfb8aac760e0aad414a5cc1b4db}{uni\_}}.setBounds(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}},\mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{320     \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.set\_upper\_bounds(\mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{321     \mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.set\_lower\_bounds(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}});}
+\DoxyCodeLine{322 \}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classBaseOptimizer_a4c1dd6bbaf576d4ef671d463eac9c2ff}\label{classBaseOptimizer_a4c1dd6bbaf576d4ef671d463eac9c2ff}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!local\_opt\_@{local\_opt\_}}
+\index{local\_opt\_@{local\_opt\_}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{local\_opt\_}{local\_opt\_}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+opt \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::local\+\_\+opt\+\_\+ \{\char`\"{}LD\+\_\+\+SLSQP\char`\"{},n\}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 207 of file optimizer.\+hpp.
+
+\mbox{\Hypertarget{classBaseOptimizer_a41156c97f7627179043b2672f3e2e5d3}\label{classBaseOptimizer_a41156c97f7627179043b2672f3e2e5d3}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!minf\_@{minf\_}}
+\index{minf\_@{minf\_}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{minf\_}{minf\_}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+double \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::minf\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 208 of file optimizer.\+hpp.
+
+\mbox{\Hypertarget{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}\label{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!opt\_@{opt\_}}
+\index{opt\_@{opt\_}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{opt\_}{opt\_}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+opt \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::opt\+\_\+ \{\char`\"{}AUGLAG\+\_\+\+EQ\char`\"{},n\}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 206 of file optimizer.\+hpp.
+
+\mbox{\Hypertarget{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}\label{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!results\_@{results\_}}
+\index{results\_@{results\_}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{results\_}{results\_}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+std\+::vector$<$std\+::vector$<$double$>$ $>$ \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::results\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 204 of file optimizer.\+hpp.
+
+\mbox{\Hypertarget{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}\label{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!samples\_@{samples\_}}
+\index{samples\_@{samples\_}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{samples\_}{samples\_}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+std\+::vector$<$std\+::vector$<$double$>$ $>$ \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::samples\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 205 of file optimizer.\+hpp.
+
+\mbox{\Hypertarget{classBaseOptimizer_ad2de4dfb8aac760e0aad414a5cc1b4db}\label{classBaseOptimizer_ad2de4dfb8aac760e0aad414a5cc1b4db}} 
+\index{BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}!uni\_@{uni\_}}
+\index{uni\_@{uni\_}!BaseOptimizer$<$ n $>$@{BaseOptimizer$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{uni\_}{uni\_}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+\mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}}$<$\mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}$>$ \mbox{\hyperlink{classBaseOptimizer}{Base\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::uni\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 209 of file optimizer.\+hpp.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{optimizer_8hpp}{optimizer.\+hpp}}\end{DoxyCompactItemize}

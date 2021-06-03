@@ -1,0 +1,232 @@
+\hypertarget{classKernel}{}\doxysection{Kernel$<$ n, d $>$ Class Template Reference}
+\label{classKernel}\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+
+
+{\ttfamily \#include $<$kde.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classKernel_a38fe0f4dad6a1d8deff5f048f69279c1}{Kernel}} ()
+\item 
+\mbox{\hyperlink{classKernel_ac41d396d07ae05544f467149842a7a99}{Kernel}} (const Vector \&bandwidth)
+\item 
+void \mbox{\hyperlink{classKernel_a3b71e9e0be71d6f07a0bcd5d5fa7a9b1}{fit}} (const data\+Matrix \&data)
+\item 
+double \mbox{\hyperlink{classKernel_ad82ba09a71a2360d5d66b1acef6d8684}{evaluate}} (const Vector \&x)
+\item 
+void \mbox{\hyperlink{classKernel_aae7eb11ba1988666aeb6c1b3ae505f37}{set\+Bandwidth}} (const Vector \&bandwidth)
+\item 
+void \mbox{\hyperlink{classKernel_ae2baf82f5635dd641c190cc40fbb225c}{find\+\_\+optimal\+\_\+bandwidth}} (std\+::string \mbox{\hyperlink{quadratic__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}})
+\item 
+double \mbox{\hyperlink{classKernel_acac823b3875ff64a952a95b6973f390c}{silverman}} ()
+\item 
+double \mbox{\hyperlink{classKernel_a4a72d30b1b233b8187a2a76fb6e014e4}{scott}} ()
+\item 
+void \mbox{\hyperlink{classKernel_a8105fb7c31cb5344d47898e45979fdc3}{add\+Data}} (const std\+::vector$<$ double $>$ data, const std\+::size\+\_\+t i)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$\newline
+class Kernel$<$ n, d $>$}
+
+
+Definition at line 14 of file kde.\+hpp.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classKernel_a38fe0f4dad6a1d8deff5f048f69279c1}\label{classKernel_a38fe0f4dad6a1d8deff5f048f69279c1}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!Kernel@{Kernel}}
+\index{Kernel@{Kernel}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{Kernel()}{Kernel()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+\mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::\mbox{\hyperlink{classKernel}{Kernel}}}
+
+
+
+Definition at line 48 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{48 \{\}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classKernel_ac41d396d07ae05544f467149842a7a99}\label{classKernel_ac41d396d07ae05544f467149842a7a99}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!Kernel@{Kernel}}
+\index{Kernel@{Kernel}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{Kernel()}{Kernel()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+\mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::\mbox{\hyperlink{classKernel}{Kernel}} (\begin{DoxyParamCaption}\item[{const Vector \&}]{bandwidth }\end{DoxyParamCaption})}
+
+
+
+Definition at line 52 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{53 \{}
+\DoxyCodeLine{54     this-\/>\mbox{\hyperlink{classKernel_aae7eb11ba1988666aeb6c1b3ae505f37}{setBandwidth}}(bandwidth);  }
+\DoxyCodeLine{55 \} }
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classKernel_a8105fb7c31cb5344d47898e45979fdc3}\label{classKernel_a8105fb7c31cb5344d47898e45979fdc3}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!addData@{addData}}
+\index{addData@{addData}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{addData()}{addData()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::add\+Data (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$}]{data,  }\item[{const std\+::size\+\_\+t}]{i }\end{DoxyParamCaption})}
+
+
+
+Definition at line 64 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{65 \{}
+\DoxyCodeLine{66     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j=0; j<\mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}}; j++)}
+\DoxyCodeLine{67     \{}
+\DoxyCodeLine{68         data\_(i,j) = data[j];}
+\DoxyCodeLine{69     \};}
+\DoxyCodeLine{70 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classKernel_ad82ba09a71a2360d5d66b1acef6d8684}\label{classKernel_ad82ba09a71a2360d5d66b1acef6d8684}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!evaluate@{evaluate}}
+\index{evaluate@{evaluate}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{evaluate()}{evaluate()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+double \mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::evaluate (\begin{DoxyParamCaption}\item[{const Vector \&}]{x }\end{DoxyParamCaption})}
+
+
+
+Definition at line 73 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{74 \{}
+\DoxyCodeLine{75     \textcolor{keywordtype}{double} prob;}
+\DoxyCodeLine{76 \textcolor{comment}{/*    std::cout << "{}data\_: \(\backslash\)n"{} << data\_ << std::endl;}}
+\DoxyCodeLine{77 \textcolor{comment}{    std::cout << "{}x: \(\backslash\)n"{} << x << std::endl;}}
+\DoxyCodeLine{78 \textcolor{comment}{    std::cout << "{}data\_ -\/ x.transpose().repliacete(n,1): \(\backslash\)n"{} << data\_ -\/ x.transpose().replicate(n,1) <<std::endl;}}
+\DoxyCodeLine{79 \textcolor{comment}{    std::cout << "{}bandwidth transpose replicate: \(\backslash\)n"{} << bandwidth\_.transpose().replicate(n,1)<<std::endl;}}
+\DoxyCodeLine{80 \textcolor{comment}{  */}  distances\_ = (data\_-\/ x.transpose().replicate(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}},1)).cwiseProduct(bandwidth\_.transpose().replicate(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}},1));}
+\DoxyCodeLine{81     \textcolor{comment}{/*std::cout << "{}d-\/x.t*b"{} << distances\_ << std::endl;}}
+\DoxyCodeLine{82 \textcolor{comment}{    std::cout << "{}>1: "{} << distances\_ << std::endl;}}
+\DoxyCodeLine{83 \textcolor{comment}{    */}distances\_ = (distances\_.array().abs() > 1.0).select(1, distances\_);  \textcolor{comment}{// select(1 instead of 0 -\/> }}
+\DoxyCodeLine{84     distances\_ = 3./4. *( 1.0 -\/ distances\_.array().square()); \textcolor{comment}{// for all vals > 0 follows that distances = 0 because 1-\/1}}
+\DoxyCodeLine{85     \textcolor{comment}{/*std::cout << "{}distances\_ : "{} << distances\_ << std::endl;}}
+\DoxyCodeLine{86 \textcolor{comment}{    std::cout << "{}distances\_ filter: "{} << distances\_ << std::endl;}}
+\DoxyCodeLine{87 \textcolor{comment}{   */} prob = distances\_.rowwise().prod().sum()*nh\_; }
+\DoxyCodeLine{88    \textcolor{comment}{// std::cout << "{}dist prod:"{} << distances\_.rowwise().prod() << std::endl; }}
+\DoxyCodeLine{89     \textcolor{keywordflow}{return} prob;}
+\DoxyCodeLine{90 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classKernel_ae2baf82f5635dd641c190cc40fbb225c}\label{classKernel_ae2baf82f5635dd641c190cc40fbb225c}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!find\_optimal\_bandwidth@{find\_optimal\_bandwidth}}
+\index{find\_optimal\_bandwidth@{find\_optimal\_bandwidth}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{find\_optimal\_bandwidth()}{find\_optimal\_bandwidth()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::find\+\_\+optimal\+\_\+bandwidth (\begin{DoxyParamCaption}\item[{std\+::string}]{method }\end{DoxyParamCaption})}
+
+
+
+Definition at line 133 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{134 \{}
+\DoxyCodeLine{135     \textcolor{keywordtype}{double} C;}
+\DoxyCodeLine{136     assert (\mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} == \textcolor{stringliteral}{"{}scott"{}} || \mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} == \textcolor{stringliteral}{"{}silverman"{}});}
+\DoxyCodeLine{137     \textcolor{keywordflow}{if} (\mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} == \textcolor{stringliteral}{"{}scott"{}}) C = this-\/>\mbox{\hyperlink{classKernel_a4a72d30b1b233b8187a2a76fb6e014e4}{scott}}();}
+\DoxyCodeLine{138     \textcolor{keywordflow}{else} C = this-\/>\mbox{\hyperlink{classKernel_acac823b3875ff64a952a95b6973f390c}{silverman}}();}
+\DoxyCodeLine{139     bandwidth\_ = C*((data\_.rowwise() -\/ data\_.colwise().mean()).array().square().colwise().sum() / (n\_-\/1.)).sqrt();}
+\DoxyCodeLine{140     std::cout << \textcolor{stringliteral}{"{}bandwidth:"{}} << bandwidth\_.array().pow(-\/1) << std::endl;}
+\DoxyCodeLine{141     this-\/>\mbox{\hyperlink{classKernel_aae7eb11ba1988666aeb6c1b3ae505f37}{setBandwidth}}(bandwidth\_.array().pow(-\/1)) ;}
+\DoxyCodeLine{142     \textcolor{comment}{//this-\/>setBandwidth(bandwidth\_) ;}}
+\DoxyCodeLine{143 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classKernel_a3b71e9e0be71d6f07a0bcd5d5fa7a9b1}\label{classKernel_a3b71e9e0be71d6f07a0bcd5d5fa7a9b1}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!fit@{fit}}
+\index{fit@{fit}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{fit()}{fit()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::fit (\begin{DoxyParamCaption}\item[{const data\+Matrix \&}]{data }\end{DoxyParamCaption})}
+
+
+
+Definition at line 58 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{59 \{}
+\DoxyCodeLine{60     data\_ = data;}
+\DoxyCodeLine{61 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classKernel_a4a72d30b1b233b8187a2a76fb6e014e4}\label{classKernel_a4a72d30b1b233b8187a2a76fb6e014e4}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!scott@{scott}}
+\index{scott@{scott}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{scott()}{scott()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+double \mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::scott}
+
+
+
+Definition at line 127 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{128 \{}
+\DoxyCodeLine{129     \textcolor{keywordflow}{return} pow(n\_,-\/1./(d\_+4.));}
+\DoxyCodeLine{130 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classKernel_aae7eb11ba1988666aeb6c1b3ae505f37}\label{classKernel_aae7eb11ba1988666aeb6c1b3ae505f37}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!setBandwidth@{setBandwidth}}
+\index{setBandwidth@{setBandwidth}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{setBandwidth()}{setBandwidth()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::set\+Bandwidth (\begin{DoxyParamCaption}\item[{const Vector \&}]{bandwidth }\end{DoxyParamCaption})}
+
+
+
+Definition at line 93 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{94 \{}
+\DoxyCodeLine{95    bandwidth\_ = bandwidth; }
+\DoxyCodeLine{96    nh\_ = bandwidth.prod()/n\_;}
+\DoxyCodeLine{97 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classKernel_acac823b3875ff64a952a95b6973f390c}\label{classKernel_acac823b3875ff64a952a95b6973f390c}} 
+\index{Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}!silverman@{silverman}}
+\index{silverman@{silverman}!Kernel$<$ n, d $>$@{Kernel$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{silverman()}{silverman()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+double \mbox{\hyperlink{classKernel}{Kernel}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::silverman}
+
+
+
+Definition at line 121 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{122 \{}
+\DoxyCodeLine{123     \textcolor{keywordflow}{return} pow(4./(d\_+2.),(1./(d\_+4)))*pow(n\_,-\/1./(\mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}}+4.));}
+\DoxyCodeLine{124 \}}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{kde_8hpp}{kde.\+hpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,340 @@
+\hypertarget{classSlackOptimizer}{}\doxysection{Slack\+Optimizer$<$ n, m, l $>$ Class Template Reference}
+\label{classSlackOptimizer}\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+
+
+{\ttfamily \#include $<$optimizer.\+hpp$>$}
+
+Inheritance diagram for Slack\+Optimizer$<$ n, m, l $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classSlackOptimizer}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classSlackOptimizer_ac2da6b5d0880bd1a85fc6395ba0497af}{Slack\+Optimizer}} ()
+\item 
+\mbox{\hyperlink{classSlackOptimizer_adbe9576d931410a8c781989759d1ddf1}{Slack\+Optimizer}} (\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&ineqcons, \mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&eqcons, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+\mbox{\hyperlink{classSlackOptimizer_add7c3fe974006204a29c3ca7478333a3}{Slack\+Optimizer}} (\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&cons, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+void \mbox{\hyperlink{classSlackOptimizer_a3c613f5e3c0e3e2f76a84e5e41455e95}{run}} (const int \&niter)
+\item 
+void \mbox{\hyperlink{classSlackOptimizer_a93de1b78754e1c2d312b1da6cefa84f9}{add\+Constraints}} (\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&cons)
+\item 
+void \mbox{\hyperlink{classSlackOptimizer_a2923d2e3d1997ef2b014c4b455ccda24}{set\+Bounds}} (const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+double \mbox{\hyperlink{classSlackOptimizer_aa0bbac73710b6fb2a6f422de352f5a74}{find\+Slack}} (const std\+::vector$<$ double $>$ \&x, \mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&coeffs)
+\item 
+double \mbox{\hyperlink{classSlackOptimizer_ab8f5937f619a491dab01bcf3374ae117}{find\+Slack}} (const std\+::vector$<$ double $>$ \&x, \mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ $\ast$coeffs)
+\item 
+void \mbox{\hyperlink{classSlackOptimizer_a6126e30410953f3c1f8c43479d6dcfc2}{sample}} (std\+::vector$<$ double $>$ \&x)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$\newline
+class Slack\+Optimizer$<$ n, m, l $>$}
+
+
+Definition at line 238 of file optimizer.\+hpp.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classSlackOptimizer_ac2da6b5d0880bd1a85fc6395ba0497af}\label{classSlackOptimizer_ac2da6b5d0880bd1a85fc6395ba0497af}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!SlackOptimizer@{SlackOptimizer}}
+\index{SlackOptimizer@{SlackOptimizer}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{SlackOptimizer()}{SlackOptimizer()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+\mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::\mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}}
+
+
+
+Definition at line 465 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{465 : \mbox{\hyperlink{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}{BaseOptimizer<n+m+l+l>::BaseOptimizer}}()\{\};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classSlackOptimizer_adbe9576d931410a8c781989759d1ddf1}\label{classSlackOptimizer_adbe9576d931410a8c781989759d1ddf1}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!SlackOptimizer@{SlackOptimizer}}
+\index{SlackOptimizer@{SlackOptimizer}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{SlackOptimizer()}{SlackOptimizer()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+\mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::\mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{ineqcons,  }\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{eqcons,  }\item[{const std\+::vector$<$ double $>$ \&}]{lb,  }\item[{const std\+::vector$<$ double $>$ \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 480 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{485             : \mbox{\hyperlink{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}{BaseOptimizer<n+m+l+l>::BaseOptimizer}}()}
+\DoxyCodeLine{486 \{}
+\DoxyCodeLine{487     this-\/>\mbox{\hyperlink{classSlackOptimizer_a2923d2e3d1997ef2b014c4b455ccda24}{setBounds}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{488     this-\/>\mbox{\hyperlink{classSlackOptimizer_a93de1b78754e1c2d312b1da6cefa84f9}{addConstraints}}(ineqcons);}
+\DoxyCodeLine{489     this-\/>\mbox{\hyperlink{classSlackOptimizer_a93de1b78754e1c2d312b1da6cefa84f9}{addConstraints}}(eqcons);}
+\DoxyCodeLine{490 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classSlackOptimizer_add7c3fe974006204a29c3ca7478333a3}\label{classSlackOptimizer_add7c3fe974006204a29c3ca7478333a3}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!SlackOptimizer@{SlackOptimizer}}
+\index{SlackOptimizer@{SlackOptimizer}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{SlackOptimizer()}{SlackOptimizer()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+\mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::\mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{cons,  }\item[{const std\+::vector$<$ double $>$ \&}]{lb,  }\item[{const std\+::vector$<$ double $>$ \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 469 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{473             : \mbox{\hyperlink{classBaseOptimizer_a5a44aa490886e47cc89a4c7dd1ba0117}{BaseOptimizer<n+m+l+l>::BaseOptimizer}}()}
+\DoxyCodeLine{474 \{}
+\DoxyCodeLine{475     this-\/>\mbox{\hyperlink{classSlackOptimizer_a2923d2e3d1997ef2b014c4b455ccda24}{setBounds}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{476     this-\/>\mbox{\hyperlink{classSlackOptimizer_a93de1b78754e1c2d312b1da6cefa84f9}{addConstraints}}(cons);}
+\DoxyCodeLine{477 \};}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classSlackOptimizer_a93de1b78754e1c2d312b1da6cefa84f9}\label{classSlackOptimizer_a93de1b78754e1c2d312b1da6cefa84f9}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!addConstraints@{addConstraints}}
+\index{addConstraints@{addConstraints}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{addConstraints()}{addConstraints()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+void \mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::add\+Constraints (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{cons }\end{DoxyParamCaption})}
+
+
+
+Definition at line 514 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{515 \{}
+\DoxyCodeLine{516     assert (cons.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} == \textcolor{stringliteral}{"{}ineq"{}} || cons.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} == \textcolor{stringliteral}{"{}eq"{}});}
+\DoxyCodeLine{517     \mbox{\hyperlink{structConstraintCoeffs}{ConstraintCoeffs<n+m+l+l>}} cons\_new;}
+\DoxyCodeLine{518     }
+\DoxyCodeLine{519     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}; i++)\{}
+\DoxyCodeLine{520         cons\_new.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(i) = cons.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(i);}
+\DoxyCodeLine{521     \};}
+\DoxyCodeLine{522     cons\_new.\mbox{\hyperlink{structConstraintCoeffs_af25176b193bf90bbf3545f2f6e84fcce}{cons}} = cons.\mbox{\hyperlink{structConstraintCoeffs_af25176b193bf90bbf3545f2f6e84fcce}{cons}};}
+\DoxyCodeLine{523     cons\_new.\mbox{\hyperlink{structConstraintCoeffs_ac1b9d20bcc6a2a256929e7f12789acba}{r}} = cons.\mbox{\hyperlink{structConstraintCoeffs_ac1b9d20bcc6a2a256929e7f12789acba}{r}};}
+\DoxyCodeLine{524     cons\_new.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} = cons.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}};}
+\DoxyCodeLine{525     cons\_new.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} = cons.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}};}
+\DoxyCodeLine{526     cons\_new.\mbox{\hyperlink{structConstraintCoeffs_ab76212bb4794a397aad965e46ea154bb}{sign}} = cons.\mbox{\hyperlink{structConstraintCoeffs_ab76212bb4794a397aad965e46ea154bb}{sign}};}
+\DoxyCodeLine{527 }
+\DoxyCodeLine{528     \textcolor{keywordflow}{if} (cons.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} == \textcolor{stringliteral}{"{}ineq"{}})}
+\DoxyCodeLine{529     \{}
+\DoxyCodeLine{530         cons\_new.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+ineq\_count\_) = -\/1;}
+\DoxyCodeLine{531         ineq\_count\_ += 1;}
+\DoxyCodeLine{532         ineq\_cons\_.push\_back(\&cons);}
+\DoxyCodeLine{533         ineq\_cons\_ex\_.push\_back(cons\_new);}
+\DoxyCodeLine{534         \mbox{\hyperlink{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}{BaseOptimizer<n+m+l+l>::addConstraints}}(ineq\_cons\_ex\_[ineq\_count\_-\/1]);}
+\DoxyCodeLine{535     \}}
+\DoxyCodeLine{536     \textcolor{keywordflow}{else} }
+\DoxyCodeLine{537     \{}
+\DoxyCodeLine{538         cons\_new.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+eq\_count\_) = -\/1;}
+\DoxyCodeLine{539         \mbox{\hyperlink{structConstraintCoeffs}{ConstraintCoeffs<n+m+l+l>}} cons\_new\_eq\_up;}
+\DoxyCodeLine{540         \mbox{\hyperlink{structConstraintCoeffs}{ConstraintCoeffs<n+m+l+l>}} cons\_new\_eq\_low;}
+\DoxyCodeLine{541         cons\_new\_eq\_up.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} = \textcolor{stringliteral}{"{}ineq"{}};}
+\DoxyCodeLine{542         cons\_new\_eq\_low.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} = \textcolor{stringliteral}{"{}ineq"{}};}
+\DoxyCodeLine{543         cons\_new\_eq\_up.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} = \textcolor{stringliteral}{"{}linear"{}};}
+\DoxyCodeLine{544         cons\_new\_eq\_low.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} = \textcolor{stringliteral}{"{}linear"{}};}
+\DoxyCodeLine{545         cons\_new\_eq\_up.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+eq\_count\_) = 1;}
+\DoxyCodeLine{546         cons\_new\_eq\_up.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+eq\_count\_+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}) = -\/1;}
+\DoxyCodeLine{547         cons\_new\_eq\_low.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+eq\_count\_) = -\/1;}
+\DoxyCodeLine{548         cons\_new\_eq\_low.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+eq\_count\_+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}) = -\/1;}
+\DoxyCodeLine{549         eq\_count\_ += 1;}
+\DoxyCodeLine{550         eq\_cons\_.push\_back(\&cons);}
+\DoxyCodeLine{551         eq\_cons\_ex\_.push\_back(cons\_new);}
+\DoxyCodeLine{552         eq\_cons\_ex\_up\_.push\_back(cons\_new\_eq\_up);}
+\DoxyCodeLine{553         eq\_cons\_ex\_low\_.push\_back(cons\_new\_eq\_low);}
+\DoxyCodeLine{554         \mbox{\hyperlink{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}{BaseOptimizer<n+m+l+l>::addConstraints}}(eq\_cons\_ex\_[eq\_count\_-\/1]);}
+\DoxyCodeLine{555         \mbox{\hyperlink{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}{BaseOptimizer<n+m+l+l>::addConstraints}}(eq\_cons\_ex\_up\_[eq\_count\_-\/1]);}
+\DoxyCodeLine{556         \mbox{\hyperlink{classBaseOptimizer_a38f97caaf0218efb3a1b8b147bd8b26b}{BaseOptimizer<n+m+l+l>::addConstraints}}(eq\_cons\_ex\_low\_[eq\_count\_-\/1]);}
+\DoxyCodeLine{557     \}}
+\DoxyCodeLine{558 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classSlackOptimizer_aa0bbac73710b6fb2a6f422de352f5a74}\label{classSlackOptimizer_aa0bbac73710b6fb2a6f422de352f5a74}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!findSlack@{findSlack}}
+\index{findSlack@{findSlack}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{findSlack()}{findSlack()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+double \mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::find\+Slack (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{x,  }\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ \&}]{coeffs }\end{DoxyParamCaption})}
+
+
+
+Definition at line 563 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{564 \{}
+\DoxyCodeLine{565     \textcolor{keywordtype}{double} slack;}
+\DoxyCodeLine{566     std::vector<double> grad;}
+\DoxyCodeLine{567     \textcolor{keywordflow}{if} (coeffs.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}})}
+\DoxyCodeLine{568     \{}
+\DoxyCodeLine{569         slack = linearConstraint<n>(x, grad, \&coeffs);}
+\DoxyCodeLine{570     \}}
+\DoxyCodeLine{571     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{572     \{}
+\DoxyCodeLine{573         slack = quadraticConstraint<n>(x, grad, \&coeffs);}
+\DoxyCodeLine{574     \}}
+\DoxyCodeLine{575     \textcolor{keywordflow}{return} slack;}
+\DoxyCodeLine{576 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classSlackOptimizer_ab8f5937f619a491dab01bcf3374ae117}\label{classSlackOptimizer_ab8f5937f619a491dab01bcf3374ae117}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!findSlack@{findSlack}}
+\index{findSlack@{findSlack}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{findSlack()}{findSlack()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+double \mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::find\+Slack (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{x,  }\item[{\mbox{\hyperlink{structConstraintCoeffs}{Constraint\+Coeffs}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$ $\ast$}]{coeffs }\end{DoxyParamCaption})}
+
+
+
+Definition at line 580 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{581 \{}
+\DoxyCodeLine{582     \textcolor{keywordtype}{double} slack;}
+\DoxyCodeLine{583     std::vector<double> grad;}
+\DoxyCodeLine{584     \textcolor{keywordflow}{if} (coeffs-\/>\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} == \textcolor{stringliteral}{"{}linear"{}})}
+\DoxyCodeLine{585     \{}
+\DoxyCodeLine{586         slack = linearConstraint<n>(x, grad, coeffs);}
+\DoxyCodeLine{587     \}}
+\DoxyCodeLine{588     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{589     \{}
+\DoxyCodeLine{590         slack = quadraticConstraint<n>(x, grad, coeffs);}
+\DoxyCodeLine{591     \}}
+\DoxyCodeLine{592     \textcolor{keywordflow}{return} slack;}
+\DoxyCodeLine{593 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classSlackOptimizer_a3c613f5e3c0e3e2f76a84e5e41455e95}\label{classSlackOptimizer_a3c613f5e3c0e3e2f76a84e5e41455e95}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!run@{run}}
+\index{run@{run}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+void \mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::run (\begin{DoxyParamCaption}\item[{const int \&}]{niter }\end{DoxyParamCaption})}
+
+
+
+Definition at line 630 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{631 \{}
+\DoxyCodeLine{632     initSlackData<n,m,l>(up\_);}
+\DoxyCodeLine{633     std::vector<double> x(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}});}
+\DoxyCodeLine{634     this-\/>\mbox{\hyperlink{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}{results\_}}.resize(niter);}
+\DoxyCodeLine{635     this-\/>\mbox{\hyperlink{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}{samples\_}}.resize(niter);}
+\DoxyCodeLine{636     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<niter; ++i)}
+\DoxyCodeLine{637     \{}
+\DoxyCodeLine{638         this-\/>\mbox{\hyperlink{classSlackOptimizer_a6126e30410953f3c1f8c43479d6dcfc2}{sample}}(x);}
+\DoxyCodeLine{639         this-\/>\mbox{\hyperlink{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}{samples\_}}[i].resize(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}});}
+\DoxyCodeLine{640         \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{utils::copyVec2Vec}}(x, this-\/>\mbox{\hyperlink{classBaseOptimizer_af8fb7f9f00f50d4e4f8fa9fab62b075b}{samples\_}}[i]);}
+\DoxyCodeLine{641         this-\/>\mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.set\_min\_objective(slackObjective<n,m,l>, \&up\_);}
+\DoxyCodeLine{642         \textcolor{keywordflow}{try}}
+\DoxyCodeLine{643         \{}
+\DoxyCodeLine{644             this-\/>\mbox{\hyperlink{classBaseOptimizer_a4b250fdc2a4d361597bb5e9f1aa06795}{opt\_}}.optimize(x, this-\/>\mbox{\hyperlink{classBaseOptimizer_a41156c97f7627179043b2672f3e2e5d3}{minf\_}});}
+\DoxyCodeLine{645             this-\/>\mbox{\hyperlink{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}{results\_}}[i].resize(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}});}
+\DoxyCodeLine{646             \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{utils::copyVec2Vec}}(x, this-\/>\mbox{\hyperlink{classBaseOptimizer_ac68b5612aab2eb333b3bddb841df1f10}{results\_}}[i]);}
+\DoxyCodeLine{647         \}}
+\DoxyCodeLine{648         \textcolor{keywordflow}{catch}(std::exception \&e)}
+\DoxyCodeLine{649         \{}
+\DoxyCodeLine{650             std::cerr << e.what() << std::endl;}
+\DoxyCodeLine{651         \}}
+\DoxyCodeLine{652     \}}
+\DoxyCodeLine{653 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classSlackOptimizer_a6126e30410953f3c1f8c43479d6dcfc2}\label{classSlackOptimizer_a6126e30410953f3c1f8c43479d6dcfc2}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!sample@{sample}}
+\index{sample@{sample}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{sample()}{sample()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+void \mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::sample (\begin{DoxyParamCaption}\item[{std\+::vector$<$ double $>$ \&}]{x }\end{DoxyParamCaption})}
+
+
+
+Definition at line 597 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{598 \{}
+\DoxyCodeLine{599     \textcolor{comment}{// loop over ineq constraint coeffs find slack}}
+\DoxyCodeLine{600     \mbox{\hyperlink{structConstraintCoeffs}{ConstraintCoeffs<n>}}*  coeffs\_temp;}
+\DoxyCodeLine{601     \textcolor{keywordtype}{double} slack\{0\}, slack\_temp\{0\};}
+\DoxyCodeLine{602     std::vector<double> x0;}
+\DoxyCodeLine{603     \mbox{\hyperlink{namespaceutils_a1351e97ae99bb94d24792cf54ce9a860}{utils::copyEig2Vec}}(this-\/>\mbox{\hyperlink{classBaseOptimizer_ad2de4dfb8aac760e0aad414a5cc1b4db}{uni\_}}.sample(),x);}
+\DoxyCodeLine{604     \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{utils::copyVec2Vec}}(x, x0);}
+\DoxyCodeLine{605     x0.resize(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}});}
+\DoxyCodeLine{606     \textcolor{comment}{//utils::copyEig2Vec(this-\/>uni\_.sample().head(n),x0);}}
+\DoxyCodeLine{607     \textcolor{comment}{// initialize slack for inequalities}}
+\DoxyCodeLine{608     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}; i++)}
+\DoxyCodeLine{609     \{}
+\DoxyCodeLine{610         coeffs\_temp = ineq\_cons\_[i];}
+\DoxyCodeLine{611         slack\_temp = this-\/>\mbox{\hyperlink{classSlackOptimizer_aa0bbac73710b6fb2a6f422de352f5a74}{findSlack}}(x0 ,coeffs\_temp);}
+\DoxyCodeLine{612         slack\_temp = (slack\_temp < 0) ? 0 : slack\_temp;}
+\DoxyCodeLine{613         slack = (slack\_temp > slack) ? slack\_temp : slack;}
+\DoxyCodeLine{614         x[\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+i] = slack;}
+\DoxyCodeLine{615             }
+\DoxyCodeLine{616     \};}
+\DoxyCodeLine{617     slack = 0;}
+\DoxyCodeLine{618     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}; i++)}
+\DoxyCodeLine{619     \{}
+\DoxyCodeLine{620         coeffs\_temp = eq\_cons\_[i];}
+\DoxyCodeLine{621         slack = this-\/>\mbox{\hyperlink{classSlackOptimizer_aa0bbac73710b6fb2a6f422de352f5a74}{findSlack}}(x0 ,coeffs\_temp);}
+\DoxyCodeLine{622         x[\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+i] = slack;}
+\DoxyCodeLine{623         \textcolor{comment}{// choose t\_i to be abs(slack\_i)}}
+\DoxyCodeLine{624         x[\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}+\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}+i] = (slack < 0) ? slack*-\/1 : slack;}
+\DoxyCodeLine{625     \};}
+\DoxyCodeLine{626 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classSlackOptimizer_a2923d2e3d1997ef2b014c4b455ccda24}\label{classSlackOptimizer_a2923d2e3d1997ef2b014c4b455ccda24}} 
+\index{SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}!setBounds@{setBounds}}
+\index{setBounds@{setBounds}!SlackOptimizer$<$ n, m, l $>$@{SlackOptimizer$<$ n, m, l $>$}}
+\doxysubsubsection{\texorpdfstring{setBounds()}{setBounds()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t m, std\+::size\+\_\+t l$>$ \\
+void \mbox{\hyperlink{classSlackOptimizer}{Slack\+Optimizer}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}, \mbox{\hyperlink{quadratic__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} $>$\+::set\+Bounds (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{lb,  }\item[{const std\+::vector$<$ double $>$ \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 494 of file optimizer.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{495 \{}
+\DoxyCodeLine{496     std::vector<double> lb\_new;}
+\DoxyCodeLine{497     std::vector<double> ub\_new;}
+\DoxyCodeLine{498     \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{utils::copyVec2Vec}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, lb\_new);}
+\DoxyCodeLine{499     \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{utils::copyVec2Vec}}(\mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}, ub\_new);}
+\DoxyCodeLine{500     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}; i++)}
+\DoxyCodeLine{501     \{}
+\DoxyCodeLine{502         lb\_new.push\_back(0);}
+\DoxyCodeLine{503         ub\_new.push\_back(HUGE\_VAL);}
+\DoxyCodeLine{504     \}}
+\DoxyCodeLine{505     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}+\mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}}; i++)}
+\DoxyCodeLine{506     \{}
+\DoxyCodeLine{507         lb\_new.push\_back(-\/HUGE\_VAL);}
+\DoxyCodeLine{508         ub\_new.push\_back(HUGE\_VAL);}
+\DoxyCodeLine{509     \}}
+\DoxyCodeLine{510     \mbox{\hyperlink{classBaseOptimizer_aad6f1dd65df8a0179c8857fb6fc8ba74}{BaseOptimizer<n+m+l+l>::setBounds}}(lb\_new, ub\_new);}
+\DoxyCodeLine{511 \}}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{optimizer_8hpp}{optimizer.\+hpp}}\end{DoxyCompactItemize}

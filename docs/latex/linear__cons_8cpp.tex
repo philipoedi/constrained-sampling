@@ -1,0 +1,315 @@
+\hypertarget{linear__cons_8cpp}{}\doxysection{src/linear\+\_\+cons.cpp File Reference}
+\label{linear__cons_8cpp}\index{src/linear\_cons.cpp@{src/linear\_cons.cpp}}
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include \char`\"{}optimizer.\+hpp\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}kde.\+hpp\char`\"{}}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$Eigen/\+Dense$>$}\newline
+{\ttfamily \#include \char`\"{}utils.\+hpp\char`\"{}}\newline
+{\ttfamily \#include $<$cassert$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{linear__cons_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \mbox{\hyperlink{linear__cons_8cpp_a929ce04b1617b04364c4ac982bd65d4c}{name\+\_\+suffix}} = \char`\"{}island\char`\"{}
+\item 
+const std\+::size\+\_\+t \mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} \{2\}
+\item 
+const std\+::size\+\_\+t \mbox{\hyperlink{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}} \{2\}
+\item 
+const std\+::size\+\_\+t \mbox{\hyperlink{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}{l}} \{0\}
+\item 
+const std\+::string \mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} \{\char`\"{}slack\char`\"{}\}
+\item 
+const std\+::vector$<$ double $>$ \mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}} \{0,0\}
+\item 
+const std\+::vector$<$ double $>$ \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}} \{2,2\}
+\item 
+const double \mbox{\hyperlink{linear__cons_8cpp_a66c2a35c3b80ee5b10636575295e9d69}{cs}} \mbox{[}\mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}\mbox{]}\mbox{[}\mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}\mbox{]}
+\item 
+const double \mbox{\hyperlink{linear__cons_8cpp_a31dd35cecf623faeece88d933c20543f}{bs}} \mbox{[}\mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}\mbox{]} \{-\/1,2\}
+\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}{c}} \{-\/1,-\/1\}
+\item 
+double \mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}} \{-\/1\}
+\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{linear__cons_8cpp_ad871176f602f72bb3488486d81498475}{c2}} \{1,1\}
+\item 
+double \mbox{\hyperlink{linear__cons_8cpp_a35d10c1e721e67a3616511e45aa89f34}{b2}} \{2\}
+\item 
+const int \mbox{\hyperlink{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}{n\+\_\+iter}} \{1000\}
+\item 
+const std\+::string \mbox{\hyperlink{linear__cons_8cpp_a6f5c442f7eac39372e65f9653944212b}{band\+\_\+est}} \{\char`\"{}silverman\char`\"{}\}
+\item 
+const double \mbox{\hyperlink{linear__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}{step}} \{0.\+05\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{linear__cons_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}\label{linear__cons_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!main@{main}}
+\index{main@{main}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line 67 of file linear\+\_\+cons.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{68 \{}
+\DoxyCodeLine{69 }
+\DoxyCodeLine{70    \textcolor{comment}{// 1. problem}}
+\DoxyCodeLine{71     }
+\DoxyCodeLine{72 }
+\DoxyCodeLine{73 }
+\DoxyCodeLine{74    \textcolor{comment}{/* for (int i=0; i<m; i++)}}
+\DoxyCodeLine{75 \textcolor{comment}{    \{}}
+\DoxyCodeLine{76 \textcolor{comment}{        std::cout << cs[i][0] << "{} "{}<< cs[i][1]  << std::endl;}}
+\DoxyCodeLine{77 \textcolor{comment}{    \};*/}}
+\DoxyCodeLine{78 }
+\DoxyCodeLine{79     \mbox{\hyperlink{structConstraintCoeffs}{ConstraintCoeffs<n>}} ineqc;}
+\DoxyCodeLine{80     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}; i++)}
+\DoxyCodeLine{81     \{}
+\DoxyCodeLine{82         ineqc.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(i) = \mbox{\hyperlink{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}{c}}[i];}
+\DoxyCodeLine{83     \};}
+\DoxyCodeLine{84     ineqc.\mbox{\hyperlink{structConstraintCoeffs_af25176b193bf90bbf3545f2f6e84fcce}{cons}} = \mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}};}
+\DoxyCodeLine{85     ineqc.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} = \textcolor{stringliteral}{"{}ineq"{}};}
+\DoxyCodeLine{86     ineqc.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} = \textcolor{stringliteral}{"{}linear"{}};}
+\DoxyCodeLine{87 }
+\DoxyCodeLine{88     \mbox{\hyperlink{structConstraintCoeffs}{ConstraintCoeffs<n>}} ineqc2;}
+\DoxyCodeLine{89     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}; i++)}
+\DoxyCodeLine{90     \{}
+\DoxyCodeLine{91         ineqc2.\mbox{\hyperlink{structConstraintCoeffs_a7a3c603518b03d5b62b4682c5ff62a22}{coeffs}}(i) = \mbox{\hyperlink{linear__cons_8cpp_ad871176f602f72bb3488486d81498475}{c2}}[i];}
+\DoxyCodeLine{92     \};}
+\DoxyCodeLine{93     ineqc2.\mbox{\hyperlink{structConstraintCoeffs_af25176b193bf90bbf3545f2f6e84fcce}{cons}} = \mbox{\hyperlink{linear__cons_8cpp_a35d10c1e721e67a3616511e45aa89f34}{b2}};}
+\DoxyCodeLine{94     ineqc2.\mbox{\hyperlink{structConstraintCoeffs_a9d9f38d06b08860107fa8743be93f185}{type}} = \textcolor{stringliteral}{"{}ineq"{}};}
+\DoxyCodeLine{95     ineqc2.\mbox{\hyperlink{structConstraintCoeffs_ae9cd54fc2e2a1964eb8648b05071a58d}{constype}} = \textcolor{stringliteral}{"{}linear"{}};}
+\DoxyCodeLine{96 }
+\DoxyCodeLine{97     \mbox{\hyperlink{classKernelEstimator}{KernelEstimator<n\_iter,n>}} kdest;}
+\DoxyCodeLine{98     \textcolor{comment}{//std::vector<std::vector<double>> res;}}
+\DoxyCodeLine{99     \mbox{\hyperlink{classBaseOptimizer}{BaseOptimizer<n>}} opti();}
+\DoxyCodeLine{100     assert (\mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} == \textcolor{stringliteral}{"{}Biased"{}} || \mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} == \textcolor{stringliteral}{"{}slack"{}});}
+\DoxyCodeLine{101     std::string name = \mbox{\hyperlink{namespaceutils_a191827151ebdcf81b299e20cccd5d0e6}{utils::getDateString}}()+\textcolor{stringliteral}{"{}\_"{}}+ \mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} + \textcolor{stringliteral}{"{}\_linear"{}}+\textcolor{stringliteral}{"{}\_"{}}+\mbox{\hyperlink{linear__cons_8cpp_a929ce04b1617b04364c4ac982bd65d4c}{name\_suffix}};}
+\DoxyCodeLine{102     \textcolor{keywordflow}{if} (\mbox{\hyperlink{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}{method}} == \textcolor{stringliteral}{"{}Biased"{}})}
+\DoxyCodeLine{103     \{}
+\DoxyCodeLine{104         \mbox{\hyperlink{classBiasedOptimizer}{BiasedOptimizer<n>}} opti(ineqc, \mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{105         opti.addConstraints(ineqc2);}
+\DoxyCodeLine{106         opti.run(\mbox{\hyperlink{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}{n\_iter}});}
+\DoxyCodeLine{107         \textcolor{comment}{//opti.results(res);}}
+\DoxyCodeLine{108         opti.saveResults(name+\textcolor{stringliteral}{"{}\_results"{}});}
+\DoxyCodeLine{109         opti.save\_samples(name+\textcolor{stringliteral}{"{}\_samples"{}});}
+\DoxyCodeLine{110         kdest.\mbox{\hyperlink{classKernelEstimator_a24b468b2b083fedeadfd45c88faff843}{fit}}(opti.results());}
+\DoxyCodeLine{111         kdest.\mbox{\hyperlink{classKernelEstimator_a513d4888c90249c59882952adc596631}{find\_optimal\_bandwidth}}(\mbox{\hyperlink{linear__cons_8cpp_a6f5c442f7eac39372e65f9653944212b}{band\_est}});}
+\DoxyCodeLine{112         kdest.\mbox{\hyperlink{classKernelEstimator_ad6e33dff3bc1761d91bf82986b14cf85}{predict}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}, \mbox{\hyperlink{linear__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}{step}});}
+\DoxyCodeLine{113         kdest.\mbox{\hyperlink{classKernelEstimator_a633b3288b0b5e4d3d4d125afd5cb0ce5}{savePdes}}(name+\textcolor{stringliteral}{"{}\_pdes"{}});}
+\DoxyCodeLine{114     \}}
+\DoxyCodeLine{115     \textcolor{keywordflow}{else} }
+\DoxyCodeLine{116     \{}
+\DoxyCodeLine{117         \mbox{\hyperlink{classSlackOptimizer}{SlackOptimizer<n,m,l>}} opti(ineqc2, \mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{118         opti.addConstraints(ineqc);}
+\DoxyCodeLine{119         opti.run(\mbox{\hyperlink{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}{n\_iter}});}
+\DoxyCodeLine{120         \textcolor{comment}{//opti.results(res);}}
+\DoxyCodeLine{121         opti.saveResults(name+\textcolor{stringliteral}{"{}\_results"{}});}
+\DoxyCodeLine{122         opti.save\_samples(name+\textcolor{stringliteral}{"{}\_samples"{}});}
+\DoxyCodeLine{123         kdest.\mbox{\hyperlink{classKernelEstimator_a24b468b2b083fedeadfd45c88faff843}{fit}}(opti.results());}
+\DoxyCodeLine{124         kdest.\mbox{\hyperlink{classKernelEstimator_a513d4888c90249c59882952adc596631}{find\_optimal\_bandwidth}}(\mbox{\hyperlink{linear__cons_8cpp_a6f5c442f7eac39372e65f9653944212b}{band\_est}});}
+\DoxyCodeLine{125         kdest.\mbox{\hyperlink{classKernelEstimator_ad6e33dff3bc1761d91bf82986b14cf85}{predict}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}, \mbox{\hyperlink{linear__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}{step}});}
+\DoxyCodeLine{126         kdest.\mbox{\hyperlink{classKernelEstimator_a633b3288b0b5e4d3d4d125afd5cb0ce5}{savePdes}}(name+\textcolor{stringliteral}{"{}\_pdes"{}});}
+\DoxyCodeLine{127     \};}
+\DoxyCodeLine{128      \textcolor{comment}{// saving results}}
+\DoxyCodeLine{129 }
+\DoxyCodeLine{130     \textcolor{comment}{// writing resúlts to file}}
+\DoxyCodeLine{131     \textcolor{comment}{//utils::writeVec2File(res,name+"{}\_results"{});}}
+\DoxyCodeLine{132     \textcolor{comment}{// writing samples/seeds to file}}
+\DoxyCodeLine{133     \textcolor{comment}{//utils::writeVec2File(opti.samples(), name+"{}\_seeds"{});}}
+\DoxyCodeLine{134     \textcolor{comment}{// writing probability densities to file}}
+\DoxyCodeLine{135     \textcolor{comment}{//utils::writeVec2File(,name);}}
+\DoxyCodeLine{136     \textcolor{comment}{// writnig metadata}}
+\DoxyCodeLine{137     \mbox{\hyperlink{namespaceutils_aa3688fddcc71daa1e252cfbc776cda68}{utils::writeMetadata2File}}(\textcolor{stringliteral}{"{}linear\_cons.cpp"{}},name);}
+\DoxyCodeLine{138 }
+\DoxyCodeLine{139    \textcolor{comment}{// ndvector2file(res, samples\_name);}}
+\DoxyCodeLine{140   \textcolor{comment}{/*opt.results(results);}}
+\DoxyCodeLine{141 \textcolor{comment}{    kdest.fit(ressults);}}
+\DoxyCodeLine{142 \textcolor{comment}{    kdest.predict(lb,ub,step);}}
+\DoxyCodeLine{143 \textcolor{comment}{*/}}
+\DoxyCodeLine{144     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{145 \}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}\label{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!b@{b}}
+\index{b@{b}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{b}{b}}
+{\footnotesize\ttfamily double b \{-\/1\}}
+
+
+
+Definition at line 42 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a35d10c1e721e67a3616511e45aa89f34}\label{linear__cons_8cpp_a35d10c1e721e67a3616511e45aa89f34}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!b2@{b2}}
+\index{b2@{b2}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{b2}{b2}}
+{\footnotesize\ttfamily double b2 \{2\}}
+
+
+
+Definition at line 45 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a6f5c442f7eac39372e65f9653944212b}\label{linear__cons_8cpp_a6f5c442f7eac39372e65f9653944212b}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!band\_est@{band\_est}}
+\index{band\_est@{band\_est}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{band\_est}{band\_est}}
+{\footnotesize\ttfamily const std\+::string band\+\_\+est \{\char`\"{}silverman\char`\"{}\}}
+
+
+
+Definition at line 61 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a31dd35cecf623faeece88d933c20543f}\label{linear__cons_8cpp_a31dd35cecf623faeece88d933c20543f}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!bs@{bs}}
+\index{bs@{bs}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{bs}{bs}}
+{\footnotesize\ttfamily const double bs\mbox{[}\mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}\mbox{]} \{-\/1,2\}}
+
+
+
+Definition at line 40 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}\label{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!c@{c}}
+\index{c@{c}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{c}{c}}
+{\footnotesize\ttfamily std\+::vector$<$double$>$ c \{-\/1,-\/1\}}
+
+
+
+Definition at line 41 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_ad871176f602f72bb3488486d81498475}\label{linear__cons_8cpp_ad871176f602f72bb3488486d81498475}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!c2@{c2}}
+\index{c2@{c2}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{c2}{c2}}
+{\footnotesize\ttfamily std\+::vector$<$double$>$ c2 \{1,1\}}
+
+
+
+Definition at line 44 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a66c2a35c3b80ee5b10636575295e9d69}\label{linear__cons_8cpp_a66c2a35c3b80ee5b10636575295e9d69}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!cs@{cs}}
+\index{cs@{cs}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{cs}{cs}}
+{\footnotesize\ttfamily const double cs\mbox{[}\mbox{\hyperlink{quadratic__cons_8cpp_a8446f714d1602c075cb142871820dd7d}{m}}\mbox{]}\mbox{[}\mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\{ }
+\DoxyCodeLine{    \{-\/1,-\/1\},}
+\DoxyCodeLine{    \{1,1\}\}}
+
+\end{DoxyCode}
+
+
+Definition at line 37 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}\label{linear__cons_8cpp_ab1d37f8bc52cc156762037dad1811184}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!l@{l}}
+\index{l@{l}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{l}{l}}
+{\footnotesize\ttfamily const std\+::size\+\_\+t l \{0\}}
+
+
+
+Definition at line 23 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}\label{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!lb@{lb}}
+\index{lb@{lb}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{lb}{lb}}
+{\footnotesize\ttfamily const std\+::vector$<$double$>$ lb \{0,0\}}
+
+
+
+Definition at line 30 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}\label{linear__cons_8cpp_a8446f714d1602c075cb142871820dd7d}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!m@{m}}
+\index{m@{m}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{m}{m}}
+{\footnotesize\ttfamily const std\+::size\+\_\+t m \{2\}}
+
+
+
+Definition at line 21 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}\label{linear__cons_8cpp_a6443366162227f24729c69d1c6b31a0b}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!method@{method}}
+\index{method@{method}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{method}{method}}
+{\footnotesize\ttfamily const std\+::string method \{\char`\"{}slack\char`\"{}\}}
+
+
+
+Definition at line 27 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}\label{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!n@{n}}
+\index{n@{n}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{n}{n}}
+{\footnotesize\ttfamily const std\+::size\+\_\+t n \{2\}}
+
+
+
+Definition at line 19 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}\label{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!n\_iter@{n\_iter}}
+\index{n\_iter@{n\_iter}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{n\_iter}{n\_iter}}
+{\footnotesize\ttfamily const int n\+\_\+iter \{1000\}}
+
+
+
+Definition at line 53 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a929ce04b1617b04364c4ac982bd65d4c}\label{linear__cons_8cpp_a929ce04b1617b04364c4ac982bd65d4c}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!name\_suffix@{name\_suffix}}
+\index{name\_suffix@{name\_suffix}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{name\_suffix}{name\_suffix}}
+{\footnotesize\ttfamily std\+::string name\+\_\+suffix = \char`\"{}island\char`\"{}}
+
+
+
+Definition at line 16 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}\label{linear__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!step@{step}}
+\index{step@{step}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{step}{step}}
+{\footnotesize\ttfamily const double step \{0.\+05\}}
+
+
+
+Definition at line 63 of file linear\+\_\+cons.\+cpp.
+
+\mbox{\Hypertarget{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}\label{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}} 
+\index{linear\_cons.cpp@{linear\_cons.cpp}!ub@{ub}}
+\index{ub@{ub}!linear\_cons.cpp@{linear\_cons.cpp}}
+\doxysubsubsection{\texorpdfstring{ub}{ub}}
+{\footnotesize\ttfamily const std\+::vector$<$double$>$ ub \{2,2\}}
+
+
+
+Definition at line 32 of file linear\+\_\+cons.\+cpp.
+

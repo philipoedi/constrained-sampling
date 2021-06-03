@@ -17,7 +17,7 @@ double objective_coverage(const std::vector<double> &x, std::vector<double> &gra
 /*
 template<std::size_t n> double coverage_constraint(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
-    constraint_coeffs<n>* c = (constraint_coeffs<n>*) data;
+    ConstraintCoeffs<n>* c = (ConstraintCoeffs<n>*) data;
     typedef Matrix<double, n,1> vec; 
     typedef Matrix<double, n+1,1> vec_1; 
     double t = x[0];
@@ -47,15 +47,15 @@ template<std::size_t n> double coverage_constraint(const std::vector<double>& x,
 
 */
 
-// kernel llo function to add, where predict other arg index given -> this index is not included in eval
+// Kernel llo function to add, where predict other arg index given -> this index is not included in eval
 double loo_entropy()
     
-    kernel_estimator<n-1,d> ( ) 
+    KernelEstimator<n-1,d> ( ) 
     vec llo_new ; // vector left out
     vec llo_old ;
     for ( i in range) 
         llo_old = llo_new;
-        llo_new  = kernel.data[i] 
+        llo_new  = Kernel.data[i] 
         
     
 #endif

@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['sample_78',['sample',['../classSlackOptimizer.html#a6126e30410953f3c1f8c43479d6dcfc2',1,'SlackOptimizer::sample()'],['../classUniformSampler.html#a2c7bd913ea6c885b5216be89b82872f2',1,'UniformSampler::sample()'],['../classUniformSampler.html#a00e3f123ece15d6679df4454156e991e',1,'UniformSampler::sample(const Vector &amp;range, const Vector &amp;lb)']]],
+  ['sampleq_79',['sampleQ',['../classMetropolisHastings.html#a599743f2139aab285faaf3550dfdddc7',1,'MetropolisHastings']]],
+  ['sampler_2ecpp_80',['sampler.cpp',['../sampler_8cpp.html',1,'']]],
+  ['sampler_2ehpp_81',['sampler.hpp',['../sampler_8hpp.html',1,'']]],
+  ['samples_82',['samples',['../classBaseOptimizer.html#a6cced4cc29c7d15d7b71a944ad50ec50',1,'BaseOptimizer::samples(std::vector&lt; std::vector&lt; double &gt;&gt; &amp;dst)'],['../classBaseOptimizer.html#a4ae51c0a025db20b6066d7bca60184b6',1,'BaseOptimizer::samples()']]],
+  ['samples_5f_83',['samples_',['../classBaseOptimizer.html#af8fb7f9f00f50d4e4f8fa9fab62b075b',1,'BaseOptimizer']]],
+  ['save_5fsamples_84',['save_samples',['../classBaseOptimizer.html#aa9686375d34ba7fb159616254ddfbce9',1,'BaseOptimizer']]],
+  ['savepdes_85',['savePdes',['../classKernelEstimator.html#a633b3288b0b5e4d3d4d125afd5cb0ce5',1,'KernelEstimator']]],
+  ['saveresults_86',['saveResults',['../classBaseOptimizer.html#adcf7e9ac4031ec3b0936f3c6d0b369ec',1,'BaseOptimizer']]],
+  ['scott_87',['scott',['../classKernel.html#a4a72d30b1b233b8187a2a76fb6e014e4',1,'Kernel']]],
+  ['set_5fq_88',['set_Q',['../classMetropolisHastings.html#abad3ffded3baeb133cc1d66fcb6c04ef',1,'MetropolisHastings']]],
+  ['seta_89',['setA',['../classMetropolisHastings.html#abf38e3f4c2dc11341e0cb82929dc1cf6',1,'MetropolisHastings']]],
+  ['setbandwidth_90',['setBandwidth',['../classKernel.html#aae7eb11ba1988666aeb6c1b3ae505f37',1,'Kernel::setBandwidth()'],['../classKernelEstimator.html#ad5c9c401e06d6e0f99565240e3569a2c',1,'KernelEstimator::setBandwidth()']]],
+  ['setbounds_91',['setBounds',['../classBaseSampler.html#aaa255e918c670543abb76ed61d739747',1,'BaseSampler::setBounds()'],['../classSlackOptimizer.html#a2923d2e3d1997ef2b014c4b455ccda24',1,'SlackOptimizer::setBounds()'],['../classBaseSampler.html#a5c64b54ec97ddab64c6727d48e1a4c84',1,'BaseSampler::setBounds()'],['../classBaseOptimizer.html#aad6f1dd65df8a0179c8857fb6fc8ba74',1,'BaseOptimizer::setBounds()'],['../classUniformSampler.html#aedf51da55dedb889737671a7548f5d0c',1,'UniformSampler::setBounds()']]],
+  ['setp_92',['setP',['../classMetropolisHastings.html#ad33ad9d47bc641881939aae78f95f882',1,'MetropolisHastings']]],
+  ['setq_93',['setQ',['../classMetropolisHastings.html#a7f8a693d9d4a6dc4cea99380a75ccd59',1,'MetropolisHastings']]],
+  ['sign_94',['sign',['../structConstraintCoeffs.html#ab76212bb4794a397aad965e46ea154bb',1,'ConstraintCoeffs']]],
+  ['silverman_95',['silverman',['../classKernel.html#acac823b3875ff64a952a95b6973f390c',1,'Kernel']]],
+  ['slackdata_96',['SlackData',['../structSlackData.html',1,'']]],
+  ['slackobjective_97',['slackObjective',['../optimizer_8hpp.html#a229dd0794c561124d8a14c586affcde0',1,'optimizer.hpp']]],
+  ['slackoptimizer_98',['SlackOptimizer',['../classSlackOptimizer.html',1,'SlackOptimizer&lt; n, m, l &gt;'],['../classSlackOptimizer.html#add7c3fe974006204a29c3ca7478333a3',1,'SlackOptimizer::SlackOptimizer(ConstraintCoeffs&lt; n &gt; &amp;cons, const std::vector&lt; double &gt; &amp;lb, const std::vector&lt; double &gt; &amp;ub)'],['../classSlackOptimizer.html#adbe9576d931410a8c781989759d1ddf1',1,'SlackOptimizer::SlackOptimizer(ConstraintCoeffs&lt; n &gt; &amp;ineqcons, ConstraintCoeffs&lt; n &gt; &amp;eqcons, const std::vector&lt; double &gt; &amp;lb, const std::vector&lt; double &gt; &amp;ub)'],['../classSlackOptimizer.html#ac2da6b5d0880bd1a85fc6395ba0497af',1,'SlackOptimizer::SlackOptimizer()']]],
+  ['state_99',['state',['../structSlackData.html#a66276e12d510087781d7de90ae9c6d85',1,'SlackData']]],
+  ['step_100',['step',['../linear__cons_8cpp.html#a93b1a9df7d0c2b484a31a6dc8b3b383f',1,'step():&#160;linear_cons.cpp'],['../quadratic__cons_8cpp.html#a93b1a9df7d0c2b484a31a6dc8b3b383f',1,'step():&#160;quadratic_cons.cpp']]]
+];

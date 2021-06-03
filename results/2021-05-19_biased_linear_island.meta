@@ -11,8 +11,8 @@ const std::size_t m{2};
 const std::size_t l{0};
 
 // method to for sampling
-// {"biased", "slack"}
-const std::string method{"biased"};
+// {"Biased", "slack"}
+const std::string method{"Biased"};
 
 // lower bounds
 const std::vector<double> lb{0,0};

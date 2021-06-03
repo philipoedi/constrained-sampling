@@ -22,7 +22,7 @@ int main(){
 
     // test constraint function
     const std::size_t n = 2;
-    constraint_coeffs<n>  c;
+    ConstraintCoeffs<n>  c;
     // xstar (2,2)
     c.coeffs << 2., 2.;
     c.sign = -1;
@@ -53,16 +53,16 @@ int main(){
     cover_opt.set_lower_bounds(lb);
 
 
-    constraint_coeffs<n> c1;
+    ConstraintCoeffs<n> c1;
     c1.sign = 1;
     c1.coeffs = x_star_1;
-    constraint_coeffs<n> c2;
+    ConstraintCoeffs<n> c2;
     c2.coeffs = x_star_1;
     c2.sign = -1;
-    constraint_coeffs<n> c3;
+    ConstraintCoeffs<n> c3;
     c3.sign = 1;
     c3.coeffs = x_star_2;
-    constraint_coeffs<n> c4;
+    ConstraintCoeffs<n> c4;
     c4.coeffs = x_star_2;
     c4.sign = -1;
     cover_opt.add_inequality_constraint(coverage_constraint<n>, &c1, 1e-8);

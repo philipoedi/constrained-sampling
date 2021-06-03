@@ -1,0 +1,141 @@
+\hypertarget{classUniformSampler}{}\doxysection{Uniform\+Sampler$<$ n $>$ Class Template Reference}
+\label{classUniformSampler}\index{UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}}
+
+
+{\ttfamily \#include $<$sampler.\+hpp$>$}
+
+Inheritance diagram for Uniform\+Sampler$<$ n $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classUniformSampler}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classUniformSampler_af24278304c7c85f4ed116d59a9b4048c}{Uniform\+Sampler}} ()
+\item 
+{\footnotesize template$<$typename T $>$ }\\\mbox{\hyperlink{classUniformSampler_a6bbb4a69bbb963d2b66cb4bb1022582d}{Uniform\+Sampler}} (const T \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const T \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{classUniformSampler_aedf51da55dedb889737671a7548f5d0c}{set\+Bounds}} (const T \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const T \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+\mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \mbox{\hyperlink{classUniformSampler_a2c7bd913ea6c885b5216be89b82872f2}{sample}} ()
+\item 
+\mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \mbox{\hyperlink{classUniformSampler_a00e3f123ece15d6679df4454156e991e}{sample}} (const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&range, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}})
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$std\+::size\+\_\+t n$>$\newline
+class Uniform\+Sampler$<$ n $>$}
+
+
+Definition at line 68 of file sampler.\+hpp.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classUniformSampler_af24278304c7c85f4ed116d59a9b4048c}\label{classUniformSampler_af24278304c7c85f4ed116d59a9b4048c}} 
+\index{UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}!UniformSampler@{UniformSampler}}
+\index{UniformSampler@{UniformSampler}!UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{UniformSampler()}{UniformSampler()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+\mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::\mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 75 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{75 \{\};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classUniformSampler_a6bbb4a69bbb963d2b66cb4bb1022582d}\label{classUniformSampler_a6bbb4a69bbb963d2b66cb4bb1022582d}} 
+\index{UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}!UniformSampler@{UniformSampler}}
+\index{UniformSampler@{UniformSampler}!UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{UniformSampler()}{UniformSampler()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+template$<$typename T $>$ \\
+\mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::\mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}} (\begin{DoxyParamCaption}\item[{const T \&}]{lb,  }\item[{const T \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 89 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{89                                                          : \mbox{\hyperlink{classBaseSampler}{BaseSampler<n>}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}) }
+\DoxyCodeLine{90 \{}
+\DoxyCodeLine{91     this-\/>\mbox{\hyperlink{classUniformSampler_aedf51da55dedb889737671a7548f5d0c}{setBounds}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{92 \}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classUniformSampler_a2c7bd913ea6c885b5216be89b82872f2}\label{classUniformSampler_a2c7bd913ea6c885b5216be89b82872f2}} 
+\index{UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}!sample@{sample}}
+\index{sample@{sample}!UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{sample()}{sample()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+Matrix$<$ double, \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, 1 $>$ \mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::sample}
+
+
+
+Definition at line 103 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{104 \{}
+\DoxyCodeLine{105     \textcolor{keywordflow}{return} this-\/>\mbox{\hyperlink{classUniformSampler_a2c7bd913ea6c885b5216be89b82872f2}{sample}}(range\_, this-\/>\mbox{\hyperlink{classBaseSampler_a5caeaa19a6e9f2f22b72fb66fb60b0a2}{lb\_}});}
+\DoxyCodeLine{106 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classUniformSampler_a00e3f123ece15d6679df4454156e991e}\label{classUniformSampler_a00e3f123ece15d6679df4454156e991e}} 
+\index{UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}!sample@{sample}}
+\index{sample@{sample}!UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{sample()}{sample()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+Matrix$<$ double, \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, 1 $>$ \mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::sample (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{range,  }\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{lb }\end{DoxyParamCaption})}
+
+
+
+Definition at line 95 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{96 \{}
+\DoxyCodeLine{97     this-\/>\mbox{\hyperlink{classBaseSampler_ade76cc7443c2a02d946096e23b2634f5}{x\_}}.setRandom();}
+\DoxyCodeLine{98     x\_temp\_ = ((this-\/>\mbox{\hyperlink{classBaseSampler_ade76cc7443c2a02d946096e23b2634f5}{x\_}} + ones\_) * 0.5).cwiseProduct(range)  +\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}; }
+\DoxyCodeLine{99     \textcolor{keywordflow}{return} x\_temp\_;}
+\DoxyCodeLine{100 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classUniformSampler_aedf51da55dedb889737671a7548f5d0c}\label{classUniformSampler_aedf51da55dedb889737671a7548f5d0c}} 
+\index{UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}!setBounds@{setBounds}}
+\index{setBounds@{setBounds}!UniformSampler$<$ n $>$@{UniformSampler$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{setBounds()}{setBounds()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+template$<$typename T $>$ \\
+void \mbox{\hyperlink{classUniformSampler}{Uniform\+Sampler}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::set\+Bounds (\begin{DoxyParamCaption}\item[{const T \&}]{lb,  }\item[{const T \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 111 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{112 \{}
+\DoxyCodeLine{113     \mbox{\hyperlink{classBaseSampler_a5c64b54ec97ddab64c6727d48e1a4c84}{BaseSampler<n>::setBounds}}(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{114     range\_ = this-\/>\mbox{\hyperlink{classBaseSampler_a839f95b6c1c97a19de29a16b39112383}{ub\_}} -\/ this-\/>\mbox{\hyperlink{classBaseSampler_a5caeaa19a6e9f2f22b72fb66fb60b0a2}{lb\_}};}
+\DoxyCodeLine{115     ones\_.setOnes();}
+\DoxyCodeLine{116 \}}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{sampler_8hpp}{sampler.\+hpp}}\end{DoxyCompactItemize}

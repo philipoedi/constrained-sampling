@@ -16,7 +16,7 @@ int main(){
 
     std::vector<double> vec1{1,2,3};
     std::vector<double> vec2{2,3,4};
-    utils::copy_vec2vec(vec1, vec2);
+    utils::copyVec2Vec(vec1, vec2);
     for (int i=0; i<vec2.size(); i++)
     {
         std::cout << vec2[i] << std::endl;
@@ -25,7 +25,7 @@ int main(){
 
     std::vector<double> vec3{2,3,4};
     Vector3d eig1(vec3.data());
-    utils::copy_eig2vec(eig1, vec1);
+    utils::copyEig2Vec(eig1, vec1);
     for (int i=0; i<vec1.size(); i++)
      {
         std::cout << vec1[i] << std::endl;
@@ -40,23 +40,23 @@ int main(){
         mat1[i][0] = 1;
         mat1[i][1] = 2;
     }
-    utils::copy_matvec2matvec(mat1, mat2);
+    utils::copyMatvec2Matvec(mat1, mat2);
      for (int i=0; i<mat1.size(); i++)
     {
         assert (mat1[i][0] = mat2[i][0]);
         assert (mat1[i][1] = mat2[i][1]);
     }
      
-    // test write_vec2file
+    // test writeVec2File
     std::cout << "test writing to file" << std::endl;
     std::vector<std::vector<double>> data(2,std::vector<double>(4));
     std::string name{"example_file"};
-    utils::write_vec2file(data, name);
+    utils::writeVec2File(data, name);
     
     name = "../src/linear_cons.cpp";
-    utils::write_metadata2file(name,"example_file");
+    utils::writeMetadata2File(name,"example_file");
     
-    std::string today = utils::get_date_string();
+    std::string today = utils::getDateString();
     std::cout << today << std::endl;
     return 0;
 }

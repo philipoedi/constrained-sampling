@@ -33,7 +33,7 @@ void check_within_bounds(std::vector<double> lb, std::vector<double> ub, std::ve
 int main()
 {   
 
-    // biased optimizer
+    // Biased optimizer
     // default constructur
     
     const std::size_t n = 2;
@@ -41,61 +41,61 @@ int main()
     std::vector<double> lb{0,0};
     std::vector<double> ub{2,4};
 
-    biased_optimizer<n> bopt; 
+    BiasedOptimizer<n> bopt; 
     // set bounds
-    bopt.set_bounds(lb, ub);
+    bopt.setBounds(lb, ub);
 
     // add constraints
-    constraint_coeffs<n> c;
+    ConstraintCoeffs<n> c;
     c.coeffs << 1., 1.;
     c.cons = 2.;
     c.type = "ineq";
     c.constype = "linear";
-    bopt.add_constraints(c);
+    bopt.addConstraints(c);
     bopt.run(n_iter);
     
     // equality and inequality constraints
-    biased_optimizer<n> bopt2; 
+    BiasedOptimizer<n> bopt2; 
     // set bounds
-    bopt2.set_bounds(lb, ub);
+    bopt2.setBounds(lb, ub);
     // add constraints
-    constraint_coeffs<n> eqc;
+    ConstraintCoeffs<n> eqc;
     eqc.coeffs << 1. , 1.;
     eqc.cons = 2.;
     eqc.type = "eq";
     eqc.constype = "linear";
-    constraint_coeffs<n> ineqc;
+    ConstraintCoeffs<n> ineqc;
     ineqc.coeffs << 1. , 1.;
     ineqc.cons = 2.;
     ineqc.type = "ineq";
     ineqc.constype = "linear";
-    bopt2.add_constraints(eqc, ineqc);
+    bopt2.addConstraints(eqc, ineqc);
     bopt2.run(n_iter);
     // initialize with constraints and bounds
-    biased_optimizer<n> bopt3(eqc, ineqc, lb, ub);
+    BiasedOptimizer<n> bopt3(eqc, ineqc, lb, ub);
     bopt3.run(n_iter);
     // test run
-    biased_optimizer<n> bopt4(ineqc, lb, ub);
+    BiasedOptimizer<n> bopt4(ineqc, lb, ub);
     bopt4.run(n_iter);
     std::vector<std::vector<double>> results;
     bopt4.results(results);
     print_matrix(results);  
     check_within_bounds(lb,ub,results);
     // test quadratic constraint
-    constraint_coeffs<n> quad;
+    ConstraintCoeffs<n> quad;
     double res;
     quad.P = Matrix2d::Identity();
     quad.type = "ineq";
     quad.constype = "quadratic";
     // test P term - identity
     std::vector<double> gradient(n);
-    res = quadratic_constraint<n>(ub, gradient, &quad);
+    res = quadraticConstraint<n>(ub, gradient, &quad);
     std::cout << res <<std::endl;
     assert (res == 10.);
     quad.q(0) = 1;
     quad.q(1) = 1;  
     quad.r = 1;
-    res = quadratic_constraint<n>(ub, gradient, &quad);
+    res = quadraticConstraint<n>(ub, gradient, &quad);
     std::cout << res <<std::endl;
     assert (res == 15);
     std::cout << gradient[0] << " " << gradient[1] << std::endl;
@@ -106,8 +106,8 @@ int main()
         assert (grad_true(i) == gradient[i]);
     }
 
-    // biased optimizer with quadratic constraint
-    biased_optimizer<n> bopt5(quad, lb, ub);
+    // Biased optimizer with quadratic constraint
+    BiasedOptimizer<n> bopt5(quad, lb, ub);
     bopt5.results(results);
     print_matrix(results); 
     check_within_bounds(lb,ub,results);
@@ -117,32 +117,33 @@ int main()
     const std::size_t m{1};
     const std::size_t l{0};
     
-    slack_optimizer<n,m,l> sopt;
-    sopt.set_bounds(lb, ub);
-    sopt.add_constraints(ineqc);
+    SlackOptimizer<n,m,l> sopt;
+    sopt.setBounds(lb, ub);
+    sopt.addConstraints(ineqc);
     std::vector<double> x0{2,2};
     double slack;
     // find slack for inequality only
-    slack = sopt.find_slack(x0, ineqc);
+    slack = sopt.findSlack(x0, ineqc);
     std::cout << "slack: " << slack << std::endl;
     assert (slack == 2);
 
 
-    slack_data<n,m,l> sl_data;
-    init_slack_data(sl_data);
+    SlackData<n,m,l> sl_data;
+    initSlackData(sl_data);
     // test initialization of slack data 
     // sl_data.a holds vector a.T @ x for objective function
-    std::cout << "slack_data init: \n" << sl_data.a << "\nslack_data end" << std::endl;
+    std::cout << "SlackData init: \n" << sl_data.a << "\nSlackData end" << std::endl;
     const std::size_t l2{1};
-    slack_data<n,m,l2> sl_data2;
-    init_slack_data(sl_data2);
-    std::cout << "slack_data init: \n" << sl_data2.a << "\nslack_data end" << std::endl;
+    SlackData<n,m,l2> sl_data2;
+    initSlackData(sl_data2);
+    std::cout << "SlackData init: \n" << sl_data2.a << "\nSlackData end" << std::endl;
     double res2;
-    res2 = slack_objective<n,m,l>(x_slacked, g_slacked, & sl_data);
+    std::vector<double> x_slacked, g_slacked;
+    res2 = slackObjective<n,m,l>(x_slacked, g_slacked, & sl_data);
     std::cout << res2 << std::endl;
     // constructor with ineq
-    slack_optimizer<n,m,l> sopt2(ineqc, lb, ub); 
-    sopt2.set_bounds(lb,ub);
+    SlackOptimizer<n,m,l> sopt2(ineqc, lb, ub); 
+    sopt2.setBounds(lb,ub);
     sopt2.sample(x_slacked);
 
 
@@ -156,7 +157,6 @@ int main()
     std::cout << "cehcking samples of slack optimizer" << std::endl;
     sopt2.samples(samples);
     print_matrix(samples);
-    std::vector<std::vector<double>>
 
 
     return 0;

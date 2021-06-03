@@ -23,8 +23,8 @@ const std::size_t m{2};
 const std::size_t l{0};
 
 // method to for sampling
-// {"biased", "slack"}
-const std::string method{"biased"};
+// {"Biased", "slack"}
+const std::string method{"Biased"};
 
 // lower bounds
 const std::vector<double> lb{0,0};
@@ -73,7 +73,7 @@ int main()
         std::cout << cs[i][0] << " "<< cs[i][1]  << std::endl;
     };*/
 
-    constraint_coeffs<n> ineqc;
+    ConstraintCoeffs<n> ineqc;
    /* for (int i=0; i<n; i++)
     {
         ineqc.coeffs(i) = c[i];
@@ -86,45 +86,45 @@ int main()
     ineqc.type = "ineq";
     ineqc.constype = "quadratic";
 
-    kernel_estimator<n_iter,n> kdest;
+    KernelEstimator<n_iter,n> kdest;
     //std::vector<std::vector<double>> res;
-    base_optimizer<n> opti();
-    assert (method == "biased" || method == "slack");
-    std::string name = utils::get_date_string()+"_"+ method + "_quadratic_"+ name_suffix ;
-    if (method == "biased")
+    BaseOptimizer<n> opti();
+    assert (method == "Biased" || method == "slack");
+    std::string name = utils::getDateString()+"_"+ method + "_quadratic_"+ name_suffix ;
+    if (method == "Biased")
     {
-        biased_optimizer<n> opti(ineqc, lb, ub);
+        BiasedOptimizer<n> opti(ineqc, lb, ub);
         opti.run(n_iter);
         //opti.results(res);
-        opti.save_results(name+"_results");
+        opti.saveResults(name+"_results");
         opti.save_samples(name+"_samples");
         kdest.fit(opti.results());
         kdest.find_optimal_bandwidth(band_est);
         kdest.predict(lb, ub, step);
-        kdest.save_pdes(name+"_pdes");
+        kdest.savePdes(name+"_pdes");
     }
     else 
     {
-        slack_optimizer<n,m,l> opti(ineqc, lb, ub);
+        SlackOptimizer<n,m,l> opti(ineqc, lb, ub);
         opti.run(n_iter);
         //opti.results(res);
-        opti.save_results(name+"_results");
+        opti.saveResults(name+"_results");
         opti.save_samples(name+"_samples");
         kdest.fit(opti.results());
         kdest.find_optimal_bandwidth(band_est);
         kdest.predict(lb, ub, step);
-        kdest.save_pdes(name+"_pdes");
+        kdest.savePdes(name+"_pdes");
     };
      // saving results
 
     // writing resúlts to file
-    //utils::write_vec2file(res,name+"_results");
+    //utils::writeVec2File(res,name+"_results");
     // writing samples/seeds to file
-    //utils::write_vec2file(opti.samples(), name+"_seeds");
+    //utils::writeVec2File(opti.samples(), name+"_seeds");
     // writing probability densities to file
-    //utils::write_vec2file(,name);
+    //utils::writeVec2File(,name);
     // writnig metadata
-    utils::write_metadata2file("linear_cons.cpp",name);
+    utils::writeMetadata2File("linear_cons.cpp",name);
 
    // ndvector2file(res, samples_name);
   /*opt.results(results);

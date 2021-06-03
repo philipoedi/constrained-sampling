@@ -1,0 +1,82 @@
+\hypertarget{main_8cpp}{}\doxysection{src/main.cpp File Reference}
+\label{main_8cpp}\index{src/main.cpp@{src/main.cpp}}
+{\ttfamily \#include \char`\"{}sampler.\+hpp\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}optimizer.\+hpp\char`\"{}}\newline
+{\ttfamily \#include $<$Eigen/\+Dense$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$nlopt.\+hpp$>$}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main}} (int argc, char $\ast$$\ast$argv)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}\label{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}} 
+\index{main.cpp@{main.cpp}!main@{main}}
+\index{main@{main}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+
+
+Definition at line 9 of file main.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{9                                \{}
+\DoxyCodeLine{10     }
+\DoxyCodeLine{11     \textcolor{keyword}{using namespace }Eigen;}
+\DoxyCodeLine{12     \textcolor{keyword}{using namespace }nlopt;}
+\DoxyCodeLine{13 }
+\DoxyCodeLine{14     \textcolor{comment}{// dimension of dicision variable}}
+\DoxyCodeLine{15     \textcolor{keyword}{const} std::size\_t \mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} = 2;}
+\DoxyCodeLine{16     \textcolor{keyword}{const} std::vector<double> \mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}\{1., 2.\};}
+\DoxyCodeLine{17     \textcolor{keyword}{const} std::vector<double> \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}\{5., 6.\};}
+\DoxyCodeLine{18     Vector2d lb\_v(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}.data());}
+\DoxyCodeLine{19     Vector2d ub\_v(\mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}.data());}
+\DoxyCodeLine{20 }
+\DoxyCodeLine{21     \textcolor{comment}{// sampler setup}}
+\DoxyCodeLine{22     \mbox{\hyperlink{classUniformSampler}{UniformSampler<n>}} u(lb\_v, ub\_v);}
+\DoxyCodeLine{23     }
+\DoxyCodeLine{24     \textcolor{comment}{// optimizer setup}}
+\DoxyCodeLine{25     \mbox{\hyperlink{structBias}{Bias<n>}} \mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}};}
+\DoxyCodeLine{26     \mbox{\hyperlink{structConstraintCoeffs}{ConstraintCoeffs<n>}} \mbox{\hyperlink{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}{c}};}
+\DoxyCodeLine{27     \mbox{\hyperlink{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}{c}}.coeffs << 1., 1. ;}
+\DoxyCodeLine{28     \mbox{\hyperlink{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}{c}}.cons = 6.;}
+\DoxyCodeLine{29     opt Biased(\textcolor{stringliteral}{"{}AUGLAG\_EQ"{}}, \mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}});}
+\DoxyCodeLine{30    \textcolor{comment}{// opt Biased("{}LD\_MMA"{}, n);}}
+\DoxyCodeLine{31     opt local\_opt(\textcolor{stringliteral}{"{}LD\_SLSQP"{}}, \mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}});}
+\DoxyCodeLine{32     local\_opt.set\_xtol\_rel(1e-\/4);}
+\DoxyCodeLine{33     Biased.set\_local\_optimizer(local\_opt);}
+\DoxyCodeLine{34     Biased.set\_upper\_bounds(\mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{35     Biased.set\_lower\_bounds(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}});}
+\DoxyCodeLine{36     Biased.add\_inequality\_constraint(linearConstraint<n>, \&\mbox{\hyperlink{linear__cons_8cpp_a3c893f25ddb33878ec8289a9c5ed1205}{c}}, 1e-\/8);}
+\DoxyCodeLine{37     Biased.set\_xtol\_rel(1e-\/4);}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39     \textcolor{comment}{// loop random sample optimize}}
+\DoxyCodeLine{40     \textcolor{keyword}{const} \textcolor{keywordtype}{int} \mbox{\hyperlink{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}{n\_iter}} = 100000;}
+\DoxyCodeLine{41     std::vector<double> x(\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}});}
+\DoxyCodeLine{42     \textcolor{keywordtype}{double} minf;}
+\DoxyCodeLine{43     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \mbox{\hyperlink{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}{n\_iter}}; ++i)\{}
+\DoxyCodeLine{44         \mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}}.x0 = u.sample();}
+\DoxyCodeLine{45   \textcolor{comment}{//      std::cout << "{}seed: "{} << b.x0[0] << "{}, "{} << b.x0[1] << std::endl;}}
+\DoxyCodeLine{46         \textcolor{keywordflow}{for} (std::size\_t i = 0; i < \mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}}.x0.size(); ++i) \{}
+\DoxyCodeLine{47             x[i] = \mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}}.x0[i];}
+\DoxyCodeLine{48         \}}
+\DoxyCodeLine{49         Biased.set\_min\_objective(Biased\_objective<n>, \&\mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}});}
+\DoxyCodeLine{50         \textcolor{keywordflow}{try}\{}
+\DoxyCodeLine{51             Biased.optimize(x, minf);}
+\DoxyCodeLine{52 \textcolor{comment}{//            std::cout << "{}f(x): "{} << minf << std::endl;}}
+\DoxyCodeLine{53             std::cout << minf << \textcolor{stringliteral}{"{}, "{}}  << x[0] << \textcolor{stringliteral}{"{}, "{}} << x[1] << \textcolor{stringliteral}{"{}, "{}}<<\mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}}.x0[0]  <<\textcolor{stringliteral}{"{}, "{}}<< \mbox{\hyperlink{linear__cons_8cpp_a1510a66dacf9cf3586de5fc89ae2a073}{b}}.x0[1] << std::endl;}
+\DoxyCodeLine{54         \}}
+\DoxyCodeLine{55         \textcolor{keywordflow}{catch}(std::exception \&e)\{}
+\DoxyCodeLine{56             std::cerr << e.what() << std::endl;}
+\DoxyCodeLine{57         \}}
+\DoxyCodeLine{58     \}}
+\DoxyCodeLine{59     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{60 \}}
+
+\end{DoxyCode}

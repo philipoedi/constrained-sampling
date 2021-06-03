@@ -1,0 +1,256 @@
+\hypertarget{classkernel__estimator}{}\doxysection{kernel\+\_\+estimator$<$ n, d $>$ Class Template Reference}
+\label{classkernel__estimator}\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+
+
+{\ttfamily \#include $<$kde.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classkernel__estimator_a1fa0703b3162fe833811cfb7cada2c09}{kernel\+\_\+estimator}} ()
+\item 
+\mbox{\hyperlink{classkernel__estimator_a4badd3c3312ed5f9da0de57f43605fbb}{kernel\+\_\+estimator}} (const Vector \&bandwidth)
+\item 
+\mbox{\hyperlink{classkernel__estimator_aa53412b2974b8ce942cef3d83e30e374}{kernel\+\_\+estimator}} (const std\+::string \&bandwidth\+\_\+est)
+\item 
+void \mbox{\hyperlink{classkernel__estimator_a4da55c4d5d5d7c12edfe8485361e8dc6}{fit}} (const data\+Matrix \&data)
+\item 
+void \mbox{\hyperlink{classkernel__estimator_a2d123e1874fc5c830e51d7d0e3ada97c}{fit}} (const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&data)
+\item 
+void \mbox{\hyperlink{classkernel__estimator_a5ff9c902356a13d026350f6d8e53da59}{predict}} (const std\+::vector$<$ Vector $>$ \&x, std\+::vector$<$ double $>$ \&res)
+\item 
+void \mbox{\hyperlink{classkernel__estimator_a7a4546e1fb57a090691693396ad09663}{predict}} (const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const std\+::vector$<$ double $>$ \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}, const double \mbox{\hyperlink{quadratic__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}{step}})
+\item 
+void \mbox{\hyperlink{classkernel__estimator_abbab7cc1499d898653a8558a37a04274}{set\+\_\+bandwidth}} (const Vector \&bandwidth)
+\item 
+void \mbox{\hyperlink{classkernel__estimator_a15a9177ba5a5a96ece26bc26f63c141d}{find\+\_\+optimal\+\_\+bandwidth}} (const std\+::string bandwidth\+\_\+est)
+\item 
+void \mbox{\hyperlink{classkernel__estimator_a2130d28430730bc5be6ff8b0c9ee8aa6}{save\+\_\+pdes}} (const std\+::string name)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$\newline
+class kernel\+\_\+estimator$<$ n, d $>$}
+
+
+Definition at line 154 of file kde.\+hpp.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classkernel__estimator_a1fa0703b3162fe833811cfb7cada2c09}\label{classkernel__estimator_a1fa0703b3162fe833811cfb7cada2c09}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!kernel\_estimator@{kernel\_estimator}}
+\index{kernel\_estimator@{kernel\_estimator}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{kernel\_estimator()}{kernel\_estimator()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+\mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::\mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}}
+
+
+
+Definition at line 183 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{183 \{\}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_a4badd3c3312ed5f9da0de57f43605fbb}\label{classkernel__estimator_a4badd3c3312ed5f9da0de57f43605fbb}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!kernel\_estimator@{kernel\_estimator}}
+\index{kernel\_estimator@{kernel\_estimator}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{kernel\_estimator()}{kernel\_estimator()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+\mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::\mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}} (\begin{DoxyParamCaption}\item[{const Vector \&}]{bandwidth }\end{DoxyParamCaption})}
+
+
+
+Definition at line 186 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{187 \{}
+\DoxyCodeLine{188    k\_.set\_bandwidth(bandwidth);}
+\DoxyCodeLine{189 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_aa53412b2974b8ce942cef3d83e30e374}\label{classkernel__estimator_aa53412b2974b8ce942cef3d83e30e374}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!kernel\_estimator@{kernel\_estimator}}
+\index{kernel\_estimator@{kernel\_estimator}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{kernel\_estimator()}{kernel\_estimator()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+\mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::\mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}} (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{bandwidth\+\_\+est }\end{DoxyParamCaption})}
+
+
+
+Definition at line 203 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{204 \{}
+\DoxyCodeLine{205     k\_.find\_optimal\_bandwidth(bandwidth\_est);}
+\DoxyCodeLine{206 \}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classkernel__estimator_a15a9177ba5a5a96ece26bc26f63c141d}\label{classkernel__estimator_a15a9177ba5a5a96ece26bc26f63c141d}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!find\_optimal\_bandwidth@{find\_optimal\_bandwidth}}
+\index{find\_optimal\_bandwidth@{find\_optimal\_bandwidth}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{find\_optimal\_bandwidth()}{find\_optimal\_bandwidth()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::find\+\_\+optimal\+\_\+bandwidth (\begin{DoxyParamCaption}\item[{const std\+::string}]{bandwidth\+\_\+est }\end{DoxyParamCaption})}
+
+
+
+Definition at line 209 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{210 \{}
+\DoxyCodeLine{211     k\_.find\_optimal\_bandwidth(bandwidth\_est);}
+\DoxyCodeLine{212 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_a4da55c4d5d5d7c12edfe8485361e8dc6}\label{classkernel__estimator_a4da55c4d5d5d7c12edfe8485361e8dc6}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!fit@{fit}}
+\index{fit@{fit}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{fit()}{fit()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::fit (\begin{DoxyParamCaption}\item[{const data\+Matrix \&}]{data }\end{DoxyParamCaption})}
+
+
+
+Definition at line 198 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{198                                                      \{}
+\DoxyCodeLine{199     k\_.fit(data);}
+\DoxyCodeLine{200 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_a2d123e1874fc5c830e51d7d0e3ada97c}\label{classkernel__estimator_a2d123e1874fc5c830e51d7d0e3ada97c}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!fit@{fit}}
+\index{fit@{fit}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{fit()}{fit()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::fit (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&}]{data }\end{DoxyParamCaption})}
+
+
+
+Definition at line 255 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{256 \{}
+\DoxyCodeLine{257    \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<data.size(); i++)}
+\DoxyCodeLine{258     \{}
+\DoxyCodeLine{259         k\_.add\_data(data[i], i);}
+\DoxyCodeLine{260     \}}
+\DoxyCodeLine{261 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_a7a4546e1fb57a090691693396ad09663}\label{classkernel__estimator_a7a4546e1fb57a090691693396ad09663}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!predict@{predict}}
+\index{predict@{predict}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{predict()}{predict()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::predict (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{lb,  }\item[{const std\+::vector$<$ double $>$ \&}]{ub,  }\item[{const double}]{step }\end{DoxyParamCaption})}
+
+
+
+Definition at line 224 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{225 \{}
+\DoxyCodeLine{226     Vector p;}
+\DoxyCodeLine{227     \textcolor{keywordtype}{double} x\{\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}[0]\};}
+\DoxyCodeLine{228     \textcolor{keywordtype}{double} y\{\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}[1]\};}
+\DoxyCodeLine{229     \textcolor{keywordtype}{double} prob;}
+\DoxyCodeLine{230     pdes\_.clear();}
+\DoxyCodeLine{231     std::vector<double> data;}
+\DoxyCodeLine{232     data.resize(\mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}}+1);}
+\DoxyCodeLine{233     \textcolor{keywordflow}{while} (x <= \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}[0])}
+\DoxyCodeLine{234     \{}
+\DoxyCodeLine{235         p(0) = x;}
+\DoxyCodeLine{236         \textcolor{keywordflow}{while} (y <= \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}}[1])}
+\DoxyCodeLine{237         \{}
+\DoxyCodeLine{238             p(1) = y;}
+\DoxyCodeLine{239             std::cout << p << std::endl;}
+\DoxyCodeLine{240             prob = k\_.evaluate(p);}
+\DoxyCodeLine{241             std::cout << \textcolor{stringliteral}{"{}prob: "{}} << prob <<\textcolor{stringliteral}{"{}\(\backslash\)n eval end"{}}  << std::endl;}
+\DoxyCodeLine{242             data[0] = x;}
+\DoxyCodeLine{243             data[1] = y;}
+\DoxyCodeLine{244             data[2] = prob; }
+\DoxyCodeLine{245             y += \mbox{\hyperlink{linear__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}{step}};}
+\DoxyCodeLine{246             pdes\_.push\_back(data);}
+\DoxyCodeLine{247         \}}
+\DoxyCodeLine{248         x += \mbox{\hyperlink{linear__cons_8cpp_a93b1a9df7d0c2b484a31a6dc8b3b383f}{step}};}
+\DoxyCodeLine{249         y = \mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}[1];}
+\DoxyCodeLine{250     \}}
+\DoxyCodeLine{251 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_a5ff9c902356a13d026350f6d8e53da59}\label{classkernel__estimator_a5ff9c902356a13d026350f6d8e53da59}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!predict@{predict}}
+\index{predict@{predict}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{predict()}{predict()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::predict (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Vector $>$ \&}]{x,  }\item[{std\+::vector$<$ double $>$ \&}]{res }\end{DoxyParamCaption})}
+
+
+
+Definition at line 216 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{217 \{}
+\DoxyCodeLine{218     \textcolor{keywordflow}{for}(std::size\_t i = 0; i < x.size(); ++i)\{}
+\DoxyCodeLine{219         res[i] = k\_.evaluate(x[i]);}
+\DoxyCodeLine{220     \}}
+\DoxyCodeLine{221 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_a2130d28430730bc5be6ff8b0c9ee8aa6}\label{classkernel__estimator_a2130d28430730bc5be6ff8b0c9ee8aa6}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!save\_pdes@{save\_pdes}}
+\index{save\_pdes@{save\_pdes}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{save\_pdes()}{save\_pdes()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::save\+\_\+pdes (\begin{DoxyParamCaption}\item[{const std\+::string}]{name }\end{DoxyParamCaption})}
+
+
+
+Definition at line 264 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{265 \{}
+\DoxyCodeLine{266     \mbox{\hyperlink{namespaceutils_a06e30d6497ecbc2ed73eff84e5f134e1}{utils::write\_vec2file}}(pdes\_, name);}
+\DoxyCodeLine{267 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classkernel__estimator_abbab7cc1499d898653a8558a37a04274}\label{classkernel__estimator_abbab7cc1499d898653a8558a37a04274}} 
+\index{kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}!set\_bandwidth@{set\_bandwidth}}
+\index{set\_bandwidth@{set\_bandwidth}!kernel\_estimator$<$ n, d $>$@{kernel\_estimator$<$ n, d $>$}}
+\doxysubsubsection{\texorpdfstring{set\_bandwidth()}{set\_bandwidth()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n, std\+::size\+\_\+t d$>$ \\
+void \mbox{\hyperlink{classkernel__estimator}{kernel\+\_\+estimator}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}} $>$\+::set\+\_\+bandwidth (\begin{DoxyParamCaption}\item[{const Vector \&}]{bandwidth }\end{DoxyParamCaption})}
+
+
+
+Definition at line 192 of file kde.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{193 \{}
+\DoxyCodeLine{194    k\_.set\_bandwidth(bandwidth);}
+\DoxyCodeLine{195 \}}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{kde_8hpp}{kde.\+hpp}}\end{DoxyCompactItemize}

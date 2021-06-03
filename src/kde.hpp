@@ -11,23 +11,23 @@
 using namespace Eigen;
 
 
-template<std::size_t n, std::size_t d> class kernel
+template<std::size_t n, std::size_t d> class Kernel
 {
     typedef Matrix<double, d, 1> Vector;
     typedef Matrix<double, n, d> dataMatrix;
 
     public:
         
-        kernel();
-        kernel(const Vector& bandwidth);
+        Kernel();
+        Kernel(const Vector& bandwidth);
         void fit(const dataMatrix& data);
         double evaluate(const Vector& x);
-        void set_bandwidth(const Vector& bandwidth);    
+        void setBandwidth(const Vector& bandwidth);    
         //void find_constant();
         void find_optimal_bandwidth(std::string method);
         double silverman();
         double scott();
-        void add_data(const std::vector<double> data, const std::size_t i);
+        void addData(const std::vector<double> data, const std::size_t i);
     
     private:
 
@@ -45,23 +45,23 @@ template<std::size_t n, std::size_t d> class kernel
 };
 
 template<std::size_t n, std::size_t d>
-kernel<n,d>::kernel(){}
+Kernel<n,d>::Kernel(){}
 
 
 template<std::size_t n, std::size_t d>
-kernel<n,d>::kernel(const Vector& bandwidth)
+Kernel<n,d>::Kernel(const Vector& bandwidth)
 {
-    this->set_bandwidth(bandwidth);  
+    this->setBandwidth(bandwidth);  
 } 
 
 template<std::size_t n, std::size_t d>
-void kernel<n,d>::fit(const dataMatrix& data)
+void Kernel<n,d>::fit(const dataMatrix& data)
 {
     data_ = data;
 }
 
 template<std::size_t n, std::size_t d>
-void kernel<n,d>::add_data(const std::vector<double> data, const std::size_t i)
+void Kernel<n,d>::addData(const std::vector<double> data, const std::size_t i)
 {
     for (int j=0; j<d; j++)
     {
@@ -70,7 +70,7 @@ void kernel<n,d>::add_data(const std::vector<double> data, const std::size_t i)
 }
 
 template<std::size_t n, std::size_t d>
-double kernel<n,d>::evaluate(const Vector& x)
+double Kernel<n,d>::evaluate(const Vector& x)
 {
     double prob;
 /*    std::cout << "data_: \n" << data_ << std::endl;
@@ -90,7 +90,7 @@ double kernel<n,d>::evaluate(const Vector& x)
 }
 
 template<std::size_t n, std::size_t d>
-void kernel<n,d>::set_bandwidth(const Vector& bandwidth)
+void Kernel<n,d>::setBandwidth(const Vector& bandwidth)
 {
    bandwidth_ = bandwidth; 
    nh_ = bandwidth.prod()/n_;
@@ -98,7 +98,7 @@ void kernel<n,d>::set_bandwidth(const Vector& bandwidth)
 
 /*
 template<std::size_t n, std::size_t d>
-void kernel<n,d>::find_constant()
+void Kernel<n,d>::find_constant()
 {
     double num;
     double den;
@@ -118,19 +118,19 @@ void kernel<n,d>::find_constant()
 }*/
 
 template<std::size_t n, std::size_t d>
-double kernel<n,d>::silverman()
+double Kernel<n,d>::silverman()
 {
     return pow(4./(d_+2.),(1./(d_+4)))*pow(n_,-1./(d+4.));
 }
 
 template<std::size_t n, std::size_t d>
-double kernel<n,d>::scott()
+double Kernel<n,d>::scott()
 {
     return pow(n_,-1./(d_+4.));
 }
 
 template<std::size_t n, std::size_t d>
-void kernel<n,d>::find_optimal_bandwidth(std::string method)
+void Kernel<n,d>::find_optimal_bandwidth(std::string method)
 {
     double C;
     assert (method == "scott" || method == "silverman");
@@ -138,20 +138,20 @@ void kernel<n,d>::find_optimal_bandwidth(std::string method)
     else C = this->silverman();
     bandwidth_ = C*((data_.rowwise() - data_.colwise().mean()).array().square().colwise().sum() / (n_-1.)).sqrt();
     std::cout << "bandwidth:" << bandwidth_.array().pow(-1) << std::endl;
-    this->set_bandwidth(bandwidth_.array().pow(-1)) ;
-    //this->set_bandwidth(bandwidth_) ;
+    this->setBandwidth(bandwidth_.array().pow(-1)) ;
+    //this->setBandwidth(bandwidth_) ;
 }
 
 
 
 
 /*template<std::size_t n, std::size_t d>
-void kernel<n,d>::find_constant()
+void Kernel<n,d>::find_constant()
 {
 }*/
 
 
-template<std::size_t n, std::size_t d> class kernel_estimator
+template<std::size_t n, std::size_t d> class KernelEstimator
 {
     
     typedef Matrix<double, d, 1> Vector;
@@ -159,20 +159,20 @@ template<std::size_t n, std::size_t d> class kernel_estimator
 
     public:
         
-        kernel_estimator();
-        kernel_estimator(const Vector& bandwidth);
-        kernel_estimator(const std::string& bandwidth_est);
+        KernelEstimator();
+        KernelEstimator(const Vector& bandwidth);
+        KernelEstimator(const std::string& bandwidth_est);
         void fit(const dataMatrix& data);
         void fit(const std::vector<std::vector<double>>& data);
         void predict(const std::vector<Vector>& x, std::vector<double>& res);
         void predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step);
-        void set_bandwidth(const Vector& bandwidth);
+        void setBandwidth(const Vector& bandwidth);
         void find_optimal_bandwidth(const std::string bandwidth_est);
-        void save_pdes(const std::string name);
+        void savePdes(const std::string name);
 
     private:
         
-        kernel<n,d> k_;
+        Kernel<n,d> k_;
         std::size_t n_{n};
         std::size_t d_{d};
         std::vector<std::vector<double>> pdes_;
@@ -180,40 +180,40 @@ template<std::size_t n, std::size_t d> class kernel_estimator
 
 
 template<std::size_t n, std::size_t d>
-kernel_estimator<n,d>::kernel_estimator(){}
+KernelEstimator<n,d>::KernelEstimator(){}
 
 template<std::size_t n, std::size_t d>
-kernel_estimator<n,d>::kernel_estimator(const Vector& bandwidth)
+KernelEstimator<n,d>::KernelEstimator(const Vector& bandwidth)
 {
-   k_.set_bandwidth(bandwidth);
+   k_.setBandwidth(bandwidth);
 }
 
 template<std::size_t n, std::size_t d>
-void kernel_estimator<n,d>::set_bandwidth(const Vector& bandwidth)
+void KernelEstimator<n,d>::setBandwidth(const Vector& bandwidth)
 {
-   k_.set_bandwidth(bandwidth);
+   k_.setBandwidth(bandwidth);
 }
 
 template<std::size_t n, std::size_t d>
-void kernel_estimator<n,d>::fit(const dataMatrix& data){
+void KernelEstimator<n,d>::fit(const dataMatrix& data){
     k_.fit(data);
 }
 
 template<std::size_t n, std::size_t d>
-kernel_estimator<n,d>::kernel_estimator(const std::string& bandwidth_est)
+KernelEstimator<n,d>::KernelEstimator(const std::string& bandwidth_est)
 {
     k_.find_optimal_bandwidth(bandwidth_est);
 }
 
 template<std::size_t n, std::size_t d>
-void kernel_estimator<n,d>::find_optimal_bandwidth(const std::string bandwidth_est)
+void KernelEstimator<n,d>::find_optimal_bandwidth(const std::string bandwidth_est)
 {
     k_.find_optimal_bandwidth(bandwidth_est);
 }
 
 
 template<std::size_t n, std::size_t d>
-void kernel_estimator<n,d>::predict(const std::vector<Vector>& x, std::vector<double>& res)
+void KernelEstimator<n,d>::predict(const std::vector<Vector>& x, std::vector<double>& res)
 {
     for(std::size_t i = 0; i < x.size(); ++i){
         res[i] = k_.evaluate(x[i]);
@@ -221,7 +221,7 @@ void kernel_estimator<n,d>::predict(const std::vector<Vector>& x, std::vector<do
 }
 
 template<std::size_t n, std::size_t d>
-void kernel_estimator<n,d>::predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step)
+void KernelEstimator<n,d>::predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step)
 {
     Vector p;
     double x{lb[0]};
@@ -252,18 +252,18 @@ void kernel_estimator<n,d>::predict(const std::vector<double>& lb, const std::ve
 
 
 template<std::size_t n, std::size_t d>
-void kernel_estimator<n,d>::fit(const std::vector<std::vector<double>>& data)
+void KernelEstimator<n,d>::fit(const std::vector<std::vector<double>>& data)
 {
    for (int i=0; i<data.size(); i++)
     {
-        k_.add_data(data[i], i);
+        k_.addData(data[i], i);
     }
 }
 
 template<std::size_t n, std::size_t d>
-void kernel_estimator<n,d>::save_pdes(const std::string name)
+void KernelEstimator<n,d>::savePdes(const std::string name)
 {
-    utils::write_vec2file(pdes_, name);
+    utils::writeVec2File(pdes_, name);
 }
 
 #endif

@@ -1,0 +1,221 @@
+\hypertarget{namespaceutils}{}\doxysection{utils Namespace Reference}
+\label{namespaceutils}\index{utils@{utils}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{namespaceutils_ab1d16f6857d2f01e8d4a1870352d62a5}{factorial}} (int \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}})
+\item 
+void \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{copy\+Vec2\+Vec}} (const std\+::vector$<$ double $>$ \&src, std\+::vector$<$ double $>$ \&dst)
+\item 
+void \mbox{\hyperlink{namespaceutils_a1351e97ae99bb94d24792cf54ce9a860}{copy\+Eig2\+Vec}} (const Vector\+Xd \&src, std\+::vector$<$ double $>$ \&dst)
+\item 
+void \mbox{\hyperlink{namespaceutils_a8e5920c5d2512f02b180029ede5832a3}{copy\+Matvec2\+Matvec}} (const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&src, std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&dst)
+\item 
+void \mbox{\hyperlink{namespaceutils_af8f9643236794137a27bc85869f5aa3e}{write\+Vec2\+File}} (const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&data, const std\+::string \&name)
+\item 
+void \mbox{\hyperlink{namespaceutils_aa3688fddcc71daa1e252cfbc776cda68}{write\+Metadata2\+File}} (const std\+::string \&problem\+\_\+file, const std\+::string \&name)
+\item 
+std\+::string \mbox{\hyperlink{namespaceutils_a191827151ebdcf81b299e20cccd5d0e6}{get\+Date\+String}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceutils_a1351e97ae99bb94d24792cf54ce9a860}\label{namespaceutils_a1351e97ae99bb94d24792cf54ce9a860}} 
+\index{utils@{utils}!copyEig2Vec@{copyEig2Vec}}
+\index{copyEig2Vec@{copyEig2Vec}!utils@{utils}}
+\doxysubsubsection{\texorpdfstring{copyEig2Vec()}{copyEig2Vec()}}
+{\footnotesize\ttfamily void utils\+::copy\+Eig2\+Vec (\begin{DoxyParamCaption}\item[{const Vector\+Xd \&}]{src,  }\item[{std\+::vector$<$ double $>$ \&}]{dst }\end{DoxyParamCaption})}
+
+
+
+Definition at line 33 of file utils.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{34     \{}
+\DoxyCodeLine{35         assert (src.size() == dst.size());}
+\DoxyCodeLine{36         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<src.size(); i++)}
+\DoxyCodeLine{37         \{}
+\DoxyCodeLine{38             dst[i] = src(i);}
+\DoxyCodeLine{39         \}}
+\DoxyCodeLine{40     \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespaceutils_a8e5920c5d2512f02b180029ede5832a3}\label{namespaceutils_a8e5920c5d2512f02b180029ede5832a3}} 
+\index{utils@{utils}!copyMatvec2Matvec@{copyMatvec2Matvec}}
+\index{copyMatvec2Matvec@{copyMatvec2Matvec}!utils@{utils}}
+\doxysubsubsection{\texorpdfstring{copyMatvec2Matvec()}{copyMatvec2Matvec()}}
+{\footnotesize\ttfamily void utils\+::copy\+Matvec2\+Matvec (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&}]{src,  }\item[{std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&}]{dst }\end{DoxyParamCaption})}
+
+
+
+Definition at line 42 of file utils.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{43     \{}
+\DoxyCodeLine{44         std::size\_t \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}}\{src.size()\};}
+\DoxyCodeLine{45         dst.resize(\mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}});}
+\DoxyCodeLine{46         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}}; i++)}
+\DoxyCodeLine{47         \{}
+\DoxyCodeLine{48             dst[i].resize(src[i].size());}
+\DoxyCodeLine{49             \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{copyVec2Vec}}(src[i], dst[i]);}
+\DoxyCodeLine{50         \}}
+\DoxyCodeLine{51     \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespaceutils_aa47d195b35fa6344ded6f096347d410c}\label{namespaceutils_aa47d195b35fa6344ded6f096347d410c}} 
+\index{utils@{utils}!copyVec2Vec@{copyVec2Vec}}
+\index{copyVec2Vec@{copyVec2Vec}!utils@{utils}}
+\doxysubsubsection{\texorpdfstring{copyVec2Vec()}{copyVec2Vec()}}
+{\footnotesize\ttfamily void utils\+::copy\+Vec2\+Vec (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{src,  }\item[{std\+::vector$<$ double $>$ \&}]{dst }\end{DoxyParamCaption})}
+
+
+
+Definition at line 23 of file utils.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{24     \{}
+\DoxyCodeLine{25         \textcolor{comment}{//assert (src.size() == dst.size());}}
+\DoxyCodeLine{26         dst.resize(src.size());}
+\DoxyCodeLine{27         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<src.size(); i++)}
+\DoxyCodeLine{28         \{}
+\DoxyCodeLine{29             dst[i] = src[i];}
+\DoxyCodeLine{30         \}}
+\DoxyCodeLine{31     \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespaceutils_ab1d16f6857d2f01e8d4a1870352d62a5}\label{namespaceutils_ab1d16f6857d2f01e8d4a1870352d62a5}} 
+\index{utils@{utils}!factorial@{factorial}}
+\index{factorial@{factorial}!utils@{utils}}
+\doxysubsubsection{\texorpdfstring{factorial()}{factorial()}}
+{\footnotesize\ttfamily int utils\+::factorial (\begin{DoxyParamCaption}\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+Definition at line 12 of file utils.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{13     \{}
+\DoxyCodeLine{14         \textcolor{keywordtype}{int} result = 1.;}
+\DoxyCodeLine{15         \textcolor{keywordflow}{if} (\mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} != 0)\{}
+\DoxyCodeLine{16             \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i= 1; i <= \mbox{\hyperlink{linear__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}; ++i)\{}
+\DoxyCodeLine{17                 result *= i;}
+\DoxyCodeLine{18             \}}
+\DoxyCodeLine{19         \}}
+\DoxyCodeLine{20         \textcolor{keywordflow}{return} result;}
+\DoxyCodeLine{21     \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespaceutils_a191827151ebdcf81b299e20cccd5d0e6}\label{namespaceutils_a191827151ebdcf81b299e20cccd5d0e6}} 
+\index{utils@{utils}!getDateString@{getDateString}}
+\index{getDateString@{getDateString}!utils@{utils}}
+\doxysubsubsection{\texorpdfstring{getDateString()}{getDateString()}}
+{\footnotesize\ttfamily std\+::string utils\+::get\+Date\+String (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line 116 of file utils.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{117     \{}
+\DoxyCodeLine{118         time\_t now;}
+\DoxyCodeLine{119         \textcolor{keywordtype}{char} date\_string[10];}
+\DoxyCodeLine{120         tm * now\_tm;}
+\DoxyCodeLine{121         time(\&now);}
+\DoxyCodeLine{122         now\_tm = localtime(\&now);}
+\DoxyCodeLine{123         strftime(date\_string, 12, \textcolor{stringliteral}{"{}\%Y-\/\%m-\/\%d"{}}, now\_tm);}
+\DoxyCodeLine{124         \textcolor{keywordflow}{return} date\_string;}
+\DoxyCodeLine{125     \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespaceutils_aa3688fddcc71daa1e252cfbc776cda68}\label{namespaceutils_aa3688fddcc71daa1e252cfbc776cda68}} 
+\index{utils@{utils}!writeMetadata2File@{writeMetadata2File}}
+\index{writeMetadata2File@{writeMetadata2File}!utils@{utils}}
+\doxysubsubsection{\texorpdfstring{writeMetadata2File()}{writeMetadata2File()}}
+{\footnotesize\ttfamily void utils\+::write\+Metadata2\+File (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{problem\+\_\+file,  }\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Definition at line 84 of file utils.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{85     \{}
+\DoxyCodeLine{86         std::ifstream file;}
+\DoxyCodeLine{87         file.open(problem\_file);}
+\DoxyCodeLine{88         std::ofstream metadata\_file;}
+\DoxyCodeLine{89         std::string metadata\_filename = name + \textcolor{stringliteral}{"{}.meta"{}};}
+\DoxyCodeLine{90         metadata\_file.open(metadata\_filename);}
+\DoxyCodeLine{91         std::string line;}
+\DoxyCodeLine{92         \textcolor{keywordtype}{bool} to\_write\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{93         \textcolor{keywordflow}{if} (file.is\_open() \& metadata\_file.is\_open())}
+\DoxyCodeLine{94         \{}
+\DoxyCodeLine{95             \textcolor{keywordflow}{while} (std::getline(file, line))}
+\DoxyCodeLine{96             \{}
+\DoxyCodeLine{97                 \textcolor{keywordflow}{if} (line.find(\textcolor{stringliteral}{"{}Problem"{}}) != std::string::npos)}
+\DoxyCodeLine{98                     to\_write = \textcolor{keyword}{true};}
+\DoxyCodeLine{99                 \textcolor{keywordflow}{if} (to\_write)}
+\DoxyCodeLine{100                 \{}
+\DoxyCodeLine{101                     \textcolor{keywordflow}{if} (line.find(\textcolor{stringliteral}{"{}int main"{}}) != std::string::npos)}
+\DoxyCodeLine{102                         to\_write = \textcolor{keyword}{false};}
+\DoxyCodeLine{103                     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{104                        metadata\_file << line << \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{105                 \}}
+\DoxyCodeLine{106             \}}
+\DoxyCodeLine{107             file.close();}
+\DoxyCodeLine{108             metadata\_file.close();}
+\DoxyCodeLine{109         \}}
+\DoxyCodeLine{110         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{111         \{}
+\DoxyCodeLine{112             std::cout << \textcolor{stringliteral}{"{}unable to open file"{}} << std::endl;}
+\DoxyCodeLine{113         \}}
+\DoxyCodeLine{114     \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespaceutils_af8f9643236794137a27bc85869f5aa3e}\label{namespaceutils_af8f9643236794137a27bc85869f5aa3e}} 
+\index{utils@{utils}!writeVec2File@{writeVec2File}}
+\index{writeVec2File@{writeVec2File}!utils@{utils}}
+\doxysubsubsection{\texorpdfstring{writeVec2File()}{writeVec2File()}}
+{\footnotesize\ttfamily void utils\+::write\+Vec2\+File (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&}]{data,  }\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Definition at line 53 of file utils.\+cpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{54     \{}
+\DoxyCodeLine{55         std::ofstream file;}
+\DoxyCodeLine{56         std::string file\_name;}
+\DoxyCodeLine{57         file\_name = name + \textcolor{stringliteral}{"{}.dat"{}};}
+\DoxyCodeLine{58         file.open(file\_name);}
+\DoxyCodeLine{59         std::size\_t \mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}}\{data.size()\};}
+\DoxyCodeLine{60         std::size\_t d2\{data[0].size()\};}
+\DoxyCodeLine{61         std::string line;}
+\DoxyCodeLine{62         \textcolor{keywordflow}{if} (file.is\_open())}
+\DoxyCodeLine{63         \{}
+\DoxyCodeLine{64             \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i<\mbox{\hyperlink{metrics_8hpp_a752fb3bdbe85697907a35af83f1679cf}{d}}; i++)}
+\DoxyCodeLine{65             \{}
+\DoxyCodeLine{66                 line = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{67                 \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j=0; j<d2; j++)}
+\DoxyCodeLine{68                 \{}
+\DoxyCodeLine{69                    line += std::to\_string(data[i][j]);}
+\DoxyCodeLine{70                    line += \textcolor{stringliteral}{"{} "{}}; }
+\DoxyCodeLine{71                 \}}
+\DoxyCodeLine{72                 line += \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{73                 file << line;}
+\DoxyCodeLine{74             \}}
+\DoxyCodeLine{75             file.close();}
+\DoxyCodeLine{76         \}}
+\DoxyCodeLine{77         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{78         \{}
+\DoxyCodeLine{79             std::cout << \textcolor{stringliteral}{"{}unable to open file"{}} << std::endl;}
+\DoxyCodeLine{80         \}}
+\DoxyCodeLine{81 }
+\DoxyCodeLine{82     \};}
+
+\end{DoxyCode}

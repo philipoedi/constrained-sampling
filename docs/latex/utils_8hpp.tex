@@ -1,0 +1,28 @@
+\hypertarget{utils_8hpp}{}\doxysection{src/utils.hpp File Reference}
+\label{utils_8hpp}\index{src/utils.hpp@{src/utils.hpp}}
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$Eigen/\+Dense$>$}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceutils}{utils}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{namespaceutils_ab1d16f6857d2f01e8d4a1870352d62a5}{utils\+::factorial}} (int \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}})
+\item 
+void \mbox{\hyperlink{namespaceutils_aa47d195b35fa6344ded6f096347d410c}{utils\+::copy\+Vec2\+Vec}} (const std\+::vector$<$ double $>$ \&src, std\+::vector$<$ double $>$ \&dst)
+\item 
+void \mbox{\hyperlink{namespaceutils_a1351e97ae99bb94d24792cf54ce9a860}{utils\+::copy\+Eig2\+Vec}} (const Vector\+Xd \&src, std\+::vector$<$ double $>$ \&dst)
+\item 
+void \mbox{\hyperlink{namespaceutils_a8e5920c5d2512f02b180029ede5832a3}{utils\+::copy\+Matvec2\+Matvec}} (const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&src, std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&dst)
+\item 
+void \mbox{\hyperlink{namespaceutils_af8f9643236794137a27bc85869f5aa3e}{utils\+::write\+Vec2\+File}} (const std\+::vector$<$ std\+::vector$<$ double $>$$>$ \&data, const std\+::string \&name)
+\item 
+void \mbox{\hyperlink{namespaceutils_aa3688fddcc71daa1e252cfbc776cda68}{utils\+::write\+Metadata2\+File}} (const std\+::string \&problem\+\_\+file, const std\+::string \&name)
+\item 
+std\+::string \mbox{\hyperlink{namespaceutils_a191827151ebdcf81b299e20cccd5d0e6}{utils\+::get\+Date\+String}} ()
+\end{DoxyCompactItemize}

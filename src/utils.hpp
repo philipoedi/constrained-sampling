@@ -21,17 +21,17 @@ namespace utils
 {
     int factorial(int n);
     
-    void copy_vec2vec(const std::vector<double>& src, std::vector<double>& dst);
+    void copyVec2Vec(const std::vector<double>& src, std::vector<double>& dst);
 
-    void copy_eig2vec(const VectorXd& src, std::vector<double>& dst);
+    void copyEig2Vec(const VectorXd& src, std::vector<double>& dst);
     
-    void copy_matvec2matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst);
+    void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst);
 
-    void write_vec2file(const std::vector<std::vector<double>> &data, const std::string &name);
+    void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name);
 //    void write2file_results(const std::vector<std::vector<double>>& seeds, const std::vector<std::vector>>& samples);
-    void write_metadata2file(const std::string &problem_file, const std::string &name);
+    void writeMetadata2File(const std::string &problem_file, const std::string &name);
 
-    std::string get_date_string();
+    std::string getDateString();
 }
 // over load add eigen to vector
 

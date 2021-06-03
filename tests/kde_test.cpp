@@ -28,15 +28,15 @@ int main(){
     std::vector<double> x_pred{1.5,1.5};
     Vector2d x_predeig(x_pred.data());
     //Map<MatrixXd> x_mat(x.data(),n,d);
-    kernel<d,n> k(beig);
+    Kernel<d,n> k(beig);
     k.fit(de);
     res = k.evaluate(x_predeig);
     std::cout << res << std::endl;
     assert (round(res*10000)/10000 ==  0.0055);
     
-    kernel<d,n> k2;
-    // default constructor test and set_bandwidth
-    k2.set_bandwidth(beig);
+    Kernel<d,n> k2;
+    // default constructor test and setBandwidth
+    k2.setBandwidth(beig);
     k2.fit(xeig);
     res = k2.evaluate(x_predeig);
     std::cout << res << std::endl;
@@ -51,12 +51,12 @@ int main(){
     res = k2.evaluate(x_predeig);
     std::cout << res << std::endl;
     
-    // kernel estimator test
+    // Kernel estimator test
     std::vector<Vector2d> x_pred_kde{x_predeig,x_predeig};
     std::vector<double> res_kde;
     res_kde.resize(2);
-    kernel_estimator<d,n> kdest;
-    kdest.set_bandwidth(beig);
+    KernelEstimator<d,n> kdest;
+    kdest.setBandwidth(beig);
     kdest.fit(de);
     kdest.predict(x_pred_kde, res_kde);
     for (const auto& r:res_kde){
@@ -65,7 +65,7 @@ int main(){
     }
     
     // init with bandwidht est method
-    kernel_estimator<d,n> kdest2();
+    KernelEstimator<d,n> kdest2();
     
     // predit over 2d grid
     std::vector<double> lb{0,0};
@@ -73,7 +73,7 @@ int main(){
     double step{1};
     kdest.predict(lb, ub, step);
     const std::size_t d2{3};
-    kernel_estimator<d2,n> kdest3;
+    KernelEstimator<d2,n> kdest3;
     std::vector<std::vector<double>> da;
     da.resize(d2);
     for (int i=0; i<da.size(); i++)

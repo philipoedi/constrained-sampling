@@ -1,0 +1,280 @@
+\hypertarget{classMetropolisHastings}{}\doxysection{Metropolis\+Hastings$<$ n $>$ Class Template Reference}
+\label{classMetropolisHastings}\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+
+
+{\ttfamily \#include $<$sampler.\+hpp$>$}
+
+Inheritance diagram for Metropolis\+Hastings$<$ n $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classMetropolisHastings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classMetropolisHastings_a5ed5f090d76a4e9f8de4ec814fc2fe31}{Metropolis\+Hastings}} ()
+\item 
+{\footnotesize template$<$typename T $>$ }\\\mbox{\hyperlink{classMetropolisHastings_af38af820719fea839dd4f0beca822046}{Metropolis\+Hastings}} (const T \&\mbox{\hyperlink{quadratic__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, const T \&\mbox{\hyperlink{quadratic__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}})
+\item 
+void \mbox{\hyperlink{classMetropolisHastings_ad33ad9d47bc641881939aae78f95f882}{setP}} (double($\ast$p)(const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&))
+\item 
+void \mbox{\hyperlink{classMetropolisHastings_a7f8a693d9d4a6dc4cea99380a75ccd59}{setQ}} (double($\ast$q)(const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&))
+\item 
+void \mbox{\hyperlink{classMetropolisHastings_abf38e3f4c2dc11341e0cb82929dc1cf6}{setA}} (double($\ast$A)(const double \&, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&))
+\item 
+void \mbox{\hyperlink{classMetropolisHastings_abad3ffded3baeb133cc1d66fcb6c04ef}{set\+\_\+Q}} (std\+::function$<$ \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}}(const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&)$>$ \&Q)
+\item 
+double \mbox{\hyperlink{classMetropolisHastings_ae2cc010236597b2577af2b8542c3bfe4}{getP}} (const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&x)
+\item 
+double \mbox{\hyperlink{classMetropolisHastings_a0b9c3c2e0105849aacd0fb8c3ef2e903}{getQ}} (const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&x\+\_\+star, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&x\+\_\+i)
+\item 
+\mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \mbox{\hyperlink{classMetropolisHastings_a599743f2139aab285faaf3550dfdddc7}{sampleQ}} (const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&x)
+\item 
+void \mbox{\hyperlink{classMetropolisHastings_a4709ff2b69a9712d6ef6084af96a8ea9}{run}} (const int \mbox{\hyperlink{quadratic__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}{n\+\_\+iter}})
+\item 
+double \mbox{\hyperlink{classMetropolisHastings_a922754628059f96a7d8533e941c95087}{a\+Default}} (const double \&pq\+\_\+i, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&x\+\_\+star, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&x\+\_\+i)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$std\+::size\+\_\+t n$>$\newline
+class Metropolis\+Hastings$<$ n $>$}
+
+
+Definition at line 120 of file sampler.\+hpp.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classMetropolisHastings_a5ed5f090d76a4e9f8de4ec814fc2fe31}\label{classMetropolisHastings_a5ed5f090d76a4e9f8de4ec814fc2fe31}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!MetropolisHastings@{MetropolisHastings}}
+\index{MetropolisHastings@{MetropolisHastings}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{MetropolisHastings()}{MetropolisHastings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+\mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::\mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}}
+
+
+
+Definition at line 161 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{161                                          : \mbox{\hyperlink{classBaseSampler}{BaseSampler<n>}}()}
+\DoxyCodeLine{162 \{}
+\DoxyCodeLine{163 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_af38af820719fea839dd4f0beca822046}\label{classMetropolisHastings_af38af820719fea839dd4f0beca822046}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!MetropolisHastings@{MetropolisHastings}}
+\index{MetropolisHastings@{MetropolisHastings}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{MetropolisHastings()}{MetropolisHastings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+template$<$typename T $>$ \\
+\mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::\mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}} (\begin{DoxyParamCaption}\item[{const T \&}]{lb,  }\item[{const T \&}]{ub }\end{DoxyParamCaption})}
+
+
+
+Definition at line 167 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{168 \{}
+\DoxyCodeLine{169     start\_.setBounds(\mbox{\hyperlink{linear__cons_8cpp_a5f464cc59623c91cf5ede2d85e484a26}{lb}}, \mbox{\hyperlink{linear__cons_8cpp_a8069d0e1d09437bae4e7080eac5625cb}{ub}});}
+\DoxyCodeLine{170 \};}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classMetropolisHastings_a922754628059f96a7d8533e941c95087}\label{classMetropolisHastings_a922754628059f96a7d8533e941c95087}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!aDefault@{aDefault}}
+\index{aDefault@{aDefault}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{aDefault()}{aDefault()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+double \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::a\+Default (\begin{DoxyParamCaption}\item[{const double \&}]{pq\+\_\+i,  }\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{x\+\_\+star,  }\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{x\+\_\+i }\end{DoxyParamCaption})}
+
+
+
+Definition at line 224 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{225 \{}
+\DoxyCodeLine{226     \textcolor{keywordtype}{double} p\_star, q\_star, pq\_q;}
+\DoxyCodeLine{227     p\_star = this-\/>p\_(x\_star);}
+\DoxyCodeLine{228     q\_star = this-\/>q\_(x\_star, x\_i);}
+\DoxyCodeLine{229     pq\_q = (p\_star/q\_star) / (pq\_i);}
+\DoxyCodeLine{230     \textcolor{keywordflow}{return} (pq\_q < 1) ? pq\_q : 1; }
+\DoxyCodeLine{231 \}; }
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_ae2cc010236597b2577af2b8542c3bfe4}\label{classMetropolisHastings_ae2cc010236597b2577af2b8542c3bfe4}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!getP@{getP}}
+\index{getP@{getP}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{getP()}{getP()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+double \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::getP (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{x }\end{DoxyParamCaption})}
+
+
+
+Definition at line 211 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{212 \{}
+\DoxyCodeLine{213     \textcolor{keywordflow}{return} this-\/>p\_(x);}
+\DoxyCodeLine{214 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_a0b9c3c2e0105849aacd0fb8c3ef2e903}\label{classMetropolisHastings_a0b9c3c2e0105849aacd0fb8c3ef2e903}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!getQ@{getQ}}
+\index{getQ@{getQ}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{getQ()}{getQ()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+double \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::getQ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{x\+\_\+star,  }\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{x\+\_\+i }\end{DoxyParamCaption})}
+
+
+
+Definition at line 217 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{218 \{}
+\DoxyCodeLine{219     \textcolor{keywordflow}{return} this-\/>q\_(x\_star, x\_i);}
+\DoxyCodeLine{220 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_a4709ff2b69a9712d6ef6084af96a8ea9}\label{classMetropolisHastings_a4709ff2b69a9712d6ef6084af96a8ea9}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!run@{run}}
+\index{run@{run}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::run (\begin{DoxyParamCaption}\item[{const int}]{n\+\_\+iter }\end{DoxyParamCaption})}
+
+
+
+Definition at line 237 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{238 \{}
+\DoxyCodeLine{239 }
+\DoxyCodeLine{240     std::default\_random\_engine generator;}
+\DoxyCodeLine{241     std::uniform\_real\_distribution<double> u\_sampler(0.0,1.0);}
+\DoxyCodeLine{242     \textcolor{comment}{// initialize starting point}}
+\DoxyCodeLine{243     Vector x\_i = start\_.sample();}
+\DoxyCodeLine{244     Vector x\_star;}
+\DoxyCodeLine{245     \textcolor{keywordtype}{double} A, u, pq\_i ;}
+\DoxyCodeLine{246     pq\_i = this-\/>p\_(x\_i) / this-\/>q\_(x\_star, x\_i);}
+\DoxyCodeLine{247     \textcolor{keywordflow}{if} (this-\/>use\_default\_A\_) }
+\DoxyCodeLine{248     \{}
+\DoxyCodeLine{249         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i=0; i< \mbox{\hyperlink{linear__cons_8cpp_ade4b67eab3e5dc5a5a71033026cfdb2f}{n\_iter}}; i++)}
+\DoxyCodeLine{250         \{}
+\DoxyCodeLine{251             u = u\_sampler(generator);}
+\DoxyCodeLine{252             x\_star = Q\_(x\_i);}
+\DoxyCodeLine{253             A = \mbox{\hyperlink{classMetropolisHastings_a922754628059f96a7d8533e941c95087}{aDefault}}(pq\_i, x\_star, x\_i);}
+\DoxyCodeLine{254             x\_i = (u < A) ? x\_star : x\_i;}
+\DoxyCodeLine{255             std::cout << x\_i << std::endl;}
+\DoxyCodeLine{256         \}}
+\DoxyCodeLine{257     \}}
+\DoxyCodeLine{258         \textcolor{comment}{// append data to some datastructure}}
+\DoxyCodeLine{259 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_a599743f2139aab285faaf3550dfdddc7}\label{classMetropolisHastings_a599743f2139aab285faaf3550dfdddc7}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!sampleQ@{sampleQ}}
+\index{sampleQ@{sampleQ}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{sampleQ()}{sampleQ()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+Matrix$<$ double, \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}}, 1 $>$ \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::sampleQ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&}]{x }\end{DoxyParamCaption})}
+
+
+
+Definition at line 179 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{180 \{}
+\DoxyCodeLine{181     \textcolor{keywordflow}{return} Q\_(x);}
+\DoxyCodeLine{182 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_abad3ffded3baeb133cc1d66fcb6c04ef}\label{classMetropolisHastings_abad3ffded3baeb133cc1d66fcb6c04ef}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!set\_Q@{set\_Q}}
+\index{set\_Q@{set\_Q}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{set\_Q()}{set\_Q()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::set\+\_\+Q (\begin{DoxyParamCaption}\item[{std\+::function$<$ \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}}(const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&)$>$ \&}]{Q }\end{DoxyParamCaption})}
+
+
+
+Definition at line 173 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{174 \{}
+\DoxyCodeLine{175     Q\_ = Q;}
+\DoxyCodeLine{176 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_abf38e3f4c2dc11341e0cb82929dc1cf6}\label{classMetropolisHastings_abf38e3f4c2dc11341e0cb82929dc1cf6}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!setA@{setA}}
+\index{setA@{setA}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{setA()}{setA()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::setA (\begin{DoxyParamCaption}\item[{double($\ast$)(const double \&, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&)}]{A }\end{DoxyParamCaption})}
+
+
+
+Definition at line 204 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{205 \{}
+\DoxyCodeLine{206     this-\/>A\_ = A;}
+\DoxyCodeLine{207 \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_ad33ad9d47bc641881939aae78f95f882}\label{classMetropolisHastings_ad33ad9d47bc641881939aae78f95f882}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!setP@{setP}}
+\index{setP@{setP}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{setP()}{setP()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::setP (\begin{DoxyParamCaption}\item[{double($\ast$)(const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&)}]{p }\end{DoxyParamCaption})}
+
+
+
+Definition at line 192 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{193 \{}
+\DoxyCodeLine{194     this-\/>p\_ = p;}
+\DoxyCodeLine{195 \};}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classMetropolisHastings_a7f8a693d9d4a6dc4cea99380a75ccd59}\label{classMetropolisHastings_a7f8a693d9d4a6dc4cea99380a75ccd59}} 
+\index{MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}!setQ@{setQ}}
+\index{setQ@{setQ}!MetropolisHastings$<$ n $>$@{MetropolisHastings$<$ n $>$}}
+\doxysubsubsection{\texorpdfstring{setQ()}{setQ()}}
+{\footnotesize\ttfamily template$<$std\+::size\+\_\+t n$>$ \\
+void \mbox{\hyperlink{classMetropolisHastings}{Metropolis\+Hastings}}$<$ \mbox{\hyperlink{quadratic__cons_8cpp_a0ada73864feca33d57698f2c4603f1fb}{n}} $>$\+::setQ (\begin{DoxyParamCaption}\item[{double($\ast$)(const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&, const \mbox{\hyperlink{classBaseSampler_a43288922190acf7bf208dda656b5ae2e}{Vector}} \&)}]{q }\end{DoxyParamCaption})}
+
+
+
+Definition at line 198 of file sampler.\+hpp.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{199 \{}
+\DoxyCodeLine{200     this-\/>q\_ = q;}
+\DoxyCodeLine{201 \};}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{sampler_8hpp}{sampler.\+hpp}}\end{DoxyCompactItemize}

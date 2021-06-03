@@ -1,3 +1,13 @@
+/**
+    variety of optimizers (Biased, slack) to use for finding feasible samples
+    in a constrained space 
+    @file optimizer.hpp
+    @author Pihilip Oedi
+    @date 2021-06-03
+*/
+
+
+
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 #include <iomanip>
@@ -19,13 +29,22 @@ using namespace Eigen;
 */
 
 
+/**
+    Specifies the vector of Biases in Biased optimization.
+    @tparam n Dimension N of vector
+*/
 template<std::size_t n>
-struct bias {
+struct Bias {
     Matrix<double, n, 1> x0;
 };
 
+/**
+    Auxilliary data used to specifie constraints, such as coefficients,
+    constraint_type("ineq" or "eq") and type "linear" or "quadratic"
+    @tparam n Dimension N of vector
+*/
 template<std::size_t n>
-struct constraint_coeffs {
+struct ConstraintCoeffs {
     Matrix<double, n, 1> coeffs = Matrix<double, n, 1>::Zero();
     Matrix<double, n, 1> q = Matrix<double, n, 1>::Zero();
     Matrix<double, n, n> P = Matrix<double, n, n>::Zero();
@@ -37,15 +56,18 @@ struct constraint_coeffs {
 };
 
 template<std::size_t n, std::size_t m, std::size_t l>
-struct slack_data {
+struct SlackData {
     bool state{false};
     Matrix<double, n+m+l+l, 1> a = Matrix<double, n+m+l+l,1>::Zero();
     Matrix<double, n+m+l+l, 1> g = Matrix<double, n+m+l+l,1>::Zero();
 };
 
+/**
+    Initializes slack variables to use for slack optimization
+    @param sl SlackData struct containing vectors of decision variables
+*/
 template<std::size_t n, std::size_t m, std::size_t l>
-void init_slack_data(slack_data<n,m,l>& sl)
-// sets the a vector according to the objective function
+void initSlackData(SlackData<n,m,l>& sl)
 {
     for (int i=0; i<n+m+l+l; i++)
     {
@@ -62,14 +84,22 @@ void init_slack_data(slack_data<n,m,l>& sl)
     };
 };
 
-template<std::size_t n> double biased_objective(const std::vector<double>& x, std::vector<double>& grad, void*data )
+/**
+    Evaluates objective function in Biased optimization
+    @param x Current location at which to evaluate objective
+    @param grad Vector of current gradient
+    @param data Auxilliary data to be used in calculations, of type Bias
+    @return Objective value
+*/
+template<std::size_t n> 
+double BiasedObjective(const std::vector<double>& x, std::vector<double>& grad, void*data )
 {
     typedef Matrix<double, n, 1> vec;
-    bias<n> *b = (bias<n>*) data;
+    Bias<n> *b = (Bias<n>*) data;
     vec x_vec(x.data());
     vec x_x0 = x_vec - b->x0;
     if(!grad.empty()){       
-        utils::copy_eig2vec(2*x_x0, grad);
+        utils::copyEig2Vec(2*x_x0, grad);
 /*    for (std::size_t i = 0; i<x_x0.size() ;++i){
         grad[i] = 2*x_x0[i];
     }*/
@@ -77,39 +107,62 @@ template<std::size_t n> double biased_objective(const std::vector<double>& x, st
     return x_x0.transpose()*x_x0;    
 }
 
+/**
+    Evaluates objective function in slack optimization
+    @param x Current location at which to evaluate objective
+    @param grad Vector of current gradient
+    @param data Auxilliary data to be used in calculations
+    @return Objective value
+*/
 template<std::size_t n, std::size_t m, std::size_t l> 
-double slack_objective(const std::vector<double>& x, std::vector<double>& grad, void* data)
+double slackObjective(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
     typedef Matrix<double, n+m+l+l,1> vec;
-    slack_data<n,m,l>* u = (slack_data<n,m,l>*) data;
+    SlackData<n,m,l>* u = (SlackData<n,m,l>*) data;
     vec x_vec(x.data());
     if(!grad.empty()){
-        utils::copy_eig2vec(u->a, grad);
+        utils::copyEig2Vec(u->a, grad);
     }
     return u->a.transpose()*x_vec;
 }
 
-template<std::size_t n> double linear_constraint(const std::vector<double>& x, std::vector<double> &grad, void*data)
+/**
+    Evaluates a linear constraint, function can be used with nlopt
+    @param x Current location at which to evaluate constraint 
+    @param grad Vector of current gradient
+    @param data Auxilliary data to be used in calculations
+    @return Constraint value
+*/
+template<std::size_t n> 
+double linearConstraint(const std::vector<double>& x, std::vector<double> &grad, void*data)
 {
     typedef Matrix<double, n, 1> vec;
-    constraint_coeffs<n> *c = (constraint_coeffs<n>*) data;
+    ConstraintCoeffs<n> *c = (ConstraintCoeffs<n>*) data;
     vec x_vec(x.data());
     if (!grad.empty()){
-        utils::copy_eig2vec(c->coeffs, grad);
+        utils::copyEig2Vec(c->coeffs, grad);
     }
     return x_vec.transpose() * c->coeffs - c->cons;
 }
 
-
-template<std::size_t n> double quadratic_constraint(const std::vector<double>& x, std::vector<double>& grad, void* data)
+/**
+    Evaluates a quadratic constraint, function can be used with nlopt
+    @param x Current location at which to evaluate constraint 
+    @param grad Vector of current gradient
+    @param data Auxilliary data to be used in calculations, of type ConstraintCoeffs that
+        specifies coefficients of constraint
+    @return Constraint value
+*/
+template<std::size_t n> 
+double quadraticConstraint(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
     typedef Matrix<double, n, 1> vec;
     double res = 0;
-    constraint_coeffs<n> *c = (constraint_coeffs<n>*) data;
+    ConstraintCoeffs<n> *c = (ConstraintCoeffs<n>*) data;
     vec x_vec(x.data());
     // 0.5 * x.T@P@x + q.T@x+ r
     if (!grad.empty()){
-        utils::copy_eig2vec(c->P.transpose()*x_vec + c->q, grad);
+        utils::copyEig2Vec(c->P.transpose()*x_vec + c->q, grad);
     }
     res += 0.5 * x_vec.transpose() * c->P * x_vec; 
     res += x_vec.transpose()*c->q;  
@@ -117,34 +170,33 @@ template<std::size_t n> double quadratic_constraint(const std::vector<double>& x
 }
 
 template<std::size_t n>
-class base_optimizer
+class BaseOptimizer
 {
     typedef Matrix<double,n,1> Vector;
 
     public:
 
-        base_optimizer();
-        base_optimizer(
-            constraint_coeffs<n>& eqcons,
-            constraint_coeffs<n>& ineqcons, 
+        BaseOptimizer();
+        BaseOptimizer(
+            ConstraintCoeffs<n>& eqcons,
+            ConstraintCoeffs<n>& ineqcons, 
             const std::vector<double>& lb, 
             const std::vector<double>& ub); 
-        base_optimizer(
-            constraint_coeffs<n>& cons,
+        BaseOptimizer(
+            ConstraintCoeffs<n>& cons,
             const std::vector<double>& lb, 
             const std::vector<double>& ub); 
         void run(const int niter);
-//        virtual void save();
-        void add_constraints(
-            constraint_coeffs<n>& eqcons,
-            constraint_coeffs<n>& ineqcons);
-        void add_constraints(constraint_coeffs<n>& cons);
-        void set_bounds(const std::vector<double>& lb, const std::vector<double>& ub);
+        void addConstraints(
+            ConstraintCoeffs<n>& eqcons,
+            ConstraintCoeffs<n>& ineqcons);
+        void addConstraints(ConstraintCoeffs<n>& cons);
+        void setBounds(const std::vector<double>& lb, const std::vector<double>& ub);
         void results(std::vector<std::vector<double>>& dst);
         std::vector<std::vector<double>> results();
         void samples(std::vector<std::vector<double>>& dst);
         std::vector<std::vector<double>> samples();
-        void save_results(const std::string &name);
+        void saveResults(const std::string &name);
         void save_samples(const std::string &name);
 
    protected:
@@ -154,36 +206,36 @@ class base_optimizer
         opt opt_{"AUGLAG_EQ",n};
         opt local_opt_{"LD_SLSQP",n};
         double minf_;
-        uniform_sampler<n> uni_;
+        UniformSampler<n> uni_;
 };
 
 
 template<std::size_t n>
-class biased_optimizer: public base_optimizer<n>
+class BiasedOptimizer: public BaseOptimizer<n>
 {
     public:
 
-        biased_optimizer();
-        biased_optimizer(
-            constraint_coeffs<n>& eqcons,
-            constraint_coeffs<n>& ineqcons, 
+        BiasedOptimizer();
+        BiasedOptimizer(
+            ConstraintCoeffs<n>& eqcons,
+            ConstraintCoeffs<n>& ineqcons, 
             const std::vector<double>& lb, 
             const std::vector<double>& ub): 
-            base_optimizer<n>(eqcons, ineqcons,lb, ub){}; 
-        biased_optimizer(
-            constraint_coeffs<n>& cons,
+            BaseOptimizer<n>(eqcons, ineqcons,lb, ub){}; 
+        BiasedOptimizer(
+            ConstraintCoeffs<n>& cons,
             const std::vector<double>& lb, 
             const std::vector<double>& ub):
-            base_optimizer<n>(cons,lb, ub){}; 
+            BaseOptimizer<n>(cons,lb, ub){}; 
       void run(const int niter);
     
     private:
 
-        bias<n> b_;
+        Bias<n> b_;
 };
 
 template<std::size_t n, std::size_t m, std::size_t l>
-class slack_optimizer: public base_optimizer<n+m+l+l>
+class SlackOptimizer: public BaseOptimizer<n+m+l+l>
 {
     /*
         decision variable vector as follows:
@@ -193,35 +245,35 @@ class slack_optimizer: public base_optimizer<n+m+l+l>
     */
     public:
 
-        slack_optimizer();
-        slack_optimizer(
-            constraint_coeffs<n>& ineqcons,
-            constraint_coeffs<n>& eqcons,
+        SlackOptimizer();
+        SlackOptimizer(
+            ConstraintCoeffs<n>& ineqcons,
+            ConstraintCoeffs<n>& eqcons,
             const std::vector<double>& lb,
             const std::vector<double>& ub);
-        slack_optimizer(
-            constraint_coeffs<n>& cons,
+        SlackOptimizer(
+            ConstraintCoeffs<n>& cons,
             const std::vector<double>& lb,
             const std::vector<double>& ub);
         void run(const int& niter);
         //void save();
-        void add_constraints(constraint_coeffs<n>& cons);
-        void set_bounds(const std::vector<double>& lb, const std::vector<double>& ub);
-        double find_slack(const std::vector<double>& x, constraint_coeffs<n>& coeffs);
-        double find_slack(const std::vector<double>& x, constraint_coeffs<n>* coeffs);
+        void addConstraints(ConstraintCoeffs<n>& cons);
+        void setBounds(const std::vector<double>& lb, const std::vector<double>& ub);
+        double findSlack(const std::vector<double>& x, ConstraintCoeffs<n>& coeffs);
+        double findSlack(const std::vector<double>& x, ConstraintCoeffs<n>* coeffs);
         void sample(std::vector<double>& x);
 
     private:
 
-        slack_data<n,m,l> up_;
+        SlackData<n,m,l> up_;
         int ineq_count_{0};
         int eq_count_{0};
-        std::vector<constraint_coeffs<n>*> ineq_cons_;
-        std::vector<constraint_coeffs<n>*> eq_cons_;
-        std::vector<constraint_coeffs<n+m+l+l>> ineq_cons_ex_;
-        std::vector<constraint_coeffs<n+m+l+l>> eq_cons_ex_;
-        std::vector<constraint_coeffs<n+m+l+l>> eq_cons_ex_up_;
-        std::vector<constraint_coeffs<n+m+l+l>> eq_cons_ex_low_;
+        std::vector<ConstraintCoeffs<n>*> ineq_cons_;
+        std::vector<ConstraintCoeffs<n>*> eq_cons_;
+        std::vector<ConstraintCoeffs<n+m+l+l>> ineq_cons_ex_;
+        std::vector<ConstraintCoeffs<n+m+l+l>> eq_cons_ex_;
+        std::vector<ConstraintCoeffs<n+m+l+l>> eq_cons_ex_up_;
+        std::vector<ConstraintCoeffs<n+m+l+l>> eq_cons_ex_low_;
 };
 
 // base optimizer member functions
@@ -230,7 +282,7 @@ class slack_optimizer: public base_optimizer<n+m+l+l>
 
 
 template<std::size_t n>
-base_optimizer<n>::base_optimizer()
+BaseOptimizer<n>::BaseOptimizer()
 {
     std::cout<<"base"<<std::endl;
     local_opt_.set_xtol_rel(1e-4);
@@ -239,70 +291,70 @@ base_optimizer<n>::base_optimizer()
 }
 
 template<std::size_t n>
-base_optimizer<n>::base_optimizer(
-    constraint_coeffs<n>& eqcons,
-    constraint_coeffs<n>& ineqcons,
+BaseOptimizer<n>::BaseOptimizer(
+    ConstraintCoeffs<n>& eqcons,
+    ConstraintCoeffs<n>& ineqcons,
     const std::vector<double>& lb,
     const std::vector<double>& ub)
-    : base_optimizer()
+    : BaseOptimizer()
 {
-    this->set_bounds(lb, ub);
-    this->add_constraints(eqcons, ineqcons);
+    this->setBounds(lb, ub);
+    this->addConstraints(eqcons, ineqcons);
 }
 
 template<std::size_t n>
-base_optimizer<n>::base_optimizer(
-    constraint_coeffs<n>& cons,
+BaseOptimizer<n>::BaseOptimizer(
+    ConstraintCoeffs<n>& cons,
     const std::vector<double>& lb,
     const std::vector<double>& ub)
-    : base_optimizer()
+    : BaseOptimizer()
 {
-    this->set_bounds(lb, ub);
-    this->add_constraints(cons);
+    this->setBounds(lb, ub);
+    this->addConstraints(cons);
 }
 
 template<std::size_t n>
-void base_optimizer<n>::set_bounds(const std::vector<double>& lb, const std::vector<double>& ub)
+void BaseOptimizer<n>::setBounds(const std::vector<double>& lb, const std::vector<double>& ub)
 {
-    uni_.set_bounds(lb,ub);
+    uni_.setBounds(lb,ub);
     opt_.set_upper_bounds(ub);
     opt_.set_lower_bounds(lb);
 }
 
 template<std::size_t n>
-void base_optimizer<n>::run(const int niter)
+void BaseOptimizer<n>::run(const int niter)
 {
     std::cout << "base run" << std::endl;   
 }
 
 
 template<std::size_t n>
-void base_optimizer<n>::add_constraints(
-    constraint_coeffs<n>& eqcons,
-    constraint_coeffs<n>& ineqcons)
+void BaseOptimizer<n>::addConstraints(
+    ConstraintCoeffs<n>& eqcons,
+    ConstraintCoeffs<n>& ineqcons)
 {
     assert (eqcons.constype == "linear" || eqcons.constype == "quadratic");
     if (eqcons.constype == "linear")
     {
-        opt_.add_equality_constraint(linear_constraint<n>, &eqcons, 1e-8);
+        opt_.add_equality_constraint(linearConstraint<n>, &eqcons, 1e-8);
     }
     else 
     {
-        opt_.add_equality_constraint(quadratic_constraint<n>, &eqcons, 1e-8);
+        opt_.add_equality_constraint(quadraticConstraint<n>, &eqcons, 1e-8);
     }
     assert (ineqcons.constype == "linear" || ineqcons.constype == "quadratic");
     if (ineqcons.constype == "linear") 
     {
-        opt_.add_inequality_constraint(linear_constraint<n>, &ineqcons, 1e-8);
+        opt_.add_inequality_constraint(linearConstraint<n>, &ineqcons, 1e-8);
     }
     else
     {
-       opt_.add_inequality_constraint(quadratic_constraint<n>, &ineqcons, 1e-8);
+       opt_.add_inequality_constraint(quadraticConstraint<n>, &ineqcons, 1e-8);
     }
 }
 
 template<std::size_t n>
-void base_optimizer<n>::add_constraints(constraint_coeffs<n>& cons)
+void BaseOptimizer<n>::addConstraints(ConstraintCoeffs<n>& cons)
 {
     assert (cons.constype == "linear" || cons.constype == "quadratic");
     assert (cons.type == "eq" || cons.type == "ineq");
@@ -310,11 +362,11 @@ void base_optimizer<n>::add_constraints(constraint_coeffs<n>& cons)
     {
         if (cons.constype == "linear")
         {
-            opt_.add_equality_constraint(linear_constraint<n>, &cons, 1e-8);
+            opt_.add_equality_constraint(linearConstraint<n>, &cons, 1e-8);
         }
         else 
         {
-            opt_.add_equality_constraint(quadratic_constraint<n>, &cons, 1e-8);
+            opt_.add_equality_constraint(quadraticConstraint<n>, &cons, 1e-8);
         }
     }
     else 
@@ -322,80 +374,80 @@ void base_optimizer<n>::add_constraints(constraint_coeffs<n>& cons)
         if (cons.constype == "linear")
         {
             std::cout << "constraint added " << std::endl;
-            opt_.add_inequality_constraint(linear_constraint<n>, &cons, 1e-8);
+            opt_.add_inequality_constraint(linearConstraint<n>, &cons, 1e-8);
         }
         else 
         {
-            opt_.add_inequality_constraint(quadratic_constraint<n>, &cons, 1e-8);
+            opt_.add_inequality_constraint(quadraticConstraint<n>, &cons, 1e-8);
         }
     }
 }
 
 template<std::size_t n>
-void base_optimizer<n>::results(std::vector<std::vector<double>>& dst)
+void BaseOptimizer<n>::results(std::vector<std::vector<double>>& dst)
 {
-    utils::copy_matvec2matvec(results_, dst);
+    utils::copyMatvec2Matvec(results_, dst);
 }
 
 template<std::size_t n>
-std::vector<std::vector<double>> base_optimizer<n>::results()
+std::vector<std::vector<double>> BaseOptimizer<n>::results()
 {
     return results_;
 }
 
 
 template<std::size_t n>
-void base_optimizer<n>::samples(std::vector<std::vector<double>>& dst)
+void BaseOptimizer<n>::samples(std::vector<std::vector<double>>& dst)
 {
-    utils::copy_matvec2matvec(samples_, dst);
+    utils::copyMatvec2Matvec(samples_, dst);
 }
 
 template<std::size_t n>
-std::vector<std::vector<double>> base_optimizer<n>::samples()
+std::vector<std::vector<double>> BaseOptimizer<n>::samples()
 {
     return samples_;
 };  
 
 
 template<std::size_t n>
-void base_optimizer<n>::save_results(const std::string &name)
+void BaseOptimizer<n>::saveResults(const std::string &name)
 {
-    utils::write_vec2file(results_, name);
+    utils::writeVec2File(results_, name);
 };
 
 
 template<std::size_t n>
-void base_optimizer<n>::save_samples(const std::string &name)
+void BaseOptimizer<n>::save_samples(const std::string &name)
 {
-    utils::write_vec2file(samples_, name);
+    utils::writeVec2File(samples_, name);
 };
 
-// base_optimizer member functions finished
-// biased_optimizer below
+// BaseOptimizer member functions finished
+// BiasedOptimizer below
 
 template<std::size_t n>
-biased_optimizer<n>::biased_optimizer()
+BiasedOptimizer<n>::BiasedOptimizer()
 {
-    std::cout <<"biased"  <<std::endl;
+    std::cout <<"Biased"  <<std::endl;
 }
 
 template<std::size_t n>
-void biased_optimizer<n>::run(const int niter){
+void BiasedOptimizer<n>::run(const int niter){
     std::vector<double> x(n);
     this->results_.resize(niter);
     this->samples_.resize(niter);
     for (int i=0; i<niter; ++i)
     {
         b_.x0 = this->uni_.sample();
-        utils::copy_eig2vec(b_.x0, x);
-        this->opt_.set_min_objective(biased_objective<n>, &b_);
+        utils::copyEig2Vec(b_.x0, x);
+        this->opt_.set_min_objective(BiasedObjective<n>, &b_);
         try
         {
             this->opt_.optimize(x, this->minf_);
             this->results_[i].resize(n);
             this->samples_[i].resize(n);
-            utils::copy_vec2vec(x, this->results_[i]);
-            utils::copy_eig2vec(b_.x0, this->samples_[i]);
+            utils::copyVec2Vec(x, this->results_[i]);
+            utils::copyEig2Vec(b_.x0, this->samples_[i]);
         }
         catch(std::exception &e)
         {
@@ -410,41 +462,41 @@ void biased_optimizer<n>::run(const int niter){
 //
 
 template<std::size_t n, std::size_t m, std::size_t l>
-slack_optimizer<n,m,l>::slack_optimizer(): base_optimizer<n+m+l+l>::base_optimizer(){};
+SlackOptimizer<n,m,l>::SlackOptimizer(): BaseOptimizer<n+m+l+l>::BaseOptimizer(){};
 
 
 template<std::size_t n, std::size_t m, std::size_t l>
-slack_optimizer<n,m,l>::slack_optimizer(
-            constraint_coeffs<n>& cons,
+SlackOptimizer<n,m,l>::SlackOptimizer(
+            ConstraintCoeffs<n>& cons,
             const std::vector<double>& lb,
             const std::vector<double>& ub)
-            : base_optimizer<n+m+l+l>::base_optimizer()
+            : BaseOptimizer<n+m+l+l>::BaseOptimizer()
 {
-    this->set_bounds(lb, ub);
-    this->add_constraints(cons);
+    this->setBounds(lb, ub);
+    this->addConstraints(cons);
 };
 
 template<std::size_t n, std::size_t m, std::size_t l>
-slack_optimizer<n,m,l>::slack_optimizer(
-            constraint_coeffs<n>& ineqcons,
-            constraint_coeffs<n>& eqcons,
+SlackOptimizer<n,m,l>::SlackOptimizer(
+            ConstraintCoeffs<n>& ineqcons,
+            ConstraintCoeffs<n>& eqcons,
             const std::vector<double>& lb,
             const std::vector<double>& ub)
-            : base_optimizer<n+m+l+l>::base_optimizer()
+            : BaseOptimizer<n+m+l+l>::BaseOptimizer()
 {
-    this->set_bounds(lb, ub);
-    this->add_constraints(ineqcons);
-    this->add_constraints(eqcons);
+    this->setBounds(lb, ub);
+    this->addConstraints(ineqcons);
+    this->addConstraints(eqcons);
 };
 
 
 template<std::size_t n, std::size_t m, std::size_t l>
-void slack_optimizer<n,m,l>::set_bounds(const std::vector<double>& lb, const std::vector<double>& ub)
+void SlackOptimizer<n,m,l>::setBounds(const std::vector<double>& lb, const std::vector<double>& ub)
 {
     std::vector<double> lb_new;
     std::vector<double> ub_new;
-    utils::copy_vec2vec(lb, lb_new);
-    utils::copy_vec2vec(ub, ub_new);
+    utils::copyVec2Vec(lb, lb_new);
+    utils::copyVec2Vec(ub, ub_new);
     for (int i=0; i<m; i++)
     {
         lb_new.push_back(0);
@@ -455,14 +507,14 @@ void slack_optimizer<n,m,l>::set_bounds(const std::vector<double>& lb, const std
         lb_new.push_back(-HUGE_VAL);
         ub_new.push_back(HUGE_VAL);
     }
-    base_optimizer<n+m+l+l>::set_bounds(lb_new, ub_new);
+    BaseOptimizer<n+m+l+l>::setBounds(lb_new, ub_new);
 }
 
 template<std::size_t n, std::size_t m, std::size_t l>
-void slack_optimizer<n,m,l>::add_constraints(constraint_coeffs<n>& cons)
+void SlackOptimizer<n,m,l>::addConstraints(ConstraintCoeffs<n>& cons)
 {
     assert (cons.type == "ineq" || cons.type == "eq");
-    constraint_coeffs<n+m+l+l> cons_new;
+    ConstraintCoeffs<n+m+l+l> cons_new;
     
     for (int i=0; i<n; i++){
         cons_new.coeffs(i) = cons.coeffs(i);
@@ -479,13 +531,13 @@ void slack_optimizer<n,m,l>::add_constraints(constraint_coeffs<n>& cons)
         ineq_count_ += 1;
         ineq_cons_.push_back(&cons);
         ineq_cons_ex_.push_back(cons_new);
-        base_optimizer<n+m+l+l>::add_constraints(ineq_cons_ex_[ineq_count_-1]);
+        BaseOptimizer<n+m+l+l>::addConstraints(ineq_cons_ex_[ineq_count_-1]);
     }
     else 
     {
         cons_new.coeffs(n+m+eq_count_) = -1;
-        constraint_coeffs<n+m+l+l> cons_new_eq_up;
-        constraint_coeffs<n+m+l+l> cons_new_eq_low;
+        ConstraintCoeffs<n+m+l+l> cons_new_eq_up;
+        ConstraintCoeffs<n+m+l+l> cons_new_eq_low;
         cons_new_eq_up.type = "ineq";
         cons_new_eq_low.type = "ineq";
         cons_new_eq_up.constype = "linear";
@@ -499,64 +551,64 @@ void slack_optimizer<n,m,l>::add_constraints(constraint_coeffs<n>& cons)
         eq_cons_ex_.push_back(cons_new);
         eq_cons_ex_up_.push_back(cons_new_eq_up);
         eq_cons_ex_low_.push_back(cons_new_eq_low);
-        base_optimizer<n+m+l+l>::add_constraints(eq_cons_ex_[eq_count_-1]);
-        base_optimizer<n+m+l+l>::add_constraints(eq_cons_ex_up_[eq_count_-1]);
-        base_optimizer<n+m+l+l>::add_constraints(eq_cons_ex_low_[eq_count_-1]);
+        BaseOptimizer<n+m+l+l>::addConstraints(eq_cons_ex_[eq_count_-1]);
+        BaseOptimizer<n+m+l+l>::addConstraints(eq_cons_ex_up_[eq_count_-1]);
+        BaseOptimizer<n+m+l+l>::addConstraints(eq_cons_ex_low_[eq_count_-1]);
     }
 }
 
 
 
 template<std::size_t n, std::size_t m, std::size_t l>
-double slack_optimizer<n,m,l>::find_slack(const std::vector<double>& x, constraint_coeffs<n>& coeffs)
+double SlackOptimizer<n,m,l>::findSlack(const std::vector<double>& x, ConstraintCoeffs<n>& coeffs)
 {
     double slack;
     std::vector<double> grad;
     if (coeffs.constype == "linear")
     {
-        slack = linear_constraint<n>(x, grad, &coeffs);
+        slack = linearConstraint<n>(x, grad, &coeffs);
     }
     else
     {
-        slack = quadratic_constraint<n>(x, grad, &coeffs);
+        slack = quadraticConstraint<n>(x, grad, &coeffs);
     }
     return slack;
 }
 
 
 template<std::size_t n, std::size_t m, std::size_t l>
-double slack_optimizer<n,m,l>::find_slack(const std::vector<double>& x, constraint_coeffs<n>* coeffs)
+double SlackOptimizer<n,m,l>::findSlack(const std::vector<double>& x, ConstraintCoeffs<n>* coeffs)
 {
     double slack;
     std::vector<double> grad;
     if (coeffs->constype == "linear")
     {
-        slack = linear_constraint<n>(x, grad, coeffs);
+        slack = linearConstraint<n>(x, grad, coeffs);
     }
     else
     {
-        slack = quadratic_constraint<n>(x, grad, coeffs);
+        slack = quadraticConstraint<n>(x, grad, coeffs);
     }
     return slack;
 }
 
 
 template<std::size_t n, std::size_t m, std::size_t l>
-void slack_optimizer<n,m,l>::sample(std::vector<double> &x)
+void SlackOptimizer<n,m,l>::sample(std::vector<double> &x)
 {
     // loop over ineq constraint coeffs find slack
-    constraint_coeffs<n>*  coeffs_temp;
+    ConstraintCoeffs<n>*  coeffs_temp;
     double slack{0}, slack_temp{0};
     std::vector<double> x0;
-    utils::copy_eig2vec(this->uni_.sample(),x);
-    utils::copy_vec2vec(x, x0);
+    utils::copyEig2Vec(this->uni_.sample(),x);
+    utils::copyVec2Vec(x, x0);
     x0.resize(n);
-    //utils::copy_eig2vec(this->uni_.sample().head(n),x0);
+    //utils::copyEig2Vec(this->uni_.sample().head(n),x0);
     // initialize slack for inequalities
     for (int i=0; i<m; i++)
     {
         coeffs_temp = ineq_cons_[i];
-        slack_temp = this->find_slack(x0 ,coeffs_temp);
+        slack_temp = this->findSlack(x0 ,coeffs_temp);
         slack_temp = (slack_temp < 0) ? 0 : slack_temp;
         slack = (slack_temp > slack) ? slack_temp : slack;
         x[n+i] = slack;
@@ -566,7 +618,7 @@ void slack_optimizer<n,m,l>::sample(std::vector<double> &x)
     for (int i=0; i<l; i++)
     {
         coeffs_temp = eq_cons_[i];
-        slack = this->find_slack(x0 ,coeffs_temp);
+        slack = this->findSlack(x0 ,coeffs_temp);
         x[n+m+i] = slack;
         // choose t_i to be abs(slack_i)
         x[n+m+l+i] = (slack < 0) ? slack*-1 : slack;
@@ -575,9 +627,9 @@ void slack_optimizer<n,m,l>::sample(std::vector<double> &x)
 
 
 template<std::size_t n, std::size_t m, std::size_t l>
-void slack_optimizer<n,m,l>::run(const int& niter)
+void SlackOptimizer<n,m,l>::run(const int& niter)
 {
-    init_slack_data<n,m,l>(up_);
+    initSlackData<n,m,l>(up_);
     std::vector<double> x(n+m+l+l);
     this->results_.resize(niter);
     this->samples_.resize(niter);
@@ -585,13 +637,13 @@ void slack_optimizer<n,m,l>::run(const int& niter)
     {
         this->sample(x);
         this->samples_[i].resize(n+m+l+l);
-        utils::copy_vec2vec(x, this->samples_[i]);
-        this->opt_.set_min_objective(slack_objective<n,m,l>, &up_);
+        utils::copyVec2Vec(x, this->samples_[i]);
+        this->opt_.set_min_objective(slackObjective<n,m,l>, &up_);
         try
         {
             this->opt_.optimize(x, this->minf_);
             this->results_[i].resize(n);
-            utils::copy_vec2vec(x, this->results_[i]);
+            utils::copyVec2Vec(x, this->results_[i]);
         }
         catch(std::exception &e)
         {
