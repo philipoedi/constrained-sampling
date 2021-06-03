@@ -126,11 +126,12 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
 
         MetropolisHastings();
         template <typename T> MetropolisHastings(const T &lb, const T &ub);//: BaseSampler<n>(lb,ub){};
-        void setP(double (*p)(const Vector&));
-        void setQ(double (*q)(const Vector&, const Vector&));
+        //void setP(double (*p)(const Vector&));
+        void setP(std::function<double(const Vector&)> &p);
+        //void setQ(double (*q)(const Vector&, const Vector&));
         void setA(double (*A)(const double&, const Vector&, const Vector&));
         //void set_Q(Vector (*Q)(const Vector&));
-        void set_Q(std::function<Vector(const Vector&)> &Q);
+        void setQ(std::function<Vector(const Vector&)> &Q);
         double getP(const Vector &x);
         double getQ(const Vector &x_star, const Vector &x_i);
         Vector sampleQ(const Vector &x);
@@ -150,9 +151,10 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
         double p_i_;
         double q_i_;
         double pq_i_;
-        double (*p_)(const Vector&);
+        //double (*p_)(const Vector&);
         double (*q_)(const Vector&, const Vector&);
         double (*A_)(const double&, const Vector&, const Vector&);
+        std::function<double(const Vector&)> p_;
         std::function<Vector(const Vector&)> Q_;
         //Vector& (*Q_)(const Vector&, void*data);
 };
@@ -170,7 +172,7 @@ MetropolisHastings<n>::MetropolisHastings(const T &lb, const T &ub)
 };
 
 template<std::size_t n>
-void MetropolisHastings<n>::set_Q(std::function<Vector(const Vector&)> &Q)
+void MetropolisHastings<n>::setQ(std::function<Vector(const Vector&)> &Q)
 {
     Q_ = Q;
 };
@@ -189,16 +191,16 @@ void MetropolisHastings<n>::set_Q(Vector (*Q)(const Vector&))
 };*/
 
 template<std::size_t n>
-void MetropolisHastings<n>::setP(double (*p)(const Vector&))
+void MetropolisHastings<n>::setP(std::function<double(const Vector&)> &p)
 {
-    this->p_ = p;
+    p_ = p;
 };
-
+/*
 template<std::size_t n>
 void MetropolisHastings<n>::setQ(double (*q)(const Vector&, const Vector&))
 {
     this->q_ = q;
-};
+};*/
 
 template<std::size_t n>
 void MetropolisHastings<n>::setA(double (*A)(const double&, const Vector&, const Vector&))
@@ -242,8 +244,7 @@ void MetropolisHastings<n>::run(int n_iter)
     // initialize starting point
     Vector x_i = start_.sample();
     Vector x_star;
-    double A, u, pq_i ;
-    pq_i = this->p_(x_i) / this->q_(x_star, x_i);
+    double A, u;
     if (this->use_default_A_) 
     {
         for (int i=0; i< n_iter; i++)

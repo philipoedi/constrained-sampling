@@ -6,6 +6,7 @@
 #include <random>
 #include "sampler.hpp"
 #include "optimizer.hpp"
+#include "utils.hpp"
 #include <list>
 
 using namespace Eigen;
@@ -30,14 +31,14 @@ struct p
     // else returns 1
     double slack;
     std::vector<ConstraintCoeffs<n>> cons;
+    ConstraintCoeffs<n> cc;
     double operator()(const Matrix<double, n, 1> &x)
     {
-        std::vector<double> x_vec;
-        utils::copyEig2Vec(x, x_vec);
         typename std::vector<ConstraintCoeffs<n>>::iterator it;
         for (it = cons.begin(); it != cons.end(); ++it)
         {
-            slack = linearConstraint<n>(x_vec, *it);
+            cc = *it;
+            slack = linearConstraint<n>(x, &cc);
             if (slack > 0)
                 return 0;
         }
@@ -98,15 +99,21 @@ int main()
     MetropolisHastings<n> mh(lb, ub); 
     std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> f = ps;
     std::cout << f(x) << std::endl;
-    mh.set_Q(f);
+    mh.setQ(f);
     std::cout << "trying Q usign std::function" << std::endl;
     std::cout << mh.sampleQ(x) << std::endl;
     std::cout << "evaluate constraints and prob density of true dist" << std::endl;
     ConstraintCoeffs<n> cons;
+    cons.coeffs << 1.,1. ;
+    cons.cons = 2.;
     p<n> p_dense;
-    mh.setP(p_dense);
-    mh.setQ(q);
+    p_dense.cons.push_back(cons);
+    std::function<double(const Matrix<double,n,1>&)> p_func = p_dense;
+    mh.setP(p_func);
+    //mh.setQ(q);
+    std::cout << "evaluating P" << std::endl;
+    std::cout << p_func(lb_eig) << std::endl;
     std::cout << "trying run" << std::endl;
-    mh.run(n_iter); 
+    //mh.run(n_iter); 
     return 0;
 }

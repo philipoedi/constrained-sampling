@@ -70,29 +70,29 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <a href="optimizer_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifndef OPTIMIZER_H</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#define OPTIMIZER_H</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;iomanip&gt;</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &lt;Eigen/Dense&gt;</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;nlopt.hpp&gt;</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &lt;list&gt;</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="sampler_8hpp.html">sampler.hpp</a>&quot;</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="utils_8hpp.html">utils.hpp</a>&quot;</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">using namespace </span>nlopt;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">using namespace </span>Eigen;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">/* todo</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">    -adjust jacobian for slack opt when using quadratic sonstraint</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">*/</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">template</span>&lt;std::<span class="keywordtype">size_t</span> n&gt;</div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="structBias.html">   37</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structBias.html">Bias</a> {</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#ifndef OPTIMIZER_H</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#define OPTIMIZER_H</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;iomanip&gt;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;Eigen/Dense&gt;</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &lt;nlopt.hpp&gt;</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &lt;list&gt;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="sampler_8hpp.html">sampler.hpp</a>&quot;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="utils_8hpp.html">utils.hpp</a>&quot;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">using namespace </span>nlopt;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">using namespace </span>Eigen;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">/* todo</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">    -adjust jacobian for slack opt when using quadratic sonstraint</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">template</span>&lt;std::<span class="keywordtype">size_t</span> n&gt;</div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="structBias.html">   36</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structBias.html">Bias</a> {</div>
 <div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="structBias.html#a33420c2f94e41b93890a951dcd4629e1">   38</a></span>&#160;    Matrix&lt;double, n, 1&gt; <a class="code" href="structBias.html#a33420c2f94e41b93890a951dcd4629e1">x0</a>;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;};</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
@@ -726,8 +726,8 @@ $(function() {
 <div class="ttc" id="aoptimizer_8hpp_html_a5a24644de3ab7917d46bc7368a87b8fd"><div class="ttname"><a href="optimizer_8hpp.html#a5a24644de3ab7917d46bc7368a87b8fd">initSlackData</a></div><div class="ttdeci">void initSlackData(SlackData&lt; n, m, l &gt; &amp;sl)</div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00070">optimizer.hpp:70</a></div></div>
 <div class="ttc" id="aoptimizer_8hpp_html_aefd17447419e08224566597bc7da201b"><div class="ttname"><a href="optimizer_8hpp.html#aefd17447419e08224566597bc7da201b">BiasedObjective</a></div><div class="ttdeci">double BiasedObjective(const std::vector&lt; double &gt; &amp;x, std::vector&lt; double &gt; &amp;grad, void *data)</div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00095">optimizer.hpp:95</a></div></div>
 <div class="ttc" id="asampler_8hpp_html"><div class="ttname"><a href="sampler_8hpp.html">sampler.hpp</a></div></div>
-<div class="ttc" id="astructBias_html"><div class="ttname"><a href="structBias.html">Bias</a></div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00037">optimizer.hpp:37</a></div></div>
-<div class="ttc" id="astructBias_html_a33420c2f94e41b93890a951dcd4629e1"><div class="ttname"><a href="structBias.html#a33420c2f94e41b93890a951dcd4629e1">Bias::x0</a></div><div class="ttdeci">Matrix&lt; double, n, 1 &gt; x0</div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00038">optimizer.hpp:38</a></div></div>
+<div class="ttc" id="astructBias_html"><div class="ttname"><a href="structBias.html">Bias</a></div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00036">optimizer.hpp:36</a></div></div>
+<div class="ttc" id="astructBias_html_a33420c2f94e41b93890a951dcd4629e1"><div class="ttname"><a href="structBias.html#a33420c2f94e41b93890a951dcd4629e1">Bias::x0</a></div><div class="ttdeci">Matrix&lt; double, n, 1 &gt; x0</div><div class="ttdoc">Eigen Vector representing the bias.</div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00038">optimizer.hpp:38</a></div></div>
 <div class="ttc" id="astructConstraintCoeffs_html"><div class="ttname"><a href="structConstraintCoeffs.html">ConstraintCoeffs</a></div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00047">optimizer.hpp:47</a></div></div>
 <div class="ttc" id="astructConstraintCoeffs_html_a01a2afb818da4a0fb68a4a103b82d8f9"><div class="ttname"><a href="structConstraintCoeffs.html#a01a2afb818da4a0fb68a4a103b82d8f9">ConstraintCoeffs::P</a></div><div class="ttdeci">Matrix&lt; double, n, n &gt; P</div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00050">optimizer.hpp:50</a></div></div>
 <div class="ttc" id="astructConstraintCoeffs_html_a2975ea7853483b75be45424f336a64ee"><div class="ttname"><a href="structConstraintCoeffs.html#a2975ea7853483b75be45424f336a64ee">ConstraintCoeffs::q</a></div><div class="ttdeci">Matrix&lt; double, n, 1 &gt; q</div><div class="ttdef"><b>Definition:</b> <a href="optimizer_8hpp_source.html#l00049">optimizer.hpp:49</a></div></div>

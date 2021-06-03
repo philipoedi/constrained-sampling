@@ -6,8 +6,6 @@
     @date 2021-06-03
 */
 
-
-
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 #include <iomanip>
@@ -35,6 +33,7 @@ using namespace Eigen;
 */
 template<std::size_t n>
 struct Bias {
+    /// Eigen Vector representing the bias
     Matrix<double, n, 1> x0;
 };
 
@@ -45,6 +44,7 @@ struct Bias {
 */
 template<std::size_t n>
 struct ConstraintCoeffs {
+    /// 
     Matrix<double, n, 1> coeffs = Matrix<double, n, 1>::Zero();
     Matrix<double, n, 1> q = Matrix<double, n, 1>::Zero();
     Matrix<double, n, n> P = Matrix<double, n, n>::Zero();
@@ -143,6 +143,39 @@ double linearConstraint(const std::vector<double>& x, std::vector<double> &grad,
         utils::copyEig2Vec(c->coeffs, grad);
     }
     return x_vec.transpose() * c->coeffs - c->cons;
+}
+
+/**
+    Evaluates a linear constraint, function can be used with nlopt
+    @param x Current location at which to evaluate constraint 
+    @param grad Vector of current gradient
+    @param data Auxilliary data to be used in calculations
+    @return Constraint value
+*/
+template<std::size_t n> 
+double linearConstraint(const Matrix<double,n,1> &x, Matrix<double,n,1> &grad, void*data)
+{
+    typedef Matrix<double, n, 1> vec;
+    ConstraintCoeffs<n> *c = (ConstraintCoeffs<n>*) data;
+    if (!grad.empty()){
+        grad = c->coeffs;
+        //utils::copyEig2Vec(c->coeffs, grad);
+    }
+    return x.transpose() * c->coeffs - c->cons;
+}
+
+/**
+    Evaluates a linear constraint, function can be used with nlopt
+    @param x Current location at which to evaluate constraint 
+    @param grad Vector of current gradient
+    @param data Auxilliary data to be used in calculations
+    @return Constraint value
+*/
+template<std::size_t n> 
+double linearConstraint(const Matrix<double,n,1> &x, void*data)
+{
+    ConstraintCoeffs<n> *c = (ConstraintCoeffs<n>*) data;
+    return x.transpose() * c->coeffs - c->cons;
 }
 
 /**
