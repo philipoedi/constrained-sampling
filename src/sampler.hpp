@@ -6,6 +6,8 @@
 #include <Eigen/Dense>
 #include <random>
 #include <functional>
+#include "utils.hpp"
+
 
 using namespace Eigen;
 
@@ -129,39 +131,43 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
         //void setP(double (*p)(const Vector&));
         void setP(std::function<double(const Vector&)> &p);
         //void setQ(double (*q)(const Vector&, const Vector&));
-        void setA(double (*A)(const double&, const Vector&, const Vector&));
+        void setA(double (*A)(const Vector&, const Vector&));
         //void set_Q(Vector (*Q)(const Vector&));
-        void setQ(std::function<Vector(const Vector&)> &Q);
+        void setQSampler(std::function<Vector(const Vector&)> &Q);
+        void setQ(std::function<double(const Vector&, const Vector&)> &q);
         double getP(const Vector &x);
         double getQ(const Vector &x_star, const Vector &x_i);
         Vector sampleQ(const Vector &x);
         void run(const int n_iter);
-        double aDefault(const double &pq_i, const Vector &x_star, const Vector &x_i);
+        double aDefault(const Vector &x_star, const Vector &x_i);
+        void saveResults(const std::string &name);
+        void saveSamples(const std::string &name);
+        std::vector<std::vector<double>> results();
         //void set_Q_2(std::function<Vector(const Vector&)> &Q2);
 
     private:
 
         bool use_default_A_{true};
+        std::vector<std::vector<double>> samples_; // x_star
+        std::vector<std::vector<double>> results_; //x_i
         UniformSampler<n> start_;
         int n_samples;
-        Vector x_i_;
-        Vector x_star_;
-        double p_star_;
-        double q_star_;
-        double p_i_;
-        double q_i_;
-        double pq_i_;
         //double (*p_)(const Vector&);
-        double (*q_)(const Vector&, const Vector&);
-        double (*A_)(const double&, const Vector&, const Vector&);
+        //double (*q_)(const Vector&, const Vector&);
+        double (*A_)(const Vector&, const Vector&);
+        std::function<double(const Vector&, const Vector&)> q_;
         std::function<double(const Vector&)> p_;
         std::function<Vector(const Vector&)> Q_;
         //Vector& (*Q_)(const Vector&, void*data);
 };
 
+
+// this is not finished
+// return results propoerly
 template<std::size_t n>
-MetropolisHastings<n>::MetropolisHastings(): BaseSampler<n>()
+std::vector<std::vector<double>> MetropolisHastings<n>::results()
 {
+    return results_;
 };
 
 template<std::size_t n>
@@ -172,9 +178,15 @@ MetropolisHastings<n>::MetropolisHastings(const T &lb, const T &ub)
 };
 
 template<std::size_t n>
-void MetropolisHastings<n>::setQ(std::function<Vector(const Vector&)> &Q)
+void MetropolisHastings<n>::setQSampler(std::function<Vector(const Vector&)> &Q)
 {
     Q_ = Q;
+};
+
+template<std::size_t n>
+void MetropolisHastings<n>::setQ(std::function<double(const Vector&, const Vector&)> &q)
+{
+    q_ = q;
 };
 
 template<std::size_t n>
@@ -203,7 +215,7 @@ void MetropolisHastings<n>::setQ(double (*q)(const Vector&, const Vector&))
 };*/
 
 template<std::size_t n>
-void MetropolisHastings<n>::setA(double (*A)(const double&, const Vector&, const Vector&))
+void MetropolisHastings<n>::setA(double (*A)(const Vector&, const Vector&))
 {
     this->A_ = A;
 }
@@ -223,12 +235,14 @@ double MetropolisHastings<n>::getQ(const Vector &x_star, const Vector &x_i)
 
 
 template<std::size_t n>
-double MetropolisHastings<n>::aDefault(const double &pq_i, const Vector &x_star, const Vector &x_i)
+double MetropolisHastings<n>::aDefault(const Vector &x_star, const Vector &x_i)
 {
-    double p_star, q_star, pq_q;
+    double p_star, q_star, pq_q, q_i, p_i;
     p_star = this->p_(x_star);
     q_star = this->q_(x_star, x_i);
-    pq_q = (p_star/q_star) / (pq_i);
+    p_i = this->p_(x_i);
+    q_i = this->q_(x_i, x_star);
+    pq_q = (p_star/q_star) / (p_i/q_i);
     return (pq_q < 1) ? pq_q : 1; 
 }; 
 
@@ -251,12 +265,92 @@ void MetropolisHastings<n>::run(int n_iter)
         {
             u = u_sampler(generator);
             x_star = Q_(x_i);
-            A = aDefault(pq_i, x_star, x_i);
-            x_i = (u < A) ? x_star : x_i;
-            std::cout << x_i << std::endl;
+            A = aDefault(x_star, x_i);
+            std::cout << A << std::endl;
+            if (u<A)
+            {
+                x_i = x_star;
+                results_.push_back(utils::copyEig2Vec(x_i));
+            }               
+            samples_.push_back(utils::copyEig2Vec(x_star));
         }
     }
         // append data to some datastructure
+};
+
+template<std::size_t n>
+void MetropolisHastings<n>::saveResults(const std::string &name)
+{
+    utils::writeVec2File(results_, name);
+};
+
+template<std::size_t n>
+void MetropolisHastings<n>::saveSamples(const std::string &name)
+{
+    utils::writeVec2File(samples_, name);
+};
+
+
+template <std::size_t n>
+class UniformNeighborhoodSampler: public BaseSampler<n>
+{
+    typedef Matrix<double, n, 1> Vector;
+    enum {NeedsToAlign = (sizeof(Vector)%16)==0};
+
+    public:
+        template<typename T> UniformNeighborhoodSampler(const T &lb, const T &ub): BaseSampler<n>(lb, ub){};
+        // proposal prob density
+        double operator()(const Vector& x_star, const Vector& x_i);
+        // sample from proposal dist
+        Vector operator()(const Vector& x);
+    
+    private:
+        Vector widths_, lb_i_, ub_i_;
+        UniformSampler<n> uni_;
+};
+
+// target prob dens
+template<std::size_t n>
+struct TargetProb
+{
+    std::vector<ConstraintCoeffs<n>> cons;
+    double slack{0};
+    double operator(const Matrix<double,n,1> &x){
+        typename std::vector<ConstraintCoeffs<n>>::iterator it;
+        for(it = cons.begin(); it != cons.end(); ++it)
+        {
+            cons_temp = *it;
+            if (cons_temp.constype == "linear")
+            {
+                slack = linearConstraint<n>(x,&cons_temp);
+            } else if (const_temp.constype == "quadraic") {
+                slack = quadraticConstraint<n>(x,&cons_temp);
+            } else {
+                std::cout << "wrong constraint type" << std::endl;
+            };
+            if (slack > 0) return 0;
+        }
+        return 1;
+    }
+};
+
+// proposal prob dens
+template<std::size_t n>
+double UniformNeighborhoodSampler<n>::operator()(const Vector &x_star, const Vector &x_i)
+{
+    return 1;
+};
+
+// sample from prop dist
+template<std::size_t n>
+Matrix<double,n,1> UniformNeighborhoodSampler<n>::operator()(const Vector &x)
+{
+    lb_i_ = x - widths;
+    ub_i_ = x + widths_; 
+    lb_i_ = lb_i_.cwiseMax(this->lb_);
+    ub_i_ = ub_i_.cwiseMin(this->ub_);  
+    uni_.setBounds(lb_i_, ub_i_);
+    return uni_.sample();
 };
 
 

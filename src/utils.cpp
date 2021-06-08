@@ -38,7 +38,13 @@ namespace utils
             dst[i] = src(i);
         }
     };
-    
+
+    std::vector<double> copyEig2Vec(const VectorXd& src)
+    {
+        std::vector<double> dst(src.data(), src.data() + src.rows() * src.cols());
+        return dst;
+    };
+
     void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst)
     {
         std::size_t d{src.size()};

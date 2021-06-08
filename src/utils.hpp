@@ -25,6 +25,8 @@ namespace utils
 
     void copyEig2Vec(const VectorXd& src, std::vector<double>& dst);
     
+    std::vector<double> copyEig2Vec(const VectorXd& src);
+    
     void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst);
 
     void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name);

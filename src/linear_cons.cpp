@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include "utils.hpp"
 #include <cassert>
+#include "sampler.hpp"
 
 using namespace Eigen;
 
@@ -23,7 +24,7 @@ const std::size_t m{2};
 const std::size_t l{0};
 
 // method to for sampling
-// {"Biased", "slack"}
+// {"Biased", "slack", "metropolis_hastings"}
 const std::string method{"slack"};
 
 // lower bounds
@@ -96,35 +97,54 @@ int main()
 
     KernelEstimator<n_iter,n> kdest;
     //std::vector<std::vector<double>> res;
-    BaseOptimizer<n> opti();
-    assert (method == "Biased" || method == "slack");
+    assert (method == "biased" || method == "slack");
     std::string name = utils::getDateString()+"_"+ method + "_linear"+"_"+name_suffix;
-    if (method == "Biased")
+    if (method == "biased" || method == "slack")
     {
-        BiasedOptimizer<n> opti(ineqc, lb, ub);
-        opti.addConstraints(ineqc2);
-        opti.run(n_iter);
-        //opti.results(res);
-        opti.saveResults(name+"_results");
-        opti.save_samples(name+"_samples");
-        kdest.fit(opti.results());
-        kdest.find_optimal_bandwidth(band_est);
-        kdest.predict(lb, ub, step);
-        kdest.savePdes(name+"_pdes");
-    }
-    else 
-    {
-        SlackOptimizer<n,m,l> opti(ineqc2, lb, ub);
-        opti.addConstraints(ineqc);
-        opti.run(n_iter);
-        //opti.results(res);
-        opti.saveResults(name+"_results");
-        opti.save_samples(name+"_samples");
-        kdest.fit(opti.results());
-        kdest.find_optimal_bandwidth(band_est);
-        kdest.predict(lb, ub, step);
-        kdest.savePdes(name+"_pdes");
-    };
+        if (method == "biased")
+        {
+            BiasedOptimizer<n> opti(ineqc, lb, ub);
+            opti.addConstraints(ineqc2);
+            opti.run(n_iter);
+            //opti.results(res);
+            opti.saveResults(name+"_results");
+            opti.save_samples(name+"_samples");
+            kdest.fit(opti.results());
+            kdest.find_optimal_bandwidth(band_est);
+            kdest.predict(lb, ub, step);
+            kdest.savePdes(name+"_pdes");
+        }
+        else 
+        {
+            SlackOptimizer<n,m,l> opti(ineqc2, lb, ub);
+            opti.addConstraints(ineqc);
+            opti.run(n_iter);
+            //opti.results(res);
+            opti.saveResults(name+"_results");
+            opti.save_samples(name+"_samples");
+            kdest.fit(opti.results());
+            kdest.find_optimal_bandwidth(band_est);
+            kdest.predict(lb, ub, step);
+            kdest.savePdes(name+"_pdes");
+        };
+     }  else if (method == "metropolis_hastings") {
+            std::function<double(const Matrix<double,n,1>&)> p; 
+            std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> QSample;
+            std::function<double(const Matrix<double,n,1>&, const Matrix<double,n,1>&)> q;
+            if (proposal_sampler == "uniform")
+            {
+                NeighborhoodSampler<n> ns(proposal_sampler);
+                ns.setWidht(widht);
+                ns.addConstraints(cons);
+            }
+            MetropolisHastings<n> mh;
+            mh.setQ;
+            mh.setQSampler();
+            mh.setP();
+            mh.run(n_iter);
+     } else {
+        std::cout << "wrong method chosen. Set method to biased//slack//metropolis_hastings" <<std::endl;
+     };
      // saving results
 
     // writing resúlts to file

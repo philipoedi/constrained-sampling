@@ -58,6 +58,17 @@ int main(){
     
     std::string today = utils::getDateString();
     std::cout << today << std::endl;
+    
+    std::cout << "testing copy_eig2vec" << std::endl;
+
+    std::vector<double> vec = utils::copyEig2Vec(eig1);
+    std::vector<double>::iterator it;
+    for (it = vec.begin(); it != vec.end(); ++it)
+    {
+        std::cout << *it << std::endl;
+    }
+
+
     return 0;
 }
 

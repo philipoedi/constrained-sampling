@@ -13,7 +13,7 @@ using namespace Eigen;
 
 
 const std::size_t n{2};
-const int n_iter{5};
+const int n_iter{100};
 
 typedef Matrix<double,n,1> Vector;
 
@@ -99,10 +99,14 @@ int main()
     MetropolisHastings<n> mh(lb, ub); 
     std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> f = ps;
     std::cout << f(x) << std::endl;
-    mh.setQ(f);
+    mh.setQSampler(f);
     std::cout << "trying Q usign std::function" << std::endl;
     std::cout << mh.sampleQ(x) << std::endl;
     std::cout << "evaluate constraints and prob density of true dist" << std::endl;
+    std::function<double(const Matrix<double,n,1>&, const Matrix<double,n,1>&)> q2 = q;
+    mh.setQ(q2);
+    std::cout << "evaluating q "<< std::endl;
+    std::cout << mh.getQ(lb_eig, ub_eig) << std::endl;
     ConstraintCoeffs<n> cons;
     cons.coeffs << 1.,1. ;
     cons.cons = 2.;
@@ -114,6 +118,13 @@ int main()
     std::cout << "evaluating P" << std::endl;
     std::cout << p_func(lb_eig) << std::endl;
     std::cout << "trying run" << std::endl;
-    //mh.run(n_iter); 
+    mh.setP(p_func);
+    mh.run(n_iter); 
+    std::string name{"_test"};
+    mh.saveResults("results"+name);
+    mh.saveSamples("samples"+name);
+    // testing UniformNeighborhoodSampler
+    UniformNeighborhoodSampler uns;
+
     return 0;
 }
