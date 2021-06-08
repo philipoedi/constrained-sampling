@@ -45,7 +45,7 @@ namespace utils
         return dst;
     };
 
-    void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst)
+   void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst)
     {
         std::size_t d{src.size()};
         dst.resize(d);

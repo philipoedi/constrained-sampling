@@ -7,7 +7,7 @@
 #include <random>
 #include <functional>
 #include "utils.hpp"
-
+#include "constraints.hpp"
 
 using namespace Eigen;
 
@@ -298,12 +298,14 @@ class UniformNeighborhoodSampler: public BaseSampler<n>
     enum {NeedsToAlign = (sizeof(Vector)%16)==0};
 
     public:
+        UniformNeighborhoodSampler(){};
         template<typename T> UniformNeighborhoodSampler(const T &lb, const T &ub): BaseSampler<n>(lb, ub){};
         // proposal prob density
         double operator()(const Vector& x_star, const Vector& x_i);
         // sample from proposal dist
         Vector operator()(const Vector& x);
-    
+        void setWidths(const Vector &widths); 
+
     private:
         Vector widths_, lb_i_, ub_i_;
         UniformSampler<n> uni_;
@@ -315,7 +317,8 @@ struct TargetProb
 {
     std::vector<ConstraintCoeffs<n>> cons;
     double slack{0};
-    double operator(const Matrix<double,n,1> &x){
+    ConstraintCoeffs<n> cons_temp;
+    double operator()(const Matrix<double,n,1> &x){
         typename std::vector<ConstraintCoeffs<n>>::iterator it;
         for(it = cons.begin(); it != cons.end(); ++it)
         {
@@ -323,7 +326,7 @@ struct TargetProb
             if (cons_temp.constype == "linear")
             {
                 slack = linearConstraint<n>(x,&cons_temp);
-            } else if (const_temp.constype == "quadraic") {
+            } else if (cons_temp.constype == "quadratic") {
                 slack = quadraticConstraint<n>(x,&cons_temp);
             } else {
                 std::cout << "wrong constraint type" << std::endl;
@@ -333,6 +336,13 @@ struct TargetProb
         return 1;
     }
 };
+
+template<std::size_t n>
+void UniformNeighborhoodSampler<n>::setWidths(const Vector &widths)
+{
+    widths_ = widths;
+}
+
 
 // proposal prob dens
 template<std::size_t n>
@@ -345,13 +355,30 @@ double UniformNeighborhoodSampler<n>::operator()(const Vector &x_star, const Vec
 template<std::size_t n>
 Matrix<double,n,1> UniformNeighborhoodSampler<n>::operator()(const Vector &x)
 {
-    lb_i_ = x - widths;
+    lb_i_ = x - widths_;
     ub_i_ = x + widths_; 
     lb_i_ = lb_i_.cwiseMax(this->lb_);
     ub_i_ = ub_i_.cwiseMin(this->ub_);  
     uni_.setBounds(lb_i_, ub_i_);
     return uni_.sample();
 };
+
+
+template<std::size_t n>
+class NormalNeighborhoodSampler : public BaseSampler<n>
+{
+    typedef Matrix<double, n, 1> Vector;
+    enum {NeedsToAlign = (sizeof(Vector)%16)==0};
+
+
+    public:
+        NormalNeighborhoodSampler;
+        void setStd(const double sdev);
+        double operator()(const Vector &x_star, const Vector &x_i);
+        Vector operator()(const Vector &x);
+    private:
+        Vector sdevs;
+}
 
 
 /*

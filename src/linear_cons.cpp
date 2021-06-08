@@ -14,7 +14,7 @@ using namespace Eigen;
 // 1. Problem spcifications////
 ///////////////////////////////
 
-std::string name_suffix = "island";
+std::string name_suffix = "2";
 
 // dimension - number of decision variables
 const std::size_t n{2};
@@ -25,7 +25,7 @@ const std::size_t l{0};
 
 // method to for sampling
 // {"Biased", "slack", "metropolis_hastings"}
-const std::string method{"slack"};
+const std::string method{"metropolis_hastings"};
 
 // lower bounds
 const std::vector<double> lb{0,0};
@@ -45,6 +45,13 @@ double b{-1};
 std::vector<double> c2{1,1};
 double b2{2};
 
+
+////////////////////
+// 1.2 MH settings//
+////////////////////
+
+const std::string proposal_sampler{"uniform"};
+std::vector<double> widths{1,1};
 
 ////////////////////
 // 2. Simulations///
@@ -78,6 +85,7 @@ int main()
     };*/
 
     ConstraintCoeffs<n> ineqc;
+    std::vector<ConstraintCoeffs<n>> constraints;
     for (int i=0; i<n; i++)
     {
         ineqc.coeffs(i) = c[i];
@@ -97,7 +105,6 @@ int main()
 
     KernelEstimator<n_iter,n> kdest;
     //std::vector<std::vector<double>> res;
-    assert (method == "biased" || method == "slack");
     std::string name = utils::getDateString()+"_"+ method + "_linear"+"_"+name_suffix;
     if (method == "biased" || method == "slack")
     {
@@ -131,17 +138,26 @@ int main()
             std::function<double(const Matrix<double,n,1>&)> p; 
             std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> QSample;
             std::function<double(const Matrix<double,n,1>&, const Matrix<double,n,1>&)> q;
-            if (proposal_sampler == "uniform")
-            {
-                NeighborhoodSampler<n> ns(proposal_sampler);
-                ns.setWidht(widht);
-                ns.addConstraints(cons);
-            }
-            MetropolisHastings<n> mh;
-            mh.setQ;
-            mh.setQSampler();
-            mh.setP();
+            UniformNeighborhoodSampler<n> ns(lb, ub);
+            Matrix<double,n,1> widths_vec(widths.data());
+            ns.setWidths(widths_vec);
+            TargetProb<n> tp;
+            tp.cons.push_back(ineqc);
+            tp.cons.push_back(ineqc2);
+            MetropolisHastings<n> mh(lb, ub);
+            p = tp;
+            QSample = ns;
+            q = ns;
+            mh.setQ(q);
+            mh.setQSampler(QSample);
+            mh.setP(p);
             mh.run(n_iter);
+            mh.saveResults(name+"_results");
+            mh.saveSamples(name+"_samples");
+            kdest.fit(mh.results());
+            kdest.find_optimal_bandwidth(band_est);
+            kdest.predict(lb, ub, step);
+            kdest.savePdes(name+"_pdes");
      } else {
         std::cout << "wrong method chosen. Set method to biased//slack//metropolis_hastings" <<std::endl;
      };

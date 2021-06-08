@@ -2,6 +2,7 @@
 #include "optimizer.hpp"
 #include <vector>
 #include <nlopt.hpp>
+#include "constraints.hpp"
 
 using namespace nlopt;
 

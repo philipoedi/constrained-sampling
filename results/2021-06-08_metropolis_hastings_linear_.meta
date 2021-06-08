@@ -1,7 +1,7 @@
 // 1. Problem spcifications////
 ///////////////////////////////
 
-std::string name_suffix = "island";
+std::string name_suffix = "";
 
 // dimension - number of decision variables
 const std::size_t n{2};
@@ -11,8 +11,8 @@ const std::size_t m{2};
 const std::size_t l{0};
 
 // method to for sampling
-// {"Biased", "slack"}
-const std::string method{"slack"};
+// {"Biased", "slack", "metropolis_hastings"}
+const std::string method{"metropolis_hastings"};
 
 // lower bounds
 const std::vector<double> lb{0,0};
@@ -32,6 +32,13 @@ double b{-1};
 std::vector<double> c2{1,1};
 double b2{2};
 
+
+////////////////////
+// 1.2 MH settings//
+////////////////////
+
+const std::string proposal_sampler{"uniform"};
+std::vector<double> widths{1,1};
 
 ////////////////////
 // 2. Simulations///

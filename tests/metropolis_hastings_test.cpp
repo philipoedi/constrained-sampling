@@ -110,6 +110,7 @@ int main()
     ConstraintCoeffs<n> cons;
     cons.coeffs << 1.,1. ;
     cons.cons = 2.;
+    cons.type = "linear";
     p<n> p_dense;
     p_dense.cons.push_back(cons);
     std::function<double(const Matrix<double,n,1>&)> p_func = p_dense;
@@ -124,7 +125,28 @@ int main()
     mh.saveResults("results"+name);
     mh.saveSamples("samples"+name);
     // testing UniformNeighborhoodSampler
-    UniformNeighborhoodSampler uns;
-
+    std::cout << "trying UniformNeighborhoodSampler" << std::endl;
+    UniformNeighborhoodSampler<n> uns;
+    uns.setBounds(lb_eig, ub_eig);
+    std::cout << uns(lb_eig) << std::endl; 
+    uns.setWidths(w);
+    std::cout << "sample from proposal dist" << std::endl;
+    std::cout << uns(lb_eig) << std::endl;
+    std::cout << "prob of proposal" << std::endl; 
+    std::cout << uns(lb_eig, ub_eig) <<std::endl;
+    std::cout << "trying tartget prob" << std::endl;
+    TargetProb<n> tp;
+    tp.cons.push_back(cons);
+    std::cout << tp(lb_eig) << std::endl;
+    assert(tp(lb_eig) == 1);
+    assert(tp(ub_eig) == 0);
+    std::cout << tp(ub_eig) << std::endl;
+    std::function<double(const Matrix<double,n,1>&)> target = tp;
+    std::function<double(const Matrix<double,n,1>&, const Matrix<double,n,1>&)> proposal = uns;
+    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> p_samp = uns;
+    mh.setP(target);
+    mh.setQ(proposal);
+    mh.setQSampler(p_samp);
+    mh.run(n_iter);
     return 0;
 }
