@@ -25,7 +25,7 @@ const std::size_t l{0};
 
 // method to for sampling
 // {"Biased", "slack", "metropolis_hastings"}
-const std::string method{"metropolis_hastings"};
+const std::string method{"biased"};
 
 // lower bounds
 const std::vector<double> lb{0,0};
@@ -91,7 +91,7 @@ int main()
         ineqc.coeffs(i) = c[i];
     };
     ineqc.cons = b;
-    ineqc.type = "ineq";
+    ineqc.type = "eq";
     ineqc.constype = "linear";
 
     ConstraintCoeffs<n> ineqc2;
@@ -111,7 +111,7 @@ int main()
         if (method == "biased")
         {
             BiasedOptimizer<n> opti(ineqc, lb, ub);
-            opti.addConstraints(ineqc2);
+            //opt.addConstraints(ineqc2);
             opti.run(n_iter);
             //opti.results(res);
             opti.saveResults(name+"_results");

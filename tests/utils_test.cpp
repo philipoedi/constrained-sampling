@@ -2,12 +2,16 @@
 #include "utils.hpp"
 #include <cassert>
 #include <vector>
+#include <algorithm>
+#include <functional>
+
+
 
 int main(){
-    
+    using namespace std::placeholders;    
 
     // test factorial
-    int n = 3;
+    const int n = 3;
     int res;
     res = utils::factorial(n);
     std::cout << res << std::endl;
@@ -25,6 +29,7 @@ int main(){
 
     std::vector<double> vec3{2,3,4};
     Vector3d eig1(vec3.data());
+    Vector3d eig2(vec1.data());
     utils::copyEig2Vec(eig1, vec1);
     for (int i=0; i<vec1.size(); i++)
      {
@@ -51,7 +56,7 @@ int main(){
     std::cout << "test writing to file" << std::endl;
     std::vector<std::vector<double>> data(2,std::vector<double>(4));
     std::string name{"example_file"};
-    utils::writeVec2File(data, name);
+    utils::writeVec2File<double>(data, name);
     
     name = "../src/linear_cons.cpp";
     utils::writeMetadata2File(name,"example_file");
@@ -68,7 +73,15 @@ int main(){
         std::cout << *it << std::endl;
     }
 
-
+    std::cout << "$distance: "<< utils::squaredDist<n>(eig1, eig2) << std::endl;
+    assert(utils::squaredDist<n>(eig1,eig2) == 3);
+    std::vector<Vector3d> eigs;
+    eigs.push_back(eig1);
+    eigs.push_back(eig1);
+    eigs.push_back(eig1);
+    std::vector<double> out;
+    std::transform(eigs.begin(),eigs.end(),std::back_inserter(out),std::bind(utils::squaredDist<n>, eig2, _1));
+    std::cout << out[0] << out[2] << std::endl;
     return 0;
 }
 

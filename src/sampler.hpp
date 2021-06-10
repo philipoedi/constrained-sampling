@@ -364,6 +364,10 @@ Matrix<double,n,1> UniformNeighborhoodSampler<n>::operator()(const Vector &x)
 };
 
 
+
+
+/*
+
 template<std::size_t n>
 class NormalNeighborhoodSampler : public BaseSampler<n>
 {
@@ -379,7 +383,7 @@ class NormalNeighborhoodSampler : public BaseSampler<n>
     private:
         Vector sdevs;
 }
-
+*/
 
 /*
 template<std::size_t n>

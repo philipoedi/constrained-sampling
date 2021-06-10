@@ -29,11 +29,24 @@ namespace utils
 
     void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst);
 
-    void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name);
+    template<typename T>
+    void writeVec2File(const std::vector<std::vector<T>> &data, const std::string &name);
 //    void write2file_results(const std::vector<std::vector<double>>& seeds, const std::vector<std::vector>>& samples);
     void writeMetadata2File(const std::string &problem_file, const std::string &name);
 
     std::string getDateString();
+
+    template<std::size_t n>
+    double squaredDist(const Matrix<double,n,1> &v1, const Matrix<double,n,1> &v2) 
+    { 
+       return (v1 - v2).squaredNorm(); 
+    };
+   
+
+  /*  template<std::size_t n>
+    double squaredDist(const node<n> &n1, const Matrix<double,n,1> &v2){ 
+        return squaredDist(n1(), v2);
+    };*/
 }
 // over load add eigen to vector
 

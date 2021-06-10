@@ -41,6 +41,7 @@ template<std::size_t n, std::size_t d> class Kernel
         int nu_ = 2;
         double R_ = 3./5.;
         double kappa_ = 1./5.;
+        std::size_t num_rows{n};
                
 };
 
@@ -63,6 +64,7 @@ void Kernel<n,d>::fit(const dataMatrix& data)
 template<std::size_t n, std::size_t d>
 void Kernel<n,d>::addData(const std::vector<double> data, const std::size_t i)
 {
+
     for (int j=0; j<d; j++)
     {
         data_(i,j) = data[j];
@@ -254,7 +256,7 @@ void KernelEstimator<n,d>::predict(const std::vector<double>& lb, const std::vec
 template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::fit(const std::vector<std::vector<double>>& data)
 {
-   for (int i=0; i<data.size(); i++)
+    for (int i=0; i<data.size(); i++)
     {
         k_.addData(data[i], i);
     }

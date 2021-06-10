@@ -56,7 +56,8 @@ namespace utils
         }
     };
 
-    void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name)
+    template<typename T>
+    void writeVec2File<T>(const std::vector<std::vector<T>> &data, const std::string &name)
     {
         std::ofstream file;
         std::string file_name;
@@ -129,4 +130,7 @@ namespace utils
         strftime(date_string, 12, "%Y-%m-%d", now_tm);
         return date_string;
     };
+
+    
+
 }
