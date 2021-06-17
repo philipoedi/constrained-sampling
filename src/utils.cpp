@@ -39,6 +39,14 @@ namespace utils
         }
     };
 
+    void copyEig2Arr(const VectorXd& src, double *dst)
+    {
+        for (int i=0; i<src.size(); i++){
+            dst[i] = src(i);
+        }
+    };
+
+
     std::vector<double> copyEig2Vec(const VectorXd& src)
     {
         std::vector<double> dst(src.data(), src.data() + src.rows() * src.cols());
@@ -56,8 +64,38 @@ namespace utils
         }
     };
 
-    template<typename T>
-    void writeVec2File<T>(const std::vector<std::vector<T>> &data, const std::string &name)
+    void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name)
+    {
+        std::ofstream file;
+        std::string file_name;
+        file_name = name + ".dat";
+        file.open(file_name);
+        std::size_t d{data.size()};
+        std::size_t d2{data[0].size()};
+        std::string line;
+        if (file.is_open())
+        {
+            for (int i=0; i<d; i++)
+            {
+                line = "";
+                for (int j=0; j<d2; j++)
+                {
+                   line += std::to_string(data[i][j]);
+                   line += " "; 
+                }
+                line += "\n";
+                file << line;
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "unable to open file" << std::endl;
+        }
+
+    };
+
+    void writeVec2File(const std::vector<std::vector<int>> &data, const std::string &name)
     {
         std::ofstream file;
         std::string file_name;

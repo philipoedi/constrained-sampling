@@ -103,6 +103,8 @@ double quadraticConstraint(const std::vector<double>& x, std::vector<double>& gr
     }
     res += 0.5 * x_vec.transpose() * c->P * x_vec; 
     res += x_vec.transpose()*c->q;  
+    std::cout << "x: " << x_vec << std::endl;
+    std::cout << "result: " << res -  c->r << "r: "<< c->r << std::endl;
     return res - c->r;
 }
 
@@ -113,9 +115,54 @@ double quadraticConstraint(const Matrix<double,n,1> &x, void*data)
     double res{0};
     res += 0.5 * x.transpose() * c->P * x;
     res += x.transpose()*c->q;
+
     return res - c->r;
 }
+/*
+template<std::size_t n>
+class TangentSpace {
+
+    public:
+        
+        
+    private:
 
 
+};
+
+struct tangentSpaceFinder
+{
+    Matrix<double,n,m> jac;
+
+
+};
+
+
+void tangentSpaceConstraint(unsigned m, double *result, unsigned n, const double* x, double* grad, void* f_data)
+{
+
+    if grad{
+        
+
+    }
+
+    Matrix<double,n,m> theta(x[1:].data());
+
+    Matrix<double,m,n> jac = jacobian(x);
+    
+    Matrix<double,m,m> res1;
+    res1 = jac*theta;
+    res2 = theta.T@theta - identity<m,m>;
+    res1.flatten();
+    res2.flatten();
+    res = [res1,res2];
+    return res;
+
+
+
+    //
+
+}
+*/
 
 #endif

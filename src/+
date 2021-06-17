@@ -1,0 +1,51 @@
+#ifdef TANGENT_H
+#define TANGET_H
+#include <iostream>
+#include "constraints.hpp"
+#include "optimizer.hpp"
+#include <Eigen/Dense>
+
+using namespace Eigen;
+
+
+template<std::size_t n,m> // n dimension ambient space, m equality constraints
+class TangentSpace {
+
+    typedef Matrix<double,n,1> AmbientVector;
+    typedef Matrix<double,k_,1> TangVector; // Vector with dimension of the tangent space 
+
+    public:
+
+        TangentSpace(){};
+        TangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac);
+        void findTangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac); // jacobian of implicit manifold def
+        Matrix<double,n,1> toAmbient(const TangVector &u);
+
+    private:
+
+        Matrix<double,n,k_> theta_; // map from lower dimensional tangent space to ambient space
+        AmbientVector x0_;
+        std::size_t k_{n-m};
+        BiasedOptimizer<n*k> bopt_;
+
+}
+
+template<std::size_t n,m>
+TangentSpace<n,m>::TangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac){
+    findTangentSpace(x0, jac);
+};
+
+template<std::size_t n,m>
+void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac){
+    
+};
+
+
+template<std::size_t n,m>
+void tangentSpaceConstraints(unsigned m, double *result, unsigned n, const double *x, double *grad, void* f_data){
+    Matrix<double,m,n>  *jac = reinterpret_cast<Matrix<double,m,n>*>(f_data)
+
+};
+
+
+#endif

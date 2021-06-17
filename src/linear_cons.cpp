@@ -7,6 +7,8 @@
 #include "utils.hpp"
 #include <cassert>
 #include "sampler.hpp"
+#include "RRT.hpp"
+
 
 using namespace Eigen;
 
@@ -14,7 +16,7 @@ using namespace Eigen;
 // 1. Problem spcifications////
 ///////////////////////////////
 
-std::string name_suffix = "2";
+std::string name_suffix = "5000";
 
 // dimension - number of decision variables
 const std::size_t n{2};
@@ -24,8 +26,8 @@ const std::size_t m{2};
 const std::size_t l{0};
 
 // method to for sampling
-// {"Biased", "slack", "metropolis_hastings"}
-const std::string method{"biased"};
+// {"Biased", "slack", "metropolis_hastings","RRT}
+const std::string method{"RRT"};
 
 // lower bounds
 const std::vector<double> lb{0,0};
@@ -54,11 +56,18 @@ const std::string proposal_sampler{"uniform"};
 std::vector<double> widths{1,1};
 
 ////////////////////
+// 1.3 RRT setting//
+////////////////////
+
+//stepsize
+const double alpha{0.005};
+
+////////////////////
 // 2. Simulations///
 ////////////////////
 
 // number of samples
-const int n_iter{1000};
+const int n_iter{5000};
 
 
 ////////////////////
@@ -91,7 +100,7 @@ int main()
         ineqc.coeffs(i) = c[i];
     };
     ineqc.cons = b;
-    ineqc.type = "eq";
+    ineqc.type = "ineq";
     ineqc.constype = "linear";
 
     ConstraintCoeffs<n> ineqc2;
@@ -158,8 +167,20 @@ int main()
             kdest.find_optimal_bandwidth(band_est);
             kdest.predict(lb, ub, step);
             kdest.savePdes(name+"_pdes");
+     } else if (method == "RRT") {
+         RRT<n> rrt;
+         rrt.setBounds(lb, ub);
+         rrt.addConstraint(ineqc);
+         rrt.setStepSize(alpha);
+         rrt.explore(n_iter);
+         rrt.saveResults(name+"_results");
+         rrt.saveSamples(name+"_samples");
+         kdest.fit(rrt.results());
+         kdest.find_optimal_bandwidth(band_est);
+         kdest.predict(lb,ub,step);
+         kdest.savePdes(name+"_pdes");
      } else {
-        std::cout << "wrong method chosen. Set method to biased//slack//metropolis_hastings" <<std::endl;
+        std::cout << "wrong method chosen. Set method to biased//slack//metropolis_hastings//RRT" <<std::endl;
      };
      // saving results
 

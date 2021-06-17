@@ -169,6 +169,7 @@ class BiasedOptimizer: public BaseOptimizer<n>
             const std::vector<double>& lb, 
             const std::vector<double>& ub):
             BaseOptimizer<n>(cons,lb, ub){}; 
+        template<std::size_t m> void addConstraints(TangentSpace<n,m> &tang);
       void run(const int niter);
     
     private:
@@ -268,7 +269,6 @@ void BaseOptimizer<n>::run(const int niter)
 {
     std::cout << "base run" << std::endl;   
 }
-
 
 template<std::size_t n>
 void BaseOptimizer<n>::addConstraints(
@@ -372,6 +372,14 @@ BiasedOptimizer<n>::BiasedOptimizer()
 {
     std::cout <<"Biased"  <<std::endl;
 }
+
+template<std::size_t n>
+template<std::size_t m>
+void BiasedOptimizer<n>::addConstraints(TangentSpace<n,m> &tang){
+    std::vector<double> tols(m*(n-m)+(n-m)*(n-m),1e-8);
+    opt_.add_mquality_constraint(tangentSpaceConstraints, tang,tols); 
+}
+
 
 template<std::size_t n>
 void BiasedOptimizer<n>::run(const int niter){

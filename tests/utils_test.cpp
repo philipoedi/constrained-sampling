@@ -56,7 +56,7 @@ int main(){
     std::cout << "test writing to file" << std::endl;
     std::vector<std::vector<double>> data(2,std::vector<double>(4));
     std::string name{"example_file"};
-    utils::writeVec2File<double>(data, name);
+    //utils::writeVec2File<double>(data, name);
     
     name = "../src/linear_cons.cpp";
     utils::writeMetadata2File(name,"example_file");
@@ -82,6 +82,12 @@ int main(){
     std::vector<double> out;
     std::transform(eigs.begin(),eigs.end(),std::back_inserter(out),std::bind(utils::squaredDist<n>, eig2, _1));
     std::cout << out[0] << out[2] << std::endl;
+
+    double ress[3];
+    std::cout << "testing copyEig2Arr" << std::endl;
+    utils::copyEig2Arr(eig2,ress);
+    std::cout << ress[0] << " " << ress[1] << " " << ress[2] << std::endl;
+    std::cout << eig2 <<std::endl;
     return 0;
 }
 
