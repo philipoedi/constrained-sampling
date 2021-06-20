@@ -4,16 +4,17 @@
 #include "constraints.hpp"
 #include "optimizer.hpp"
 #include <Eigen/Dense>
+#include <nlopt.hpp>
+
 
 using namespace Eigen;
+using namespace nlopt;
 
 template<std::size_t n, std::size_t m>
 struct TangentConstraintData{
     Matrix<double,m*(n-m)+(n-m)*(n-m) , n*(n-m),RowMajor> A = Matrix<double,m*(n-m)+(n-m)*(n-m),n*(n-m)>::Zero();
     Matrix<double,n*(n-m),1> b = Matrix<double,n*(n-m),1>::Zero();
 };
-
-
 
 template<std::size_t n, std::size_t m> // n dimension ambient space, m equality constraints
 class TangentSpace {
@@ -26,7 +27,7 @@ class TangentSpace {
 
     public:
 
-        TangentSpace(){};
+        TangentSpace();
         TangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac);
         void findTangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac); // jacobian of implicit manifold def
         void createConstraintData(const Matrix<double,m,n> &jac);
@@ -45,9 +46,24 @@ class TangentSpace {
         ThetaMatrix theta_; // map from lower dimensional tangent space to ambient space
         AmbientVector x0_;
         std::size_t k_{n-m};
-        BiasedOptimizer<n*(n-m)> bopt_;
-
+        opt opt_{"AUGLAG_EQ",n*(n-m)};
+        opt local_opt_{"LD_SLSQP",n*(n-m)};
+       
+        //BiasedOptimizer<n*(n-m)> bopt_;
 };
+
+template<std::size_t n, std::size_t m>
+void tangentSpaceConstraints(unsigned l, double *result, unsigned k, const double *x, double *grad, void* f_data);
+
+
+template<std::size_t n, std::size_t m>
+TangentSpace<n,m>::TangentSpace(){
+    double tol{1e-8};
+    opt_.set_xtol_rel(tol);
+    local_opt_.set_xtol_rel(tol);
+    opt_.set_local_optimizer(local_opt_);
+}
+
 
 template<std::size_t n, std::size_t m>
 void TangentSpace<n,m>::createConstraintData(const Matrix<double,m,n> &jac){
@@ -55,6 +71,9 @@ void TangentSpace<n,m>::createConstraintData(const Matrix<double,m,n> &jac){
 
         data_.A.block(i*m,i*n,m,n) = jac ;
     }
+    for (int i=0; i<(n-m); i++ ){   
+        data_.b(i*(n-m)+(m*(n-m))) = 1;
+    };
 }
 
 template<std::size_t n, std::size_t m>
@@ -104,15 +123,31 @@ TangentSpace<n,m>::TangentSpace(const AmbientVector &x0, const Matrix<double,m,n
 */
 
 
-template<std::size_t n,m>
+template<std::size_t n, std::size_t m>
 void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac){
     createConstraintData(jac);
-    x0_.x0;
-    // tol vector
-    bopt_.addConstraints(this);
+    x0_ = x0;
+    std::cout <<" b  \n:" << data_.b << std::endl;
+    std::vector<double> tols(m*(n-m)+(n-m)*(n-m),1e-8);
+    
+    opt_.add_equality_mconstraint(tangentSpaceConstraints<n,m>, this, tols);
+    //opt_.set_maxeval(5);
     // run 
-    bopt_.optimize();
+    std::vector<double> x(n*(n-m),1);
+    Bias<n*(n-m)> b;
+    ThetaFlat b0(x.data());
+    b.x0 = b0;
+    double minf;
+    opt_.set_min_objective(BiasedObjective<n*(n-m)>, &b);  
+    result  res = opt_.optimize(x, minf);
+    ThetaMatrix theta(x.data());
+    theta_ = theta;
+    std::cout << "Map tangent to ambient: " << theta << std::endl;
+}
 
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> TangentSpace<n,m>::toAmbient(const TangVector &u){
+    return x0_ + theta_*u;
 }
 
 

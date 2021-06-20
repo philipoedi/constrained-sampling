@@ -63,10 +63,22 @@ int main(){
     double x[(n1-m1)*m1+(n1-m1)*(n1-m1)];
     tangentSpaceConstraints<n1,m1>(2, result1,2,x,grad,&tp1);
     
+    
 
+    Matrix<double,1,2> jac_circle;
+    jac_circle << 0,2;
+    
+    const int n_circle{2};
+    const int m_circle{1};
+    TangentSpace<2,1> tpc;
+
+    Vector2d x0{0,1};
+    tpc.findTangentSpace(x0, jac_circle);
     //tp1.orthonormalBasisConstraints();
 
-
+    Matrix<double,1,1> u1{1};
+    cout << "map from tangent to ambient: " << endl;
+    cout << tpc.toAmbient(u1) << endl;
     //
 
    /* 
