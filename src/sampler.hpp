@@ -24,12 +24,15 @@ class BaseSampler
         void setBounds(const Vector& lb, const Vector& ub);
         void setBounds(const std::vector<double> &lb, const std::vector<double> &ub);
         std::pair<Vector,Vector> getBounds();
+        virtual void run(int n_iter){};
+        std::vector<std::vector<double>> results();
 
     protected:
         Vector lb_;
         Vector ub_;
         Vector x_; 
         std::size_t n_{n};
+        std::vector<std::vector<double>> results_;
 };
 
 
@@ -63,8 +66,14 @@ void BaseSampler<n>::setBounds(const std::vector<double> &lb, const std::vector<
 template<std::size_t n>
 std::pair<Matrix<double,n,1>,Matrix<double,n,1>> BaseSampler<n>::getBounds()
 {  
-return std::make_pair(lb_,ub_);
+    return std::make_pair(lb_,ub_);
 }
+
+template<std::size_t n>
+std::vector<std::vector<double>> BaseSampler<n>::results(){
+    return results_;
+}
+
 
 
 template<std::size_t n> class UniformSampler: public BaseSampler<n>
@@ -79,6 +88,7 @@ template<std::size_t n> class UniformSampler: public BaseSampler<n>
         template <typename T> void setBounds(const T &lb, const T &ub);
         Vector sample();
         Vector sample(const Vector &range, const Vector &lb);
+        virtual void run(int n_iter);
     private:  
 
         Vector x_temp_;
@@ -115,6 +125,13 @@ void UniformSampler<n>::setBounds(const T &lb, const T &ub)
     BaseSampler<n>::setBounds(lb, ub);
     range_ = this->ub_ - this->lb_;
     ones_.setOnes();
+}
+
+template<std::size_t n>
+void UniformSampler<n>::run(int n_iter){
+    for (int i=0; i<n_iter; i++){
+        (this->results_).push_back(utils::copyEig2Vec(sample()));
+    }
 }
 
 

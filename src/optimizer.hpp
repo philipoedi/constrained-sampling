@@ -19,6 +19,8 @@
 #include "utils.hpp"
 #include "constraints.hpp"
 #include "tangent.hpp"
+#include "objectives.hpp"
+#include <algorithm>
 
 
 using namespace nlopt;
@@ -30,89 +32,6 @@ using namespace Eigen;
 */
 
 
-/**
-    Specifies the vector of Biases in Biased optimization.
-    @tparam n Dimension N of vector
-*/
-template<std::size_t n>
-struct Bias {
-    /// Eigen Vector representing the bias
-    Matrix<double, n, 1> x0;
-};
-
-
-template<std::size_t n, std::size_t m, std::size_t l>
-struct SlackData {
-    bool state{false};
-    Matrix<double, n+m+l+l, 1> a = Matrix<double, n+m+l+l,1>::Zero();
-    Matrix<double, n+m+l+l, 1> g = Matrix<double, n+m+l+l,1>::Zero();
-};
-
-/**
-    Initializes slack variables to use for slack optimization
-    @param sl SlackData struct containing vectors of decision variables
-*/
-template<std::size_t n, std::size_t m, std::size_t l>
-void initSlackData(SlackData<n,m,l>& sl)
-{
-    for (int i=0; i<n+m+l+l; i++)
-    {
-        if (i >= n && i <n+m)
-        {
-            sl.a(i) = 1;
-            sl.g(i) = 1;
-        }
-        else if (i >= n+m+l)
-        {
-            sl.a(i) = 1;
-            sl.g(i) = 1;
-        };
-    };
-};
-
-/**
-    Evaluates objective function in Biased optimization
-    @param x Current location at which to evaluate objective
-    @param grad Vector of current gradient
-    @param data Auxilliary data to be used in calculations, of type Bias
-    @return Objective value
-*/
-template<std::size_t n> 
-double BiasedObjective(const std::vector<double>& x, std::vector<double>& grad, void*data )
-{
-    typedef Matrix<double, n, 1> vec;
-    Bias<n> *b = (Bias<n>*) data;
-    vec x_vec(x.data());
-    vec x_x0 = x_vec - b->x0;
-    if(!grad.empty()){       
-        utils::copyEig2Vec(2*x_x0, grad);
-/*    for (std::size_t i = 0; i<x_x0.size() ;++i){
-        grad[i] = 2*x_x0[i];
-    }*/
-    }   
-    return x_x0.transpose()*x_x0;    
-}
-
-/**
-    Evaluates objective function in slack optimization
-    @param x Current location at which to evaluate objective
-    @param grad Vector of current gradient
-    @param data Auxilliary data to be used in calculations
-    @return Objective value
-*/
-template<std::size_t n, std::size_t m, std::size_t l> 
-double slackObjective(const std::vector<double>& x, std::vector<double>& grad, void* data)
-{
-    typedef Matrix<double, n+m+l+l,1> vec;
-    SlackData<n,m,l>* u = (SlackData<n,m,l>*) data;
-    vec x_vec(x.data());
-    if(!grad.empty()){
-        utils::copyEig2Vec(u->a, grad);
-    }
-    return u->a.transpose()*x_vec;
-}
-
-
 template<std::size_t n>
 class BaseOptimizer
 {
@@ -121,6 +40,7 @@ class BaseOptimizer
     public:
 
         BaseOptimizer();
+        BaseOptimizer(const std::vector<double> &lb, const std::vector<double> &ub);
         BaseOptimizer(
             ConstraintCoeffs<n>& eqcons,
             ConstraintCoeffs<n>& ineqcons, 
@@ -134,6 +54,7 @@ class BaseOptimizer
         void addConstraints(
             ConstraintCoeffs<n>& eqcons,
             ConstraintCoeffs<n>& ineqcons);
+        void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
         void addConstraints(ConstraintCoeffs<n>& cons);
         void setBounds(const std::vector<double>& lb, const std::vector<double>& ub);
         void results(std::vector<std::vector<double>>& dst);
@@ -142,6 +63,7 @@ class BaseOptimizer
         std::vector<std::vector<double>> samples();
         void saveResults(const std::string &name);
         void save_samples(const std::string &name);
+        virtual void run(std::vector<std::vector<double>> &seeds){};
 
    protected:
 
@@ -171,7 +93,13 @@ class BiasedOptimizer: public BaseOptimizer<n>
             const std::vector<double>& lb, 
             const std::vector<double>& ub):
             BaseOptimizer<n>(cons,lb, ub){}; 
+        BiasedOptimizer(
+            const std::vector<double> &lb,
+            const std::vector<double> &ub) : 
+            BaseOptimizer<n>(lb, ub){};
         void run(const int niter);
+        virtual void run(std::vector<std::vector<double>> &seeds);
+        std::vector<double> optimize(std::vector<double> &seed);
 
     private:
 
@@ -233,7 +161,15 @@ BaseOptimizer<n>::BaseOptimizer()
     local_opt_.set_xtol_rel(1e-4);
     opt_.set_xtol_rel(1e-4);
     opt_.set_local_optimizer(local_opt_);
+    std::cout<<"base2"<<std::endl;
 }
+
+template<std::size_t n>
+BaseOptimizer<n>::BaseOptimizer(const std::vector<double> &lb, const std::vector<double> &ub) {
+    BaseOptimizer();
+    setBounds(lb,ub);
+};
+
 
 template<std::size_t n>
 BaseOptimizer<n>::BaseOptimizer(
@@ -328,6 +264,14 @@ void BaseOptimizer<n>::addConstraints(ConstraintCoeffs<n>& cons)
 }
 
 template<std::size_t n>
+void BaseOptimizer<n>::addConstraints(std::vector<ConstraintCoeffs<n>> &cons){
+    for (int i=0; i<cons.size(); i++){
+        addConstraints(cons[i]);
+    }
+}
+
+
+template<std::size_t n>
 void BaseOptimizer<n>::results(std::vector<std::vector<double>>& dst)
 {
     utils::copyMatvec2Matvec(results_, dst);
@@ -400,6 +344,33 @@ void BiasedOptimizer<n>::run(const int niter){
         
     }
 }
+
+template<std::size_t n>
+std::vector<double> BiasedOptimizer<n>::optimize(std::vector<double> &seed){
+    b_.x0 = Matrix<double,n,1>(seed.data());
+    std::cout << "b_.x0" << b_.x0 << std::endl;
+    std::vector<double> x = seed;
+    double minf;
+    this->opt_.set_xtol_rel(1e-4);
+    this->local_opt_.set_xtol_rel(1e-4);
+    this->opt_.set_local_optimizer(this->local_opt_);
+    this->opt_.set_min_objective(BiasedObjective<n>, &b_);
+    try{
+        this->opt_.optimize(x,minf);
+    }
+    catch(std::exception &e){
+        std::cerr << e.what() << std::endl;
+    }
+    return x;
+}
+
+template<std::size_t n>
+void BiasedOptimizer<n>::run(std::vector<std::vector<double>> &seeds){
+    for (int i=0; i<seeds.size(); i++){
+        (this->results_).push_back(this->optimize(seeds[i]));
+    }
+}
+
 
 // slack optimizer below
 //

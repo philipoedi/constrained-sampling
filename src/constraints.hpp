@@ -46,6 +46,7 @@ double linearConstraint(const std::vector<double>& x, std::vector<double> &grad,
     if (!grad.empty()){
         utils::copyEig2Vec(c->coeffs, grad);
     }
+    std::cout << "slack vals: \n" << x_vec.transpose() * c->coeffs - c->cons << std::endl;
     return x_vec.transpose() * c->coeffs - c->cons;
 }
 

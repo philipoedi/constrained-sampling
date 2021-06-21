@@ -5,7 +5,7 @@
 #include "optimizer.hpp"
 #include <Eigen/Dense>
 #include <nlopt.hpp>
-
+#include "objectives.hpp"
 
 using namespace Eigen;
 using namespace nlopt;
