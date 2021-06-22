@@ -1,7 +1,6 @@
 #ifndef RRT_H
 #define RRT_H
 
-#include "constraints.hpp"
 #include <cmath>
 #include <vector>
 #include <Eigen/Dense>
@@ -54,10 +53,8 @@ class tree {
         void save(std::string name);
         int size();
         std::vector<node<n>> getNodes();
-        bool hasRoot();
 
     private:
-        
         int num_nodes_{0}; 
         node<n> root_;
         std::vector<node<n>> nodes_;
@@ -69,11 +66,6 @@ template<std::size_t n>
 tree<n>::tree(const node<n> root){
     setRoot(root);
 };
-
-template<std::size_t n>
-bool tree<n>::hasRoot(){
-    return (num_nodes_ > 0) ? true : false;
-}
 
 template<std::size_t n>
 int tree<n>::size() {return num_nodes_;};
@@ -149,18 +141,15 @@ class RRT : public BaseSampler<n> {
     public:
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign);
-        template<typename T> RRT(const T &lb, const T &ub);
         template<typename T> void setBounds(const T &lb, const T &ub);
         void setStepSize(const double &alpha);  
         node<n> getNewNode(const node<n> &q_near, const node<n> &q_target, const double &alpha);
         bool checkFeasible(const Vector &q_new);
-        virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
+        void explore(int n_iter);
+        virtual void run(int n_iter, std::vector<double> &seed);
         virtual void run(int n_iter);
-        void run(int n_iter, Vector &lb, Vector &ub);
         std::vector<std::vector<double>> results();
         void addConstraint(const ConstraintCoeffs<n> &con);
-        void saveResults(std::string name);
-        void saveSamples(std::string name);
 
     private:
         // step size
@@ -178,13 +167,6 @@ void RRT<n>::setBounds(const T &lb, const T &ub)
     BaseSampler<n>::setBounds(lb, ub);
     uni_.setBounds(lb, ub);
 }
-
-template<std::size_t n>
-template<typename T>
-RRT<n>::RRT(const T &lb, const T &ub){
-    setBounds(lb,ub);
-}
-
 
 template<std::size_t n>
 void RRT<n>::setStepSize(const double &alpha){
@@ -216,21 +198,24 @@ node<n> RRT<n>::getNewNode(const node<n> & q_near, const node<n> &q_target, cons
 template<std::size_t n>
 bool RRT<n>::checkFeasible(const Vector &q_new)
 {
-    return (feasible_region_(q_new) == 1) ? true: false;
+    bool feas =  (feasible_region_(q_new) == 1) ? true: false;
+    return feas;
 };
 
 
 template<std::size_t n>
-void RRT<n>::run(int n_iter, Vector &lb, Vector &ub){
+void RRT<n>::explore(int n_iter){
     node<n> target_node, nearest_node, new_node;
-    while (!tree_.hasRoot()  && n_iter > 0){
+    bool found_root{false};
+    while (!found_root && n_iter > 0){
         target_node.location = uni_.sample();
-        if (checkFeasible(target_node()) && boundsCheck<n>(target_node.location, lb, ub)){
+        if (checkFeasible(target_node())){
            tree_.setRoot(target_node);
+           found_root = true; 
            std::cout << "Feasible starting node found" <<std::endl;
         }
         n_iter -= 1;
-        this->samples_.push_back(utils::copyEig2Vec(target_node()));
+        samples_.push_back(utils::copyEig2Vec(target_node()));
     }
     for (int i=0; i< n_iter; i++)
     {
@@ -238,11 +223,11 @@ void RRT<n>::run(int n_iter, Vector &lb, Vector &ub){
         nearest_node  = tree_.findNearestNode(target_node);
         if (squaredDistNodes(nearest_node, target_node) > alpha_) {
             new_node = getNewNode(nearest_node, target_node, alpha_);
-            if (checkFeasible(new_node()) && boundsCheck<n>(new_node.location,lb,ub)){
+            if (checkFeasible(new_node())){
                 tree_.addNode(new_node, nearest_node);
             }
         }
-        this->samples_.push_back(utils::copyEig2Vec(target_node()));
+        samples_.push_back(utils::copyEig2Vec(target_node()));
     }
 }
 
@@ -269,24 +254,21 @@ void RRT<n>::saveResults(std::string name){
 
 template<std::size_t n>
 void RRT<n>::saveSamples(std::string name){
-    utils::writeVec2File(this->samples_, name);
+    utils::writeVec2File(samples_, name);
 };
 
 template<std::size_t n>
 void RRT<n>::run(int n_iter){
-    run(n_iter, this->lb_, this->ub_);
+    explore(n_iter);
 }
 
 template<std::size_t n>
-void RRT<n>::run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){
-    Vector lb_old, ub_old, seed_eig(seed.data()), lb_eig(lb.data()), ub_eig(ub.data());
+void RRT<n>::run(int n_iter, std::vector<double> &seed){
+    Vector lb_old, ub_old, seed_eig;
     lb_old = this->lb_;
     ub_old = this->ub_;
-    setBounds(seed_eig + lb_eig, seed_eig + ub_eig);
-    node<n> root;
-    root.location = seed_eig;
-    tree_.setRoot(root);
-    run(n_iter, lb_old, ub_old);
+    setBounds(lb_old + seed, ub_old + seed);
+    explore(n_iter);
     setBounds(lb_old, ub_old);
 }
 

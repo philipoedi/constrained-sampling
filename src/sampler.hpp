@@ -31,7 +31,7 @@ class BaseSampler
         void setBounds(const std::vector<double> &lb, const std::vector<double> &ub);
         std::pair<Vector,Vector> getBounds();
         virtual void run(int n_iter){};
-        virtual void run(int n_iter, std::vector<double> &seed){};
+        virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
         std::vector<std::vector<double>> results();
         std::vector<std::vector<double>> samples();
         void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
@@ -144,7 +144,7 @@ template<std::size_t n> class UniformSampler: public BaseSampler<n>
         Vector sample();
         Vector sample(const Vector &range, const Vector &lb);
         virtual void run(int n_iter);
-        virtual void run(int n_iter, std::vector<double> &seed);
+        virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
         void run(const int n_iter, Vector &lb, Vector &ub);
 
     private:  
@@ -211,12 +211,12 @@ void UniformSampler<n>::run(int n_iter){
 }
 
 template<std::size_t n>
-void UniformSampler<n>::run(int n_iter, std::vector<double> &seed){
+void UniformSampler<n>::run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){
     Matrix<double,n,1> seed_eig(seed.data());
-    Matrix<double,n,1> lb_old, ub_old;
+    Matrix<double,n,1> lb_old, ub_old, lb_new(lb.data()), ub_new(ub.data());
     lb_old = this->lb_;
     ub_old = this->ub_;
-    this->setBounds(this->lb_+seed_eig,this->ub_+seed_eig);
+    this->setBounds(seed_eig + lb_new , seed_eig + ub_new);
     run(n_iter, lb_old, ub_old);
     this->setBounds(lb_old, ub_old);
 }

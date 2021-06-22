@@ -9,6 +9,7 @@
 #include "sampler.hpp"
 #include "objectives.hpp"
 #include <algorithm>
+#include "RRT.hpp"
 
 template<std::size_t n, std::size_t m>
 class Experiment {
@@ -172,7 +173,7 @@ void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &con
 
 template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validOptimizer(std::string opt){
-    if (opt == "biased" || opt == "slack"){
+    if (opt == "biased" || opt == "slack" || "none"){
         return true;
     }
     else {
@@ -200,30 +201,31 @@ void Experiment<n,m>::run(){
     assert (validOptimizer(global_optimizer_)); 
     assert (validOptimizer(local_optimizer_)); 
     
-    BaseSampler<n> * global_sampler_ptr;
-    BaseSampler<n> * local_sampler_ptr;
-    BaseOptimizer<n> * global_optimizer_ptr;
-    BaseOptimizer<n> * local_optimizer_ptr;
+    BaseSampler<n> * global_sampler_ptr{nullptr};
+    BaseSampler<n> * local_sampler_ptr{nullptr};
+    BaseOptimizer<n> * global_optimizer_ptr{nullptr};
+    BaseOptimizer<n> * local_optimizer_ptr{nullptr};
+ 
 
     if (global_sampler_ == "uniform"){
         global_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
+    } else if (global_sampler_ == "RRT") {
+        global_sampler_ptr = new RRT<n>(lb_global_, ub_global_);
     }
-    
-    if (global_optimizer_ == "biased"){
+   
+    if (global_optimizer_ == "biased") {
         global_optimizer_ptr = new BiasedOptimizer<n>(lb_global_, ub_global_);
     }
 
     std::string name;
     name = utils::getDateTimeString();
     name = name +"_" + global_sampler_ + "_" + global_optimizer_+ "_" + local_sampler_ +"_" + local_optimizer_;
-//    std::vector<ConstraintCoeffs<n>> cons2_;
-  //  std::copy(cons_.begin(), cons_.end(), std::back_inserter(cons2_));
 
-       // global sampler
+    // global sampler
     global_sampler_ptr->addConstraints(cons_);
     global_sampler_ptr->setOptimizer(global_optimizer_ptr);
 
-      // global results
+    // global results
     global_sampler_ptr->run(global_n_iter_);
     global_samples_ = global_sampler_ptr->samples();
     global_results_ = global_sampler_ptr->results();
@@ -231,13 +233,16 @@ void Experiment<n,m>::run(){
     global_sampler_ptr->saveSamples(name+"_global");
 
 
-    if (local_sampler_ == "uniform"){
-        local_sampler_ptr = new UniformSampler<n>(lb_local_, ub_local_);
+    if (local_sampler_ == "uniform") {
+        local_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
+    } else if (local_sampler_ == "RRT"){
+        local_sampler_ptr = new RRT<n>(lb_global_, ub_global_);
     }
-
+   
     if (local_optimizer_ == "biased"){
         local_optimizer_ptr = new BiasedOptimizer<n>(lb_global_, ub_global_);
     }
+
     
     // local sampler
     local_sampler_ptr->addConstraints(cons_);
@@ -245,10 +250,10 @@ void Experiment<n,m>::run(){
 
     // local results 
     for (int i=0; i<global_results_.size() ;i++){
-        local_sampler_ptr->run(local_n_iter_, global_results_[i]);
-        local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
-        local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
-        local_sampler_ptr->reset();
+        local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+        //local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
+       // local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+        //local_sampler_ptr->reset();
     }
     
 }

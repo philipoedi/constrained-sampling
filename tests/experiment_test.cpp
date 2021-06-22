@@ -60,4 +60,23 @@ int main(){
     rrt_exp.setLocalNumIter(5);
     rrt_exp.run();
 
+    // uniform_biased + rrt_biased
+    Experiment<2,2> u_b_r_n("none","uniform","none","RRT");
+    vector<double> local_lb{-0.25,0.25};
+    vector<double> local_ub{0.25,0.25};
+    u_b_r_n.setLocalBounds(local_lb, local_ub);
+    u_b_r_n.setGlobalBounds(lb,ub);
+    u_b_r_n.addConstraints(c1);
+    u_b_r_n.setGlobalNumIter(5);
+    u_b_r_n.setLocalNumIter(5);
+    u_b_r_n.setLocalAlpha(0.005);
+    u_b_r_n.run();
+    // uniform_biased + metropolis_hastings_rejection
+
+    // uniform_rejection + metropolis_hastings_biased
+
+    // uniform_rejection + rrt_rejection
+
+
+
 }
