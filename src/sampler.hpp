@@ -6,8 +6,14 @@
 #include <Eigen/Dense>
 #include <random>
 #include <functional>
+
+template<std::size_t n>
+class BaseOptimizer;
+
+
 #include "utils.hpp"
 #include "constraints.hpp"
+#include "optimizer.hpp"
 
 using namespace Eigen;
 
@@ -25,14 +31,22 @@ class BaseSampler
         void setBounds(const std::vector<double> &lb, const std::vector<double> &ub);
         std::pair<Vector,Vector> getBounds();
         virtual void run(int n_iter){};
+        virtual void run(int n_iter, std::vector<double> &seed){};
         std::vector<std::vector<double>> results();
+        std::vector<std::vector<double>> samples();
+        void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
+        void setOptimizer(BaseOptimizer<n> * opt);
+        void saveResults(std::string name);
+        void saveSamples(std::string name);
+        void reset();
 
     protected:
-        Vector lb_;
-        Vector ub_;
-        Vector x_; 
+        Vector lb_, ub_, x_;
         std::size_t n_{n};
         std::vector<std::vector<double>> results_;
+        std::vector<std::vector<double>> samples_;
+        std::vector<ConstraintCoeffs<n>*> cons_ptr_;
+        BaseOptimizer<n> * opt_ptr_{nullptr};
 };
 
 
@@ -75,6 +89,47 @@ std::vector<std::vector<double>> BaseSampler<n>::results(){
 }
 
 
+template<std::size_t n>
+std::vector<std::vector<double>> BaseSampler<n>::samples(){
+    return samples_;
+}
+
+template<std::size_t n>
+void BaseSampler<n>::saveSamples(std::string name){
+    std::string new_name;
+    new_name = name +"_seeds";
+    utils::writeVec2File(samples_,new_name);
+}
+
+
+template<std::size_t n>
+void BaseSampler<n>::saveResults(std::string name){
+    std::string new_name;
+    new_name = name +"_samples";
+    if (!results_.empty()){
+        utils::writeVec2File(results_,new_name);
+    }
+}
+
+template<std::size_t n>
+void BaseSampler<n>::reset(){
+    results_.clear();
+    samples_.clear();
+}
+
+template<std::size_t n>
+void BaseSampler<n>::addConstraints(std::vector<ConstraintCoeffs<n>> & cons){
+    for (int i=0; i<cons.size(); i++){
+        cons_ptr_.push_back(&cons[i]);
+    } 
+}
+
+template<std::size_t n>
+void BaseSampler<n>::setOptimizer(BaseOptimizer<n> *opt){
+    opt_ptr_ = opt;
+    opt_ptr_->addConstraints(cons_ptr_);
+}
+
 
 template<std::size_t n> class UniformSampler: public BaseSampler<n>
 {
@@ -89,6 +144,9 @@ template<std::size_t n> class UniformSampler: public BaseSampler<n>
         Vector sample();
         Vector sample(const Vector &range, const Vector &lb);
         virtual void run(int n_iter);
+        virtual void run(int n_iter, std::vector<double> &seed);
+        void run(const int n_iter, Vector &lb, Vector &ub);
+
     private:  
 
         Vector x_temp_;
@@ -128,13 +186,40 @@ void UniformSampler<n>::setBounds(const T &lb, const T &ub)
 }
 
 template<std::size_t n>
-void UniformSampler<n>::run(int n_iter){
+void UniformSampler<n>::run(int n_iter, Vector &lb, Vector &ub){
+    std::vector<double> sample_vec(n); 
+    std::vector<double> result(n);
     for (int i=0; i<n_iter; i++){
-        (this->results_).push_back(utils::copyEig2Vec(sample()));
+        utils::copyEig2Vec(sample(), sample_vec);
+        this->samples_.push_back(sample_vec);
+        if (this->opt_ptr_ == nullptr) {
+           if (isFeasibleM<n>(sample_vec, this->cons_ptr_) && boundsCheckVec<n>(sample_vec,lb,ub)) {
+              this->results_.push_back(sample_vec); 
+           }
+        } else {
+           if (boundsCheckVec<n>(sample_vec,lb,ub)){
+              result = this->opt_ptr_->optimize(sample_vec);
+              this->results_.push_back(result);
+           }
+        }
     }
 }
 
+template<std::size_t n>
+void UniformSampler<n>::run(int n_iter){
+    run(n_iter, this->lb_, this->ub_);
+}
 
+template<std::size_t n>
+void UniformSampler<n>::run(int n_iter, std::vector<double> &seed){
+    Matrix<double,n,1> seed_eig(seed.data());
+    Matrix<double,n,1> lb_old, ub_old;
+    lb_old = this->lb_;
+    ub_old = this->ub_;
+    this->setBounds(this->lb_+seed_eig,this->ub_+seed_eig);
+    run(n_iter, lb_old, ub_old);
+    this->setBounds(lb_old, ub_old);
+}
 
 template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
 {

@@ -55,6 +55,7 @@ class BaseOptimizer
             ConstraintCoeffs<n>& eqcons,
             ConstraintCoeffs<n>& ineqcons);
         void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
+        void addConstraints(std::vector<ConstraintCoeffs<n>*> &cons);
         void addConstraints(ConstraintCoeffs<n>& cons);
         void setBounds(const std::vector<double>& lb, const std::vector<double>& ub);
         void results(std::vector<std::vector<double>>& dst);
@@ -64,6 +65,7 @@ class BaseOptimizer
         void saveResults(const std::string &name);
         void save_samples(const std::string &name);
         virtual void run(std::vector<std::vector<double>> &seeds){};
+        virtual std::vector<double> optimize(std::vector<double> &seed){ return seed;};
 
    protected:
 
@@ -99,7 +101,7 @@ class BiasedOptimizer: public BaseOptimizer<n>
             BaseOptimizer<n>(lb, ub){};
         void run(const int niter);
         virtual void run(std::vector<std::vector<double>> &seeds);
-        std::vector<double> optimize(std::vector<double> &seed);
+        virtual std::vector<double> optimize(std::vector<double> &seed);
 
     private:
 
@@ -270,6 +272,12 @@ void BaseOptimizer<n>::addConstraints(std::vector<ConstraintCoeffs<n>> &cons){
     }
 }
 
+template<std::size_t n>
+void BaseOptimizer<n>::addConstraints(std::vector<ConstraintCoeffs<n>*> &cons){
+    for (int i=0; i<cons.size(); i++){
+        addConstraints(*(cons[i]));
+    }
+}
 
 template<std::size_t n>
 void BaseOptimizer<n>::results(std::vector<std::vector<double>>& dst)
@@ -348,7 +356,6 @@ void BiasedOptimizer<n>::run(const int niter){
 template<std::size_t n>
 std::vector<double> BiasedOptimizer<n>::optimize(std::vector<double> &seed){
     b_.x0 = Matrix<double,n,1>(seed.data());
-    std::cout << "b_.x0" << b_.x0 << std::endl;
     std::vector<double> x = seed;
     double minf;
     this->opt_.set_xtol_rel(1e-4);

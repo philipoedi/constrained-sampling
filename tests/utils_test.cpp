@@ -64,6 +64,8 @@ int main(){
     std::string today = utils::getDateString();
     std::cout << today << std::endl;
     
+    std::string todaytime = utils::getDateTimeString();
+    std::cout << todaytime << std::endl;
     std::cout << "testing copy_eig2vec" << std::endl;
 
     std::vector<double> vec = utils::copyEig2Vec(eig1);
@@ -88,6 +90,10 @@ int main(){
     utils::copyEig2Arr(eig2,ress);
     std::cout << ress[0] << " " << ress[1] << " " << ress[2] << std::endl;
     std::cout << eig2 <<std::endl;
+
+    
+
+
     return 0;
 }
 

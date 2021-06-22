@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include "utils.hpp"
+#include <algorithm>
 
 using namespace Eigen;
 
@@ -46,7 +47,6 @@ double linearConstraint(const std::vector<double>& x, std::vector<double> &grad,
     if (!grad.empty()){
         utils::copyEig2Vec(c->coeffs, grad);
     }
-    std::cout << "slack vals: \n" << x_vec.transpose() * c->coeffs - c->cons << std::endl;
     return x_vec.transpose() * c->coeffs - c->cons;
 }
 
@@ -104,8 +104,6 @@ double quadraticConstraint(const std::vector<double>& x, std::vector<double>& gr
     }
     res += 0.5 * x_vec.transpose() * c->P * x_vec; 
     res += x_vec.transpose()*c->q;  
-    std::cout << "x: " << x_vec << std::endl;
-    std::cout << "result: " << res -  c->r << "r: "<< c->r << std::endl;
     return res - c->r;
 }
 
@@ -119,6 +117,85 @@ double quadraticConstraint(const Matrix<double,n,1> &x, void*data)
 
     return res - c->r;
 }
+
+template<std::size_t n>
+double evaluateConstraint(std::vector<double> &x, ConstraintCoeffs<n> &con){
+    double slack{0};
+    std::vector<double> grad;
+    if (con.constype == "linear"){
+        slack = linearConstraint<n>(x, grad, &con);
+    } else if (con.constype == "quadratic"){
+        slack = quadraticConstraint<n>(x, grad, &con);
+    } else {
+        std::cout << "wrong constraint type used. set .cosntype to either 'quadratic' or 'linear'" << std::endl;
+        exit(1);
+    }
+    return slack;
+}
+
+
+template<std::size_t n>
+bool isFeasible(std::vector<double> &x, ConstraintCoeffs<n> &cons){
+   double slack = evaluateConstraint<n>(x, cons);
+   if (cons.type == "eq") {
+        return (slack ==  0) ? true : false;
+    } else if (cons.type == "ineq"){
+        return (slack <= 0) ? true : false; 
+    } else {
+        std::cout << "Choose ConstraintCoeffs.type = {'eq','ineq'} " << std::endl;
+        exit(1);
+    }
+}
+
+
+template<std::size_t n>
+bool isFeasiblePtr(std::vector<double> &x, ConstraintCoeffs<n> *cons){
+   double slack = evaluateConstraint<n>(x, *cons);
+   if (cons->type == "eq") {
+        return (slack ==  0) ? true : false;
+    } else if (cons->type == "ineq"){
+        return (slack <= 0) ? true : false; 
+    } else {
+        std::cout << "Choose ConstraintCoeffs.type = {'eq','ineq'} " << std::endl;
+        exit(1);
+    }
+}
+
+
+template<std::size_t n>
+bool isFeasibleM(std::vector<double> &x, std::vector<ConstraintCoeffs<n>> &cons){
+    if (std::all_of(cons.begin(), cons.end(), std::bind(isFeasible<n>,x, std::placeholders::_1))){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+template<std::size_t n>
+bool isFeasibleM(std::vector<double> &x, std::vector<ConstraintCoeffs<n>*> &cons){
+    if (std::all_of(cons.begin(), cons.end(), std::bind(isFeasiblePtr<n>,x, std::placeholders::_1))){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+template<std::size_t n>
+bool boundsCheck(Matrix<double,n,1> &x, Matrix<double,n,1> &lb, Matrix<double,n,1> &ub){
+    if ((ub.array()>=x.array()).all() && ((lb.array()<=x.array()).all())){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+template<std::size_t n>
+bool boundsCheckVec(std::vector<double> &x, Matrix<double,n,1> &lb, Matrix<double,n,1> &ub ){
+    Matrix<double,n,1> x_eig(x.data());
+    return boundsCheck<n>(x_eig,lb,ub);
+}
+
 /*
 template<std::size_t n>
 class TangentSpace {

@@ -104,26 +104,27 @@ namespace utils
         std::size_t d{data.size()};
         std::size_t d2{data[0].size()};
         std::string line;
-        if (file.is_open())
-        {
-            for (int i=0; i<d; i++)
-            {
-                line = "";
-                for (int j=0; j<d2; j++)
+        std::cout << "check if data is empty" << std::endl; 
+        if (!data.empty()){ 
+            if (file.is_open()) {
+                for (int i=0; i<d; i++)
                 {
-                   line += std::to_string(data[i][j]);
-                   line += " "; 
+                    line = "";
+                    for (int j=0; j<d2; j++)
+                    {
+                       line += std::to_string(data[i][j]);
+                       line += " "; 
+                    }
+                    line += "\n";
+                    file << line;
                 }
-                line += "\n";
-                file << line;
-            }
-            file.close();
+                file.close();
+                } else {
+                    std::cout << "unable to open file" << std::endl;
+                }
+        } else {
+            std:: cout << "no data to save" << std::endl;
         }
-        else
-        {
-            std::cout << "unable to open file" << std::endl;
-        }
-
     };
 
     void writeMetadata2File(const std::string &problem_file, const std::string &name)
@@ -170,5 +171,16 @@ namespace utils
     };
 
     
+    std::string getDateTimeString()
+    {
+        time_t now;
+        char date_string[20];
+        tm * now_tm;
+        time(&now);
+        now_tm = localtime(&now);
+        strftime(date_string, 16, "%Y%m%d%H%M", now_tm);
+        return date_string;
+    };
+
 
 }

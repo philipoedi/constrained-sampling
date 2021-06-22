@@ -8,7 +8,7 @@
 #include "constraints.hpp"
 #include "sampler.hpp"
 #include "objectives.hpp"
-
+#include <algorithm>
 
 template<std::size_t n, std::size_t m>
 class Experiment {
@@ -212,19 +212,47 @@ void Experiment<n,m>::run(){
     if (global_optimizer_ == "biased"){
         global_optimizer_ptr = new BiasedOptimizer<n>(lb_global_, ub_global_);
     }
-    // global samples
+
+    std::string name;
+    name = utils::getDateTimeString();
+    name = name +"_" + global_sampler_ + "_" + global_optimizer_+ "_" + local_sampler_ +"_" + local_optimizer_;
+//    std::vector<ConstraintCoeffs<n>> cons2_;
+  //  std::copy(cons_.begin(), cons_.end(), std::back_inserter(cons2_));
+
+       // global sampler
+    global_sampler_ptr->addConstraints(cons_);
+    global_sampler_ptr->setOptimizer(global_optimizer_ptr);
+
+      // global results
     global_sampler_ptr->run(global_n_iter_);
-    global_samples_ = global_sampler_ptr->results();
-    
-    for (int i=0; i<global_samples_.size(); i++){
-        std::cout << "\n" << global_samples_[i][0]<<" " <<global_samples_[i][1]<< std::endl;
+    global_samples_ = global_sampler_ptr->samples();
+    global_results_ = global_sampler_ptr->results();
+    global_sampler_ptr->saveResults(name+"_global");
+    global_sampler_ptr->saveSamples(name+"_global");
+
+
+    if (local_sampler_ == "uniform"){
+        local_sampler_ptr = new UniformSampler<n>(lb_local_, ub_local_);
     }
 
-    // feasible samples from global samples
-    global_optimizer_ptr->addConstraints(cons_);
-    global_optimizer_ptr->run(global_samples_);
+    if (local_optimizer_ == "biased"){
+        local_optimizer_ptr = new BiasedOptimizer<n>(lb_global_, ub_global_);
+    }
+    
+    // local sampler
+    local_sampler_ptr->addConstraints(cons_);
+    local_sampler_ptr->setOptimizer(local_optimizer_ptr);
+
+    // local results 
+    for (int i=0; i<global_results_.size() ;i++){
+        local_sampler_ptr->run(local_n_iter_, global_results_[i]);
+        local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
+        local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+        local_sampler_ptr->reset();
+    }
     
 }
+
 
 
 

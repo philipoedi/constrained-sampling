@@ -13,7 +13,7 @@ int main(){
     const string global_optimizer{"biased"};
     const string global_sampler{"uniform"};    
     const string local_optimizer{"biased"};    
-    const string local_sampler{"RRT"};    
+    const string local_sampler{"uniform"};    
     
     Experiment<2,2> rrt_exp;
     rrt_exp.setGlobalOptimizer(global_optimizer);

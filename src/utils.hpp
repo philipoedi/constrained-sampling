@@ -39,6 +39,7 @@ namespace utils
     void writeMetadata2File(const std::string &problem_file, const std::string &name);
 
     std::string getDateString();
+    std::string getDateTimeString();
 
     template<std::size_t n>
     double squaredDist(const Matrix<double,n,1> &v1, const Matrix<double,n,1> &v2) 
