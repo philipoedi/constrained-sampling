@@ -3,10 +3,11 @@
 #include <Eigen/Dense>
 #include <vector>
 #include "constraints.hpp"
+#include <functional>
 
 using namespace Eigen;
 using namespace std;
-
+using namespace std::placeholders;
 int main(){
     const std::size_t n{2};
     ConstraintCoeffs<n> c1;
@@ -40,4 +41,26 @@ int main(){
     Vector2d ub{2,2};
     cout << "Check within bounds"<< endl;
     cout << boundsCheck<n>(xe,lb,ub) <<endl;
+    auto f = std::bind(evaluateConstraint<n>, _1, c1);
+    //std::function<double(std::vector<double>&)>;
+    cout << "checkin bind\n" << f(x) << endl << endl;
+
+    std::vector<double> grad = numericGradient(x, f, 1e-8);
+    cout << "checking numeric gradient\n "<< grad[0] << " " << grad[1] << endl;
+    std::vector<std::function<double(std::vector<double>&)>> funcs;
+    funcs.push_back(f);
+    funcs.push_back(f);
+    Matrix<double,2,2> jac;
+    jac = numericJacobian<2,2>(x,funcs,1e-8);
+    cout << "numeric Jacobian\n" << jac << endl;
+
+    for (int i=0;i<2;i++){
+        funcs.push_back(std::bind(evaluateConstraint<n>,_1,c1));
+    }
+   
+    Matrix<double,4,2> jac2;
+    jac2 = numericJacobian<2,4>(x,funcs,1e-8);
+    cout << "numeric Jacobian\n" << jac2 << endl;
+
+
 };

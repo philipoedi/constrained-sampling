@@ -196,6 +196,31 @@ bool boundsCheckVec(std::vector<double> &x, Matrix<double,n,1> &lb, Matrix<doubl
     return boundsCheck<n>(x_eig,lb,ub);
 }
 
+
+std::vector<double> numericGradient(const std::vector<double> &x, std::function<double(std::vector<double>&)> func, double h){
+     std::vector<double> x_temp = x;
+     std::vector<double> grad(x.size());
+     double f_big, f_small;
+     for (int i=0; i<x.size(); i++){
+        x_temp[0] += h;
+        f_big = func(x_temp);
+        x_temp[0] -= 2*h;
+        f_small = func(x_temp);
+        x_temp[0] += h;
+        grad[i] = (f_big - f_small) / (2*h);
+     }
+     return grad;
+}
+
+
+template<std::size_t n, std::size_t m>
+Matrix<double,m,n> numericJacobian(const std::vector<double> &x, std::vector<std::function<double(std::vector<double>&)>> funcs, double h){
+    Matrix<double,m,n> jac;
+    for (int i=0; i<funcs.size(); i++){
+       jac.row(i) = Matrix<double,1,n>(numericGradient(x,funcs[i],h).data()); 
+    }
+    return jac;
+}
 /*
 template<std::size_t n>
 class TangentSpace {

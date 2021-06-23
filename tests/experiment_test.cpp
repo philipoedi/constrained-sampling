@@ -60,9 +60,9 @@ int main(){
     rrt_exp.setLocalNumIter(5);
     rrt_exp.run();
 
-    // uniform_biased + rrt_biased
+    // uniform_none + rrt_none_
     Experiment<2,2> u_b_r_n("none","uniform","none","RRT");
-    vector<double> local_lb{-0.25,0.25};
+    vector<double> local_lb{-0.25,-0.25};
     vector<double> local_ub{0.25,0.25};
     u_b_r_n.setLocalBounds(local_lb, local_ub);
     u_b_r_n.setGlobalBounds(lb,ub);
@@ -71,6 +71,18 @@ int main(){
     u_b_r_n.setLocalNumIter(5);
     u_b_r_n.setLocalAlpha(0.005);
     u_b_r_n.run();
+    // uniform_biased + rrt_tangent_biased
+    Experiment<2,2> u_b_r_b_t("none","uniform","biased","RRT");
+    u_b_r_b_t.setLocalBounds(local_lb, local_ub);
+    u_b_r_b_t.setGlobalBounds(lb,ub);
+    u_b_r_b_t.addConstraints(c1);
+    u_b_r_b_t.setGlobalNumIter(5);
+    u_b_r_b_t.setLocalNumIter(5);
+    u_b_r_b_t.setLocalAlpha(0.005);
+    u_b_r_b_t.setLocalUseTangent(true);
+    u_b_r_b_t.run();
+    
+
     // uniform_biased + metropolis_hastings_rejection
 
     // uniform_rejection + metropolis_hastings_biased

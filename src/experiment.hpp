@@ -35,6 +35,8 @@ class Experiment {
         void setGlobalUpperBounds(const std::vector<double> &ub);
         void setLocalNumIter(int local_num_iter);
         void setGlobalNumIter(int global_num_iter);
+        void setLocalUseTangent(bool use);
+        void setGlobalUseTangent(bool use);
         void addConstraints(const ConstraintCoeffs<n> &con);
         void addConstraints(const std::vector<ConstraintCoeffs<n>> &cons);
         bool validOptimizer(std::string opt);
@@ -53,6 +55,8 @@ class Experiment {
         // RRT related parameters
         double global_alpha_;
         double local_alpha_;
+        bool global_use_tangent_;
+        bool local_use_tangent_;
         // run parameters
         int global_n_iter_;
         int local_n_iter_;
@@ -151,6 +155,17 @@ void Experiment<n,m>::setLocalAlpha(double alpha){
 }
 
 template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setLocalUseTangent(bool use){
+    local_use_tangent_ = use;
+}
+
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setGlobalUseTangent(bool use){
+    global_use_tangent_ = use;
+}
+
+template<std::size_t n, std::size_t m>
 void Experiment<n,m>::setGlobalNumIter(int num_iter){
     global_n_iter_ = num_iter;
 }
@@ -210,7 +225,7 @@ void Experiment<n,m>::run(){
     if (global_sampler_ == "uniform"){
         global_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
     } else if (global_sampler_ == "RRT") {
-        global_sampler_ptr = new RRT<n>(lb_global_, ub_global_);
+        global_sampler_ptr = new RRT<n>(lb_global_, ub_global_, global_alpha_, global_use_tangent_);
     }
    
     if (global_optimizer_ == "biased") {
@@ -236,7 +251,7 @@ void Experiment<n,m>::run(){
     if (local_sampler_ == "uniform") {
         local_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
     } else if (local_sampler_ == "RRT"){
-        local_sampler_ptr = new RRT<n>(lb_global_, ub_global_);
+        local_sampler_ptr = new RRT<n>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
     }
    
     if (local_optimizer_ == "biased"){
@@ -251,9 +266,9 @@ void Experiment<n,m>::run(){
     // local results 
     for (int i=0; i<global_results_.size() ;i++){
         local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
-        //local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
-       // local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
-        //local_sampler_ptr->reset();
+        local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
+        local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+        local_sampler_ptr->reset();
     }
     
 }

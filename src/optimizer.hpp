@@ -8,6 +8,15 @@
 
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
+
+template<std::size_t n>
+class BaseSampler;
+
+template<std::size_t n>
+class UniformSampler;
+
+
+
 #include <iomanip>
 #include <iostream>
 #include <Eigen/Dense>

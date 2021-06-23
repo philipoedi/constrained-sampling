@@ -34,6 +34,8 @@ class BaseSampler
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
         std::vector<std::vector<double>> results();
         std::vector<std::vector<double>> samples();
+        bool checkFeasible(std::vector<double> &x);
+        bool checkFeasible(Vector &x);
         void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
         void setOptimizer(BaseOptimizer<n> * opt);
         void saveResults(std::string name);
@@ -125,9 +127,23 @@ void BaseSampler<n>::addConstraints(std::vector<ConstraintCoeffs<n>> & cons){
 }
 
 template<std::size_t n>
+bool BaseSampler<n>::checkFeasible(std::vector<double> &x){
+    return isFeasibleM<n>(x, cons_ptr_);
+}
+
+template<std::size_t n>
+bool BaseSampler<n>::checkFeasible(Vector &x){
+    std::vector<double> x_vec(n);
+    utils::copyEig2Vec(x, x_vec);
+    return checkFeasible(x_vec);
+}
+
+template<std::size_t n>
 void BaseSampler<n>::setOptimizer(BaseOptimizer<n> *opt){
     opt_ptr_ = opt;
-    opt_ptr_->addConstraints(cons_ptr_);
+    if (opt != nullptr) {
+        opt_ptr_->addConstraints(cons_ptr_);
+    }
 }
 
 
@@ -193,7 +209,8 @@ void UniformSampler<n>::run(int n_iter, Vector &lb, Vector &ub){
         utils::copyEig2Vec(sample(), sample_vec);
         this->samples_.push_back(sample_vec);
         if (this->opt_ptr_ == nullptr) {
-           if (isFeasibleM<n>(sample_vec, this->cons_ptr_) && boundsCheckVec<n>(sample_vec,lb,ub)) {
+           //if (isFeasibleM<n>(sample_vec, this->cons_ptr_) && boundsCheckVec<n>(sample_vec,lb,ub)) {
+           if (this->checkFeasible(sample_vec) && boundsCheckVec<n>(sample_vec,lb,ub)) {
               this->results_.push_back(sample_vec); 
            }
         } else {
