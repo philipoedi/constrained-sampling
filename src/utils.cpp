@@ -53,6 +53,15 @@ namespace utils
         return dst;
     };
 
+    std::vector<double> slice(const std::vector<double> &x, int start, int end){
+        assert (end < x.size());
+        auto first = x.cbegin() + start;
+        auto last = x.cbegin() + end + 1;
+        std::vector<double> x_sliced(first, last);
+        return x_sliced;
+    }
+
+
    void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst)
     {
         std::size_t d{src.size()};

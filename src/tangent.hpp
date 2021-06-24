@@ -38,7 +38,7 @@ class TangentSpace {
         ConsMatrix getGradient();
         ThetaFlat getSlack(const ConsMatrix &A, const ThetaFlat &theta, const ThetaFlat &b);
         ThetaFlat getSlack(const ThetaFlat &theta);
-
+        ThetaMatrix getTheta();
 
     private:
 
@@ -46,7 +46,8 @@ class TangentSpace {
         ThetaMatrix theta_; // map from lower dimensional tangent space to ambient space
         AmbientVector x0_;
         std::size_t k_{n-m};
-        opt opt_{"AUGLAG_EQ",n*(n-m)};
+        //opt opt_{"AUGLAG_EQ",n*(n-m)};
+        opt opt_{"LN_COBYLA",n*(n-m)};
         opt local_opt_{"LD_SLSQP",n*(n-m)};
        
         //BiasedOptimizer<n*(n-m)> bopt_;
@@ -61,9 +62,15 @@ TangentSpace<n,m>::TangentSpace(){
     double tol{1e-8};
     opt_.set_xtol_rel(tol);
     local_opt_.set_xtol_rel(tol);
-    opt_.set_local_optimizer(local_opt_);
+    //opt_.set_local_optimizer(local_opt_);
+    
 }
 
+
+template<std::size_t n, std::size_t m>
+Matrix<double,n,n-m> TangentSpace<n,m>::getTheta(){
+    return theta_; 
+}   
 
 template<std::size_t n, std::size_t m>
 void TangentSpace<n,m>::createConstraintData(const Matrix<double,m,n> &jac){
@@ -72,7 +79,7 @@ void TangentSpace<n,m>::createConstraintData(const Matrix<double,m,n> &jac){
         data_.A.block(i*m,i*n,m,n) = jac ;
     }
     for (int i=0; i<(n-m); i++ ){   
-        data_.b(i*(n-m)+(m*(n-m))) = 1;
+        data_.b(i*(n-m)+(m*(n-m))+i) = 1;
     };
 }
 
@@ -131,10 +138,14 @@ void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<d
     std::vector<double> tols(m*(n-m)+(n-m)*(n-m),1e-8);
     
     opt_.add_equality_mconstraint(tangentSpaceConstraints<n,m>, this, tols);
-    //opt_.set_maxeval(5);
+   // opt_.set_maxeval(50);
     // run 
-    std::vector<double> x(n*(n-m),1);
-    Bias<n*(n-m)> b;
+    std::vector<double> x(n*(n-m),-1);
+    std::vector<double> lb(n*(n-m),-10);
+    std::vector<double> ub(n*(n-m),10);
+/*    UniformSampler<n*(n-m)> uni(lb,ub);
+    x = utils::copyEig2Vec(uni.sample());
+  */  Bias<n*(n-m)> b;
     ThetaFlat b0(x.data());
     b.x0 = b0;
     double minf;
@@ -142,7 +153,6 @@ void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<d
     result  res = opt_.optimize(x, minf);
     ThetaMatrix theta(x.data());
     theta_ = theta;
-    std::cout << "Map tangent to ambient: " << theta << std::endl;
 }
 
 template<std::size_t n, std::size_t m>
@@ -157,11 +167,12 @@ void tangentSpaceConstraints(unsigned l, double *result, unsigned k, const doubl
     Matrix<double,n,n-m> theta_m(x);
     Map<const Matrix<double,n*(n-m),1>> theta(theta_m.data(),theta_m.size());
     tang->updateConstraintData(theta_m);
-    if (grad){
+    /**if (grad){
         Matrix<double,m*(n-m)+(n-m)*(n-m),n*(n-m),RowMajor> grad_eig = tang->getGradient();
         Map<const VectorXd> grad_vec(grad_eig.data(),grad_eig.size());
+        std::cout <<"gradient \n"<< grad_vec << std::endl;
         utils::copyEig2Arr(grad_vec, grad); 
-    }
+    }*/
     Matrix<double,n*(n-m),1> result_eig  = tang->getSlack(theta);
     utils::copyEig2Arr(result_eig, result);
 }

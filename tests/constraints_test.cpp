@@ -62,5 +62,14 @@ int main(){
     jac2 = numericJacobian<2,4>(x,funcs,1e-8);
     cout << "numeric Jacobian\n" << jac2 << endl;
 
+    ConstraintCoeffs<3> sphere = createSphere<3>(1);
+    std::vector<double> sphere_test{0,0,1};
+    cout << "eval sphere at 0,0,1: " << evaluateConstraint<3>(sphere_test ,sphere ) << endl; 
+    
+    funcs.clear(),
+    funcs.push_back(std::bind(evaluateConstraint<3>,_1,sphere));
+    Matrix<double,1,3> jac3;
+    jac3 = numericJacobian<3,1>(sphere_test, funcs, 1e-8);
+    cout << "numeric Jacobian\n" << jac3 << endl;
 
 };

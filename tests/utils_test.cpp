@@ -90,9 +90,10 @@ int main(){
     utils::copyEig2Arr(eig2,ress);
     std::cout << ress[0] << " " << ress[1] << " " << ress[2] << std::endl;
     std::cout << eig2 <<std::endl;
-
     
-
+    std::vector<double> xx(3,1);
+    std::vector<double> uu = utils::slice(xx,0,1);    
+    std::cout <<"size of uu: "<<  uu.size() << std::endl;
 
     return 0;
 }

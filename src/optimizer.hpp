@@ -9,6 +9,13 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+#include <iostream>
+#include <Eigen/Dense>
+#include <vector>
+#include <nlopt.hpp>
+#include <algorithm>
+#include <string>
+
 template<std::size_t n>
 class BaseSampler;
 
@@ -17,19 +24,11 @@ class UniformSampler;
 
 
 
-#include <iomanip>
-#include <iostream>
-#include <Eigen/Dense>
-#include <vector>
-#include <nlopt.hpp>
-#include <list>
-#include <string>
 #include "sampler.hpp"
 #include "utils.hpp"
 #include "constraints.hpp"
 #include "tangent.hpp"
 #include "objectives.hpp"
-#include <algorithm>
 
 
 using namespace nlopt;

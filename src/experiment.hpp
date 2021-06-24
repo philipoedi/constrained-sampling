@@ -55,8 +55,8 @@ class Experiment {
         // RRT related parameters
         double global_alpha_;
         double local_alpha_;
-        bool global_use_tangent_;
-        bool local_use_tangent_;
+        bool global_use_tangent_{false};
+        bool local_use_tangent_{false};
         // run parameters
         int global_n_iter_;
         int local_n_iter_;
@@ -225,7 +225,7 @@ void Experiment<n,m>::run(){
     if (global_sampler_ == "uniform"){
         global_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
     } else if (global_sampler_ == "RRT") {
-        global_sampler_ptr = new RRT<n>(lb_global_, ub_global_, global_alpha_, global_use_tangent_);
+        global_sampler_ptr = new RRT<n,m>(lb_global_, ub_global_, global_alpha_, global_use_tangent_);
     }
    
     if (global_optimizer_ == "biased") {
@@ -234,7 +234,7 @@ void Experiment<n,m>::run(){
 
     std::string name;
     name = utils::getDateTimeString();
-    name = name +"_" + global_sampler_ + "_" + global_optimizer_+ "_" + local_sampler_ +"_" + local_optimizer_;
+    name = name + "_" + global_sampler_ + "_" + global_optimizer_+ "_" + local_sampler_ +"_" + local_optimizer_;
 
     // global sampler
     global_sampler_ptr->addConstraints(cons_);
@@ -251,7 +251,7 @@ void Experiment<n,m>::run(){
     if (local_sampler_ == "uniform") {
         local_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
     } else if (local_sampler_ == "RRT"){
-        local_sampler_ptr = new RRT<n>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
+        local_sampler_ptr = new RRT<n,m>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
     }
    
     if (local_optimizer_ == "biased"){
@@ -265,7 +265,11 @@ void Experiment<n,m>::run(){
 
     // local results 
     for (int i=0; i<global_results_.size() ;i++){
-        local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+        if (local_use_tangent_) {
+           local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+        } else {
+           local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+        }
         local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
         local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
         local_sampler_ptr->reset();

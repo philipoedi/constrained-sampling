@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include <random>
 #include <functional>
+#include <cassert>
 
 template<std::size_t n>
 class BaseOptimizer;
@@ -32,6 +33,7 @@ class BaseSampler
         std::pair<Vector,Vector> getBounds();
         virtual void run(int n_iter){};
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
+        virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
         std::vector<std::vector<double>> results();
         std::vector<std::vector<double>> samples();
         bool checkFeasible(std::vector<double> &x);
@@ -40,6 +42,8 @@ class BaseSampler
         void setOptimizer(BaseOptimizer<n> * opt);
         void saveResults(std::string name);
         void saveSamples(std::string name);
+        bool hasOptimizer();
+        std::vector<double> optimize(std::vector<double> &seed);
         void reset();
 
     protected:
@@ -78,6 +82,17 @@ void BaseSampler<n>::setBounds(const std::vector<double> &lb, const std::vector<
         ub_(i) = ub[i];
     };
 };
+
+template<std::size_t n>
+bool BaseSampler<n>::hasOptimizer(){
+    return (opt_ptr_ ==  nullptr) ? false : true;
+}
+
+template<std::size_t n>
+std::vector<double> BaseSampler<n>::optimize(std::vector<double> &seed){
+    assert (hasOptimizer());
+    return this->opt_ptr_->optimize(seed);
+}
 
 template<std::size_t n>
 std::pair<Matrix<double,n,1>,Matrix<double,n,1>> BaseSampler<n>::getBounds()
@@ -128,7 +143,11 @@ void BaseSampler<n>::addConstraints(std::vector<ConstraintCoeffs<n>> & cons){
 
 template<std::size_t n>
 bool BaseSampler<n>::checkFeasible(std::vector<double> &x){
-    return isFeasibleM<n>(x, cons_ptr_);
+    if (cons_ptr_.empty()){
+        return true;
+    } else {
+        return isFeasibleM<n>(x, cons_ptr_);
+    }
 }
 
 template<std::size_t n>

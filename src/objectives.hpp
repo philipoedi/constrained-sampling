@@ -69,9 +69,6 @@ double BiasedObjective(const std::vector<double>& x, std::vector<double>& grad, 
         grad[i] = 2*x_x0[i];
     }*/
     }   
-    std::cout << "oobj\n" << x_vec<<std::endl;
-
-    std::cout << x_x0.transpose()*x_x0 << std::endl;    
     return x_x0.transpose()*x_x0;    
 }
 

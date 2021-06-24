@@ -74,6 +74,7 @@ int main(){
 
     Vector2d x0{0,1};
     tpc.findTangentSpace(x0, jac_circle);
+    cout << "theta: \n"<< tpc.getTheta() << endl;
     //tp1.orthonormalBasisConstraints();
 
     Matrix<double,1,1> u1{1};
@@ -97,9 +98,25 @@ int main(){
    */
     
     // updateTangentConstraintData
+    cout << "\n SPHERE : \n" << endl; 
+    Matrix<double,1,3> jac_sphere{0,0,2};
+    
+    const int n_sphere{3};
+    const int m_sphere{1};
+    TangentSpace<3,1> tp_sphere;
+
+    cout << "tp_sphere: \n" << tp_sphere.getConstraintData().A << endl;
+    
+    Vector3d x_sphere{0,0,1};
+    tp_sphere.findTangentSpace(x_sphere, jac_sphere);
+    cout << "theta: \n"<< tp_sphere.getTheta() << endl;
+    //tp1.orthonormalBasisConstraints();
+
+    Matrix<double,2,1> u2{1,1};
+    cout << "map from tangent to ambient: " << endl;
+    cout << tp_sphere.toAmbient(u2) << endl;
 
 
-
-
+    return 0;
 
 };

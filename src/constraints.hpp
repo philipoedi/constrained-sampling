@@ -114,7 +114,6 @@ double quadraticConstraint(const Matrix<double,n,1> &x, void*data)
     double res{0};
     res += 0.5 * x.transpose() * c->P * x;
     res += x.transpose()*c->q;
-
     return res - c->r;
 }
 
@@ -202,11 +201,11 @@ std::vector<double> numericGradient(const std::vector<double> &x, std::function<
      std::vector<double> grad(x.size());
      double f_big, f_small;
      for (int i=0; i<x.size(); i++){
-        x_temp[0] += h;
+        x_temp[i] += h;
         f_big = func(x_temp);
-        x_temp[0] -= 2*h;
+        x_temp[i] -= 2*h;
         f_small = func(x_temp);
-        x_temp[0] += h;
+        x_temp[i] += h;
         grad[i] = (f_big - f_small) / (2*h);
      }
      return grad;
@@ -215,12 +214,27 @@ std::vector<double> numericGradient(const std::vector<double> &x, std::function<
 
 template<std::size_t n, std::size_t m>
 Matrix<double,m,n> numericJacobian(const std::vector<double> &x, std::vector<std::function<double(std::vector<double>&)>> funcs, double h){
+    assert (m>0);
+    if (m==0) exit(1);
     Matrix<double,m,n> jac;
     for (int i=0; i<funcs.size(); i++){
        jac.row(i) = Matrix<double,1,n>(numericGradient(x,funcs[i],h).data()); 
     }
     return jac;
 }
+
+template<std::size_t n>
+ConstraintCoeffs<n> createSphere(double radius){
+    ConstraintCoeffs<n> sphere;
+    sphere.constype = "quadratic"; 
+    sphere.type = "eq";
+    sphere.r = radius;
+    sphere.P = Matrix<double,n,n>::Identity();
+    sphere.P *= 2;
+    return sphere; 
+};
+
+
 /*
 template<std::size_t n>
 class TangentSpace {

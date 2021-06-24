@@ -37,6 +37,8 @@ namespace utils
    
 //    void write2file_results(const std::vector<std::vector<double>>& seeds, const std::vector<std::vector>>& samples);
     void writeMetadata2File(const std::string &problem_file, const std::string &name);
+    
+    std::vector<double> slice(const std::vector<double> &x, int start, int end);
 
     std::string getDateString();
     std::string getDateTimeString();
