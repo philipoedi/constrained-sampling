@@ -71,8 +71,8 @@ int main(){
     u_b_r_n.setGlobalBounds(global_lb_sphere,global_ub_sphere);
     ConstraintCoeffs<sphere_n> sphere = createSphere<sphere_n>(1);
     u_b_r_n.addConstraints(sphere);
-    u_b_r_n.setGlobalNumIter(5);
-    u_b_r_n.setLocalNumIter(5);
+    u_b_r_n.setGlobalNumIter(50);
+    u_b_r_n.setLocalNumIter(100);
     u_b_r_n.setLocalAlpha(0.005);
     u_b_r_n.setLocalUseTangent(true);
     u_b_r_n.run();
