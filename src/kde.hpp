@@ -14,13 +14,13 @@ using namespace Eigen;
 template<std::size_t n, std::size_t d> class Kernel
 {
     typedef Matrix<double, d, 1> Vector;
-    typedef Matrix<double, n, d> dataMatrix;
+//    typedef Matrix<double, n, d> dataMatrix;
 
     public:
         
         Kernel();
         Kernel(const Vector& bandwidth);
-        void fit(const dataMatrix& data);
+        void fit(const MatrixXd &data);
         double evaluate(const Vector& x);
         void setBandwidth(const Vector& bandwidth);    
         //void find_constant();
@@ -28,12 +28,14 @@ template<std::size_t n, std::size_t d> class Kernel
         double silverman();
         double scott();
         void addData(const std::vector<double> data, const std::size_t i);
-    
+        void resize(std::size_t n_rows, std::size_t n_cols);
+
     private:
 
         Vector bandwidth_; // 1/bandwidth
-        dataMatrix data_;
-        dataMatrix distances_;
+  //      dataMatrix data_;
+        MatrixXd data_;
+  //      dataMatrix distances_;
         double nh_; // num_samples * product over hi 
         std::size_t n_ = n;
         std::size_t d_ = d;
@@ -56,15 +58,15 @@ Kernel<n,d>::Kernel(const Vector& bandwidth)
 } 
 
 template<std::size_t n, std::size_t d>
-void Kernel<n,d>::fit(const dataMatrix& data)
+void Kernel<n,d>::fit(const MatrixXd &data)
 {
+    data_.resize(data.rows(), data.cols());
     data_ = data;
 }
 
 template<std::size_t n, std::size_t d>
 void Kernel<n,d>::addData(const std::vector<double> data, const std::size_t i)
 {
-
     for (int j=0; j<d; j++)
     {
         data_(i,j) = data[j];
@@ -75,10 +77,12 @@ template<std::size_t n, std::size_t d>
 double Kernel<n,d>::evaluate(const Vector& x)
 {
     double prob;
-    distances_ = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
-    distances_ = (distances_.array().abs() > 1.0).select(1, distances_);  // select(1 instead of 0 -> 
-    distances_ = 3./4. *( 1.0 - distances_.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
-    prob = distances_.rowwise().prod().sum()*nh_; 
+    MatrixXd distances;
+    distances.resize(data_.rows(),data_.cols());
+    distances = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
+    distances = (distances.array().abs() > 1.0).select(1, distances);  // select(1 instead of 0 -> 
+    distances = 3./4. *( 1.0 - distances.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
+    prob = distances.rowwise().prod().sum()*nh_; 
     return prob;
 }
 
@@ -89,6 +93,10 @@ void Kernel<n,d>::setBandwidth(const Vector& bandwidth)
    nh_ = bandwidth.prod()/n_;
 }
 
+template<std::size_t n, std::size_t d>
+void Kernel<n,d>::resize(std::size_t n_rows, std::size_t n_cols){
+    data_.resize(n_rows, n_cols);
+}
 /*
 template<std::size_t n, std::size_t d>
 void Kernel<n,d>::find_constant()
@@ -148,14 +156,15 @@ template<std::size_t n, std::size_t d> class KernelEstimator
 {
     
     typedef Matrix<double, d, 1> Vector;
-    typedef Matrix<double, n, d> dataMatrix;
+    //typedef Matrix<double, n, d> dataMatrix;
+    
 
     public:
         
         KernelEstimator();
         KernelEstimator(const Vector& bandwidth);
         KernelEstimator(const std::string& bandwidth_est);
-        void fit(const dataMatrix& data);
+        void fit(const MatrixXd& data);
         void fit(const std::vector<std::vector<double>>& data);
         void predict(const std::vector<Vector>& x, std::vector<double>& res);
         void predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step);
@@ -167,7 +176,8 @@ template<std::size_t n, std::size_t d> class KernelEstimator
         void evaluateOnGrid(const std::vector<std::vector<double>> &space, std::size_t vec_index, std::vector<double> &vec_so_far);
         void predictOnSphere(int n_points, double r);
         void setSphere(double r);
-
+        void resizeDataMatrix(std::size_t n_rows);
+    
     private:
         
         Kernel<n,d> k_;
@@ -195,7 +205,7 @@ void KernelEstimator<n,d>::setBandwidth(const Vector& bandwidth)
 }
 
 template<std::size_t n, std::size_t d>
-void KernelEstimator<n,d>::fit(const dataMatrix& data){
+void KernelEstimator<n,d>::fit(const MatrixXd &data){
     k_.fit(data);
 }
 
@@ -337,6 +347,7 @@ void KernelEstimator<n,d>::predictOnSphere(int n_points, double r){
 template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::fit(const std::vector<std::vector<double>>& data)
 {
+    resizeDataMatrix(data.size());
     for (int i=0; i<data.size(); i++)
     {
         k_.addData(data[i], i);
@@ -348,6 +359,12 @@ void KernelEstimator<n,d>::savePdes(const std::string name)
 {
     utils::writeVec2File(pdes_, name);
 }
+
+template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::resizeDataMatrix(std::size_t n_rows){
+    k_.resize(n_rows,d);
+}
+
 
 #endif
 
