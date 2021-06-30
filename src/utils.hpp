@@ -43,6 +43,8 @@ namespace utils
     std::string getDateString();
     std::string getDateTimeString();
 
+    std::vector<double> spherical2cartesian(double theta, double phi, double r);
+
     template<std::size_t n>
     double squaredDist(const Matrix<double,n,1> &v1, const Matrix<double,n,1> &v2) 
     { 

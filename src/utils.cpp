@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 using namespace Eigen;
 
@@ -168,6 +169,15 @@ namespace utils
         }
     };
     
+    std::vector<double> spherical2cartesian(double theta, double phi, double r){
+        std::vector<double> coords(3);
+        coords[0] = r * (sin(theta) * cos(phi));
+        coords[1] = r * (sin(theta) * sin(phi));
+        coords[2] = r * cos(theta);
+        return coords;
+    }
+
+
     std::string getDateString()
     {
         time_t now;

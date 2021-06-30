@@ -71,6 +71,7 @@ int main(){
     std::vector<double> lb{0,0};
     std::vector<double> ub{3,3};
     double step{1};
+    std::cout << "testing predict" << std::endl;
     kdest.predict(lb, ub, step);
     const std::size_t d2{3};
     KernelEstimator<d2,n> kdest3;
@@ -82,8 +83,23 @@ int main(){
         da[i][0] = 0;
         da[i][1] = 1;
     }
+    std::vector<std::vector<double>> space;
+    std::vector<double> points{0,1,2};
+    space.push_back(points);
+    space.push_back(points);
+    // evaluateOnGrid
+    KernelEstimator<2,2> kdest22;
+    std::vector<double> point(2);
+    std::cout << "evaluatign on grid" << std::endl;
+    kdest22.evaluateOnGrid(space, 0, point);
+    Matrix<double,2,2> data;
+    data << 2,2,1,1;
+    kdest22.fit(data);
+    kdest22.predict(lb,ub, 0.1);
+    kdest22.setSphere(1);
+    kdest22.predict(lb,ub, 0.1);
+    std::cout << "finished predict" << std::endl;
 
-    kdest3.fit(da);
 
     return 0; 
 }

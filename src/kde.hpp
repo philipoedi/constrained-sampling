@@ -75,19 +75,10 @@ template<std::size_t n, std::size_t d>
 double Kernel<n,d>::evaluate(const Vector& x)
 {
     double prob;
-/*    std::cout << "data_: \n" << data_ << std::endl;
-    std::cout << "x: \n" << x << std::endl;
-    std::cout << "data_ - x.transpose().repliacete(n,1): \n" << data_ - x.transpose().replicate(n,1) <<std::endl;
-    std::cout << "bandwidth transpose replicate: \n" << bandwidth_.transpose().replicate(n,1)<<std::endl;
-  */  distances_ = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
-    /*std::cout << "d-x.t*b" << distances_ << std::endl;
-    std::cout << ">1: " << distances_ << std::endl;
-    */distances_ = (distances_.array().abs() > 1.0).select(1, distances_);  // select(1 instead of 0 -> 
+    distances_ = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
+    distances_ = (distances_.array().abs() > 1.0).select(1, distances_);  // select(1 instead of 0 -> 
     distances_ = 3./4. *( 1.0 - distances_.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
-    /*std::cout << "distances_ : " << distances_ << std::endl;
-    std::cout << "distances_ filter: " << distances_ << std::endl;
-   */ prob = distances_.rowwise().prod().sum()*nh_; 
-   // std::cout << "dist prod:" << distances_.rowwise().prod() << std::endl; 
+    prob = distances_.rowwise().prod().sum()*nh_; 
     return prob;
 }
 
@@ -171,13 +162,20 @@ template<std::size_t n, std::size_t d> class KernelEstimator
         void setBandwidth(const Vector& bandwidth);
         void find_optimal_bandwidth(const std::string bandwidth_est);
         void savePdes(const std::string name);
+        void evaluateAndAdd(Vector &point);
+        void predictOnGrid(const std::vector<double> &lb, const std::vector<double> &ub, const double step);
+        void evaluateOnGrid(const std::vector<std::vector<double>> &space, std::size_t vec_index, std::vector<double> &vec_so_far);
+        void predictOnSphere(int n_points, double r);
+        void setSphere(double r);
 
     private:
         
         Kernel<n,d> k_;
+        std::string method_{"grid"};
         std::size_t n_{n};
         std::size_t d_{d};
         std::vector<std::vector<double>> pdes_;
+        double r_;
 };
 
 
@@ -213,6 +211,11 @@ void KernelEstimator<n,d>::find_optimal_bandwidth(const std::string bandwidth_es
     k_.find_optimal_bandwidth(bandwidth_est);
 }
 
+template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::setSphere(double r){
+    r_ = r;
+    method_ = "sphere";
+}
 
 template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::predict(const std::vector<Vector>& x, std::vector<double>& res)
@@ -222,7 +225,7 @@ void KernelEstimator<n,d>::predict(const std::vector<Vector>& x, std::vector<dou
     }
 }
 
-template<std::size_t n, std::size_t d>
+/*template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step)
 {
     Vector p;
@@ -240,7 +243,6 @@ void KernelEstimator<n,d>::predict(const std::vector<double>& lb, const std::vec
             p(1) = y;
             std::cout << p << std::endl;
             prob = k_.evaluate(p);
-            std::cout << "prob: " << prob <<"\n eval end"  << std::endl;
             data[0] = x;
             data[1] = y;
             data[2] = prob; 
@@ -249,6 +251,85 @@ void KernelEstimator<n,d>::predict(const std::vector<double>& lb, const std::vec
         }
         x += step;
         y = lb[1];
+    }
+}*/
+
+template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::predict(const std::vector<double> &lb, const std::vector<double> &ub, const double step) {
+    assert (lb.size() == ub.size());
+    assert (lb.size() == d);
+    if (method_ == "grid"){
+        predictOnGrid(lb, ub, step);
+    } else if (method_ == "sphere") {
+        int n_samples{0};
+        for (int i=0; i<lb.size(); i++){
+            n_samples +=  round((ub[i] - lb[i]) / step);
+        }
+        predictOnSphere(n_samples, r_);
+    }
+}
+
+template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::evaluateAndAdd(Vector &point){
+    double prob;
+    std::vector<double> data(d);
+    prob = k_.evaluate(point);
+    utils::copyEig2Vec(point, data); 
+    data.push_back(prob);
+    pdes_.push_back(data);
+}
+
+template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::predictOnGrid(const std::vector<double> &lb, const std::vector<double> &ub, const double step){
+    assert (lb.size() == ub.size());
+    assert (lb.size() == d);
+    std::vector<std::vector<double>> space(d);
+    int j;
+    double p;
+    for (int i=0; i<space.size(); i++){
+        j = 0;
+        p = lb[i];
+        while (p <= ub[i]) {
+            space[i].push_back(p);
+            p += step;
+        }
+    }
+    std::vector<double> vec_so_far(d);
+    evaluateOnGrid(space, 0, vec_so_far);
+}
+
+template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::evaluateOnGrid(const std::vector<std::vector<double>> &space, std::size_t vec_index, std::vector<double> &vec_so_far){
+    if (vec_index >= space.size()){
+        Vector point(vec_so_far.data());
+        evaluateAndAdd(point);
+        return;
+    }
+    for (std::size_t i=0; i<space[vec_index].size(); i++){
+        vec_so_far[vec_index] = space[vec_index][i];
+        evaluateOnGrid(space, vec_index+1, vec_so_far);
+    }
+}
+
+template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::predictOnSphere(int n_points, double r){
+    int n_count{0}, M_theta, M_phi;
+    double a, di, theta, phi, d_theta, d_phi;
+    Vector point;
+    a = 4*M_PI*r*r / n_points;
+    di = sqrt(a);
+    M_theta = round(M_PI/di);
+    d_theta = M_PI/M_theta;
+    d_phi = a/d_theta;
+    for (int m=0; m<(M_theta-1); m++){
+        theta = M_PI*(m+0.5)/M_theta; 
+        M_phi = round(2*M_PI*sin(theta/d_theta)) ;
+        for (int k=0; k<(M_phi-1); k++){
+            phi = 2*M_PI*k/M_phi;
+            point = Vector(utils::spherical2cartesian(theta, phi, r).data());
+            evaluateAndAdd(point);
+            n_count += 1;
+        }
     }
 }
 

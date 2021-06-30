@@ -95,6 +95,12 @@ int main(){
     std::vector<double> uu = utils::slice(xx,0,1);    
     std::cout <<"size of uu: "<<  uu.size() << std::endl;
 
+    // test spherical coord transformation
+    double theta{1}, phi{1}, r{1};
+    std::vector<double> cart(3);
+    cart = utils::spherical2cartesian(theta, phi, r);
+    std::cout << "Tramsforming from speherical to cartesian" << std::endl;
+    std::cout << cart[0] << " " << cart[1] << " " << cart[2] << std::endl;
     return 0;
 }
 
