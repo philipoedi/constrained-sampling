@@ -10,6 +10,8 @@
 #include "objectives.hpp"
 #include <algorithm>
 #include "RRT.hpp"
+#include "kde.hpp"
+
 
 template<std::size_t n, std::size_t m>
 class Experiment {
@@ -41,8 +43,12 @@ class Experiment {
         void addConstraints(const std::vector<ConstraintCoeffs<n>> &cons);
         bool validOptimizer(std::string opt);
         bool validSampler(std::string samp);
+        void setBandwidth(double bandwidth);
+        void setBandwidthEstimator(std::string estimator);
+        void setGridSpacing(double delta);
+        void setSphere(double r);
         void run();
-
+    
     private:
         std::string global_sampler_; // "uniform","rrt"
         std::string local_sampler_; // "uniform","normal","RRT","metropolis_hastings"
@@ -66,8 +72,13 @@ class Experiment {
         std::vector<std::vector<double>> local_results_;
         std::vector<std::vector<double>> global_results_;
         std::vector<std::vector<double>> global_samples_;
-        std::vector<std::vector<double>> local_samples;
-
+        std::vector<std::vector<double>> local_samples_;
+        // kernel density estimator
+        double delta_{1e-3};
+        double sphere_radius_{0};
+        double bandwidth_{0.1};
+        std::string bandwidth_estimator_{"silverman"};
+        bool use_bandwidth_estimator_{false};
 };
 
 template<std::size_t n, std::size_t m>
@@ -187,6 +198,29 @@ void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &con
 }
 
 template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setGridSpacing(double delta){
+    delta_ = delta;
+}
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setBandwidth(double bandwidth){
+    bandwidth_ = bandwidth;
+    use_bandwidth_estimator_ = false;
+}
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setBandwidthEstimator(std::string estimator){
+    use_bandwidth_estimator_ = true;
+    bandwidth_estimator_ = estimator;
+}
+
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setSphere(double r){
+    sphere_radius_ = r;
+}
+
+template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validOptimizer(std::string opt){
     if (opt == "biased" || opt == "slack" || "none"){
         return true;
@@ -272,9 +306,24 @@ void Experiment<n,m>::run(){
         }
         local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
         local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+        utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
         local_sampler_ptr->reset();
     }
     
+    // probability density estimation of local samples
+    KernelEstimator<n,n> kdest;
+    kdest.fit(local_samples_);
+    std::cout << "local_samples_.size()" << local_samples_.size() << std::endl;
+    if (use_bandwidth_estimator_) {
+        kdest.find_optimal_bandwidth(bandwidth_estimator_);
+    } else {
+        kdest.setBandwidth(bandwidth_);
+    }
+    if (sphere_radius_ > 0) {
+        kdest.setSphere(sphere_radius_);
+    }
+    kdest.predict(lb_global_ ,ub_global_ ,delta_);
+    kdest.savePdes(name+"_pdes");
 }
 
 

@@ -74,6 +74,11 @@ namespace utils
         }
     };
 
+    void appendVec2Vec(const std::vector<std::vector<double>> &src, std::vector<std::vector<double>> &dst){
+       std::copy(src.begin(), src.end(), std::back_inserter(dst)); 
+    }
+
+
     void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name)
     {
         std::ofstream file;

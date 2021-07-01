@@ -29,7 +29,8 @@ template<std::size_t n, std::size_t d> class Kernel
         double scott();
         void addData(const std::vector<double> data, const std::size_t i);
         void resize(std::size_t n_rows, std::size_t n_cols);
-
+        bool bandwidthInitialized();
+    
     private:
 
         Vector bandwidth_; // 1/bandwidth
@@ -44,7 +45,7 @@ template<std::size_t n, std::size_t d> class Kernel
         double R_ = 3./5.;
         double kappa_ = 1./5.;
         std::size_t num_rows{n};
-               
+        bool bandwidth_initialized_{false};
 };
 
 template<std::size_t n, std::size_t d>
@@ -78,8 +79,10 @@ double Kernel<n,d>::evaluate(const Vector& x)
 {
     double prob;
     MatrixXd distances;
-    distances.resize(data_.rows(),data_.cols());
-    distances = (data_- x.transpose().replicate(n,1)).cwiseProduct(bandwidth_.transpose().replicate(n,1));
+    std::size_t n_rows;
+    n_rows = data_.rows();
+    distances.resize(n_rows,data_.cols());
+    distances = (data_- x.transpose().replicate(n_rows,1)).cwiseProduct(bandwidth_.transpose().replicate(n_rows,1));
     distances = (distances.array().abs() > 1.0).select(1, distances);  // select(1 instead of 0 -> 
     distances = 3./4. *( 1.0 - distances.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
     prob = distances.rowwise().prod().sum()*nh_; 
@@ -91,7 +94,14 @@ void Kernel<n,d>::setBandwidth(const Vector& bandwidth)
 {
    bandwidth_ = bandwidth; 
    nh_ = bandwidth.prod()/n_;
+   bandwidth_initialized_ = true;
 }
+
+template<std::size_t n, std::size_t d>
+bool Kernel<n,d>::bandwidthInitialized(){
+    return bandwidth_initialized_;
+}
+
 
 template<std::size_t n, std::size_t d>
 void Kernel<n,d>::resize(std::size_t n_rows, std::size_t n_cols){
@@ -168,13 +178,15 @@ template<std::size_t n, std::size_t d> class KernelEstimator
         void fit(const std::vector<std::vector<double>>& data);
         void predict(const std::vector<Vector>& x, std::vector<double>& res);
         void predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step);
+        void predict(const Vector &lb, const Vector &ub, const double step);
+        void predictOnGrid(const std::vector<double> &lb, const std::vector<double> &ub, const double step);
+        void predictOnSphere(int n_points, double r);
+        void evaluateAndAdd(Vector &point);
+        void evaluateOnGrid(const std::vector<std::vector<double>> &space, std::size_t vec_index, std::vector<double> &vec_so_far);
         void setBandwidth(const Vector& bandwidth);
+        void setBandwidth(double bandwidth);
         void find_optimal_bandwidth(const std::string bandwidth_est);
         void savePdes(const std::string name);
-        void evaluateAndAdd(Vector &point);
-        void predictOnGrid(const std::vector<double> &lb, const std::vector<double> &ub, const double step);
-        void evaluateOnGrid(const std::vector<std::vector<double>> &space, std::size_t vec_index, std::vector<double> &vec_so_far);
-        void predictOnSphere(int n_points, double r);
         void setSphere(double r);
         void resizeDataMatrix(std::size_t n_rows);
     
@@ -203,6 +215,13 @@ void KernelEstimator<n,d>::setBandwidth(const Vector& bandwidth)
 {
    k_.setBandwidth(bandwidth);
 }
+
+template<std::size_t n, std::size_t m>
+void KernelEstimator<n,m>::setBandwidth(double bandwidth){
+    Vector b = Vector::Constant(bandwidth);
+    k_.setBandwidth(b);
+}
+
 
 template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::fit(const MatrixXd &data){
@@ -268,12 +287,13 @@ template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::predict(const std::vector<double> &lb, const std::vector<double> &ub, const double step) {
     assert (lb.size() == ub.size());
     assert (lb.size() == d);
+    assert (k_.bandwidthInitialized());
     if (method_ == "grid"){
         predictOnGrid(lb, ub, step);
     } else if (method_ == "sphere") {
-        int n_samples{0};
+        int n_samples{1};
         for (int i=0; i<lb.size(); i++){
-            n_samples +=  round((ub[i] - lb[i]) / step);
+            n_samples *=  round((ub[i] - lb[i]) / step);
         }
         predictOnSphere(n_samples, r_);
     }
