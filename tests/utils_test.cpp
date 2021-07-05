@@ -101,6 +101,14 @@ int main(){
     cart = utils::spherical2cartesian(theta, phi, r);
     std::cout << "Tramsforming from speherical to cartesian" << std::endl;
     std::cout << cart[0] << " " << cart[1] << " " << cart[2] << std::endl;
+    // testing append
+    std::vector<std::vector<double>> src;
+    std::vector<std::vector<double>> dst;
+    src.push_back(cart);
+    dst.push_back(cart);
+    utils::appendVec2Vec(src, dst);
+    assert (dst.size() == 2);
+
     return 0;
 }
 

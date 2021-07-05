@@ -17,7 +17,8 @@ root_folder = os.path.abspath(os.path.join(os.path.dirname("__file__"),"..",".."
 results_folder = os.path.join(root_folder, "results")
 global_selected_buttons = {"samples": True,
                     "seeds": True,
-                    "trace": True}
+                    "surface": True,
+                    "projections": True}
 local_selected_buttons = global_selected_buttons.copy()
 global_checklist = [{"label":k,"value":k} for k in global_selected_buttons.keys()]
 local_checklist = [{"label":k,"value":k} for k in local_selected_buttons.keys()]
@@ -59,11 +60,9 @@ app.layout = html.Div(children=[
                 Input("local_checklist","value")])
 def update_plot(experiment, global_checklist, local_checklist):
     experiment_name = os.path.join(results_folder,experiment)
-    samples, seeds = create_dataframe(experiment_name)
+    samples, seeds, pdes = create_dataframe(experiment_name)
     print("finished loading data")
     
-    samples.to_csv("samples.csv")
-    seeds.to_csv("seeds.csv")
     plots = []
     if "samples" in global_checklist:
         plots.append(get_scatterplot(samples, local=False))
@@ -78,12 +77,19 @@ def update_plot(experiment, global_checklist, local_checklist):
         #local_seeds_data = seeds[seeds["local"] != 0] 
         #local_seeds_fig = go.Scatter3d(x=local_seeds_data["x"],y=local_seeds_data["y"],z=local_seeds_data["z"])
         plots.append(get_scatterplot(seeds, local=True))
+    if "projections" in global_checklist:
+        plots.extend(get_projections(samples, seeds, local=False))
+
+    fig = go.Figure(data=plots).update_layout(autosize=False,height=800,width=1600)
+    if "surface" in global_checklist:
+       # plots.append(get_surfaceplot(pdes)) 
+        fig.add_trace(get_surfaceplot(pdes)) 
     
+
     #if "seeds" in global_checklist:
     #    seeds_data = np.loadtxt(data_map["seeds"])
     #    seeds_fig = go.Scatter(x=seeds_data[:,0],y=seeds_data[:,1],mode="markers")
     #    plots2.append(seeds_fig)
-    fig = go.Figure(data=plots).update_layout(autosize=False,height=800,width=1600)
     return fig
 
 

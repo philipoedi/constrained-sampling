@@ -94,6 +94,7 @@ int main(){
     Matrix<double,2,2> data;
     data << 2,2,1,1;
     kdest22.fit(data);
+    kdest22.setBandwidth(10);
     kdest22.evaluateOnGrid(space, 0, point);
     kdest22.predict(lb,ub, 0.1);
     kdest22.setSphere(1);

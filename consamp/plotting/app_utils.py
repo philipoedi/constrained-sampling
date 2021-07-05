@@ -4,7 +4,7 @@ import glob
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-
+import plotly.express as px
 
 root_folder = os.path.abspath(os.path.join(os.path.dirname("__file__"), "..", ".."))
 results_folder = os.path.join(root_folder, "results")
@@ -37,10 +37,19 @@ def create_dataframe(folder_path):
     files = glob.glob(os.path.join(results_folder, folder_path,"*"))
     sample_files = [f for f in files if "samples" in f]
     seed_files = [f for f in files if "seeds" in f]
+    pdes_file = [f for f in files if "pdes" in f]
     samples = load_data(sample_files)
     seeds = load_data(seed_files)
-    return samples, seeds
- 
+    pdes = load_pdes(pdes_file[0])
+    return samples, seeds, pdes
+
+def load_pdes(filename):
+    data = np.loadtxt(filename)
+    df = pd.DataFrame(data)
+    df.columns = ["x","y","z","pdes"]
+    return df
+
+
 def read_file(filename):
     """
     reads a .dat file containing coordinates in 3d space. Will 
@@ -83,7 +92,7 @@ def load_data(files):
         metadata = get_metadata(f)
         if metadata["level"] == "global":
             f_data["global"] = np.arange(len(f_data))
-            f_data["local"] = 0
+            f_data["local"] = -1 
         else:
             f_data["global"] = metadata["root"]
             f_data["local"] = np.arange(len(f_data))
@@ -117,13 +126,37 @@ def get_metadata(filename):
 
 def get_plotdata(data, local):
     if local:
-        return data[data["local"] != 0]
+        return data[data["local"] >= 0]
     else:
-        return data[data["local"] == 0]
+        return data[data["local"] == -1]
 
 def get_scatterplot(data, local):
     plotdata = get_plotdata(data, local)
     return go.Scatter3d(x=plotdata["x"], y=plotdata["y"], z=plotdata["z"],mode="markers",marker={"size":2})
+
+def get_projections(samples, seeds, local):
+    sample_data = get_plotdata(samples, local)
+    seeds_data = get_plotdata(seeds, local)
+    figs = []
+    count = 0
+    for index, row in seeds_data.iterrows():
+        start = row[["x","y","z"]]
+        end = sample_data.iloc[index][["x","y","z"]]
+        line_data = pd.concat([start,end],axis=1).T 
+        figs.append(go.Scatter3d(x=line_data["x"], y=line_data["y"], z=line_data["z"],mode="lines", line={"color":"#ffe476"}))
+    return figs
+
+
+
+def get_surfaceplot(data):
+    #data = data.head(200)
+    #data = data.sort_values("x")
+    z = data[["z"]]
+    z["ww"] = data["z"]
+    #return go.Surface(x=data["x"],y=data["y"],z=z.values)#z=data[["z","pdes"]])
+    #return go.Scatter3d(x=data["x"],y=data["y"],z=data["z"],mode="markers")#z=data[["z","pdes"]])
+    return go.Mesh3d(x=data["x"],y=data["y"],z=data["z"], alphahull=0, intensity=data["pdes"])
+
 
 
 def seeds_plot(path):

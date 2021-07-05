@@ -346,14 +346,14 @@ void KernelEstimator<n,d>::predictOnSphere(int n_points, double r){
     int n_count{0}, M_theta, M_phi;
     double a, di, theta, phi, d_theta, d_phi;
     Vector point;
-    a = 4*M_PI*r*r / n_points;
+    a = (4*M_PI*r*r) / n_points;
     di = sqrt(a);
     M_theta = round(M_PI/di);
     d_theta = M_PI/M_theta;
     d_phi = a/d_theta;
     for (int m=0; m<(M_theta-1); m++){
         theta = M_PI*(m+0.5)/M_theta; 
-        M_phi = round(2*M_PI*sin(theta/d_theta)) ;
+        M_phi = round(2*M_PI*sin(theta)/d_theta) ;
         for (int k=0; k<(M_phi-1); k++){
             phi = 2*M_PI*k/M_phi;
             point = Vector(utils::spherical2cartesian(theta, phi, r).data());
