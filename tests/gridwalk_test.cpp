@@ -28,7 +28,11 @@ int main(){
     gw2.addConstraints(cons);
     std::cout << gw2.getBounds().first << std::endl;
     std::cout << gw2.getBounds().second << std::endl;
-    gw2.run(500);
+    gw2.run(5);
     gw2.saveResults("res");
     gw2.saveSamples("samples");
+
+    std::cout << "ballwalk" << std::endl;
+    gw2.makeBallWalk(0.5);
+    gw2.run(5);
 }

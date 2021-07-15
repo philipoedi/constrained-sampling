@@ -527,11 +527,14 @@ class GridWalk : public MetropolisHastings<n> {
         GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths);
         double PGridWalk(const Matrix<double,n,1> &x);
         Matrix<double,n,1> qSamplerGridWalk(const Matrix<double,n,1> &x);
+        Matrix<double,n,1> qSamplerBallWalk(const Matrix<double,n,1> &x);
         double QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x);
+        void makeBallWalk(double radius);
 
-    private:
+    protected:
 
         Matrix<double,n,1> widths_;
+        double r_;
     
 };
 
@@ -563,6 +566,30 @@ Matrix<double,n,1> GridWalk<n>::qSamplerGridWalk(const Matrix<double,n,1> &x){
 template<std::size_t n>
 double GridWalk<n>::QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x){
     return 1;
+}
+
+template<std::size_t n>
+Matrix<double,n,1> GridWalk<n>::qSamplerBallWalk(const Matrix<double,n,1> &x){
+    Matrix<double,n,1> candidate;
+    double d;
+    Matrix<double,n,1> lb = x - widths_;
+    Matrix<double,n,1> ub = x + widths_;
+    UniformSampler<n> qsampler(lb, ub);
+    do {
+        candidate = qsampler.sample();
+        d = (candidate - x).norm();
+        std::cout<< "x: \n"  << x << std::endl;
+        std::cout<< "c: \n"  << candidate << std::endl;
+        std::cout<< "d: \n"  << d << std::endl;
+    } while (d > r_) ;
+    return candidate;
+}
+
+template<std::size_t n>
+void GridWalk<n>::makeBallWalk(double radius) {
+    r_ = radius;
+    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q = std::bind(&GridWalk<n>::qSamplerBallWalk, this, std::placeholders::_1);
+    this->setQSampler(q);
 }
 
 
