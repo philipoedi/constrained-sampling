@@ -7,10 +7,14 @@
 #include <random>
 #include <functional>
 #include <cassert>
+#include <memory>
+
 
 template<std::size_t n>
 class BaseOptimizer;
 
+template<std::size_t n>
+class BiasedOptimizer;
 
 #include "utils.hpp"
 #include "constraints.hpp"
@@ -36,10 +40,11 @@ class BaseSampler
         virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
         std::vector<std::vector<double>> results();
         std::vector<std::vector<double>> samples();
-        bool checkFeasible(std::vector<double> &x);
-        bool checkFeasible(Vector &x);
+        bool checkFeasible(const std::vector<double> &x);
+        bool checkFeasible(const Vector &x);
         void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
-        void setOptimizer(BaseOptimizer<n> * opt);
+        //void setOptimizer(BaseOptimizer<n> * opt);
+        void setOptimizer(std::string method, std::vector<double> &lb, std::vector<double> &ub);
         void saveResults(std::string name);
         void saveSamples(std::string name);
         bool hasOptimizer();
@@ -52,7 +57,7 @@ class BaseSampler
         std::vector<std::vector<double>> results_;
         std::vector<std::vector<double>> samples_;
         std::vector<ConstraintCoeffs<n>*> cons_ptr_;
-        BaseOptimizer<n> * opt_ptr_{nullptr};
+        std::unique_ptr<BaseOptimizer<n>> opt_ptr_{nullptr};
 };
 
 
@@ -142,7 +147,7 @@ void BaseSampler<n>::addConstraints(std::vector<ConstraintCoeffs<n>> & cons){
 }
 
 template<std::size_t n>
-bool BaseSampler<n>::checkFeasible(std::vector<double> &x){
+bool BaseSampler<n>::checkFeasible(const std::vector<double> &x){
     if (cons_ptr_.empty()){
         return true;
     } else {
@@ -151,16 +156,24 @@ bool BaseSampler<n>::checkFeasible(std::vector<double> &x){
 }
 
 template<std::size_t n>
-bool BaseSampler<n>::checkFeasible(Vector &x){
+bool BaseSampler<n>::checkFeasible(const Vector &x){
     std::vector<double> x_vec(n);
     utils::copyEig2Vec(x, x_vec);
     return checkFeasible(x_vec);
 }
-
+/*
 template<std::size_t n>
 void BaseSampler<n>::setOptimizer(BaseOptimizer<n> *opt){
     opt_ptr_ = opt;
     if (opt != nullptr) {
+        opt_ptr_->addConstraints(cons_ptr_);
+    }
+}*/
+
+template<std::size_t n>
+void BaseSampler<n>::setOptimizer(std::string method, std::vector<double> &lb, std::vector<double> &ub){
+    if (method == "biased"){
+        opt_ptr_ = std::make_unique<BiasedOptimizer<n>>(lb, ub);
         opt_ptr_->addConstraints(cons_ptr_);
     }
 }
@@ -264,7 +277,7 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
 
     public:
 
-        MetropolisHastings();
+        MetropolisHastings(){};
         template <typename T> MetropolisHastings(const T &lb, const T &ub);//: BaseSampler<n>(lb,ub){};
         //void setP(double (*p)(const Vector&));
         void setP(std::function<double(const Vector&)> &p);
@@ -281,7 +294,10 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
         void saveResults(const std::string &name);
         void saveSamples(const std::string &name);
         std::vector<std::vector<double>> results();
-        //void set_Q_2(std::function<Vector(const Vector&)> &Q2);
+        /* virtual void run(int n_iter){};
+        virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
+        virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
+        *///void set_Q_2(std::function<Vector(const Vector&)> &Q2);
 
     private:
 
@@ -333,7 +349,7 @@ Matrix<double,n,1> MetropolisHastings<n>::sampleQ(const Vector &x)
     return Q_(x);
 };
 
-/*
+    /*
 template<std::size_t n>
 void MetropolisHastings<n>::set_Q(Vector (*Q)(const Vector&))
 {
@@ -404,7 +420,6 @@ void MetropolisHastings<n>::run(int n_iter)
             u = u_sampler(generator);
             x_star = Q_(x_i);
             A = aDefault(x_star, x_i);
-            std::cout << A << std::endl;
             if (u<A)
             {
                 x_i = x_star;
@@ -413,7 +428,6 @@ void MetropolisHastings<n>::run(int n_iter)
             samples_.push_back(utils::copyEig2Vec(x_star));
         }
     }
-        // append data to some datastructure
 };
 
 template<std::size_t n>
@@ -501,89 +515,55 @@ Matrix<double,n,1> UniformNeighborhoodSampler<n>::operator()(const Vector &x)
     return uni_.sample();
 };
 
-
-
-
-/*
-
 template<std::size_t n>
-class NormalNeighborhoodSampler : public BaseSampler<n>
-{
-    typedef Matrix<double, n, 1> Vector;
-    enum {NeedsToAlign = (sizeof(Vector)%16)==0};
-
-
-    public:
-        NormalNeighborhoodSampler;
-        void setStd(const double sdev);
-        double operator()(const Vector &x_star, const Vector &x_i);
-        Vector operator()(const Vector &x);
-    private:
-        Vector sdevs;
-}
-*/
-
-/*
-template<std::size_t n>
-class uniform_neighborhood_sampler : public UniformSampler<n>
-{
+class GridWalk : public MetropolisHastings<n> {
 
     typedef Matrix<double, n, 1> Vector;
     enum {NeedsToAlign = (sizeof(Vector)%16)==0};
 
     public:
-        uniform_neighborhood_sampler():UniformSampler<n>(){};
-        template<typename T> uniform_neighborhood_sampler(const T lb, const T ub)
-        : UniformSampler<n>(lb, ub){};
-        static Vector sample(const Vector& x);    
-        double get_P(const Vector& x);
-        void set_P(double (*P)(const Vector&));
+     
+        GridWalk(){};
+        GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths);
+        double PGridWalk(const Matrix<double,n,1> &x);
+        Matrix<double,n,1> qSamplerGridWalk(const Matrix<double,n,1> &x);
+        double QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x);
 
-        Vector widths_;
     private:
-        Vector lb_nb_; // lower bounds for neighborhood
-        Vector ub_nb_; // uupper bounds for neighborhood
-        Vector range_i_;
-        double (*P_)(const Vector &x);
+
+        Matrix<double,n,1> widths_;
+    
 };
 
 template<std::size_t n>
-Matrix<double, n, 1> uniform_neighborhood_sampler<n>::sample(const Vector &x)
-{
-    Vector lb = x - widths_;
-    Vector ub = x + widths_;
-    Vector range;
-    lb_ = lb.cwiseMax(this->lb_);
-    ub = lb_.cwiseMin(this->ub_);
-    range = ub - lb;
-    return this->sample(range, lb);
-};
-
-template<std::size_t n>
-void uniform_neighborhood_sampler<n>::set_P(double (*P)(const Vector &x))
-{
-    this->P_ = P;
+GridWalk<n>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const std::vector<double> &widths)  {
+    this->setBounds(lb,ub);
+    widths_ = Matrix<double,n,1>(widths.data()); 
+    std::function<double(const Matrix<double,n,1>&)> p = std::bind(&GridWalk<n>::PGridWalk, this, std::placeholders::_1);
+    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q_sample = std::bind(&GridWalk<n>::qSamplerGridWalk, this, std::placeholders::_1);
+    std::function<double(const Matrix<double,n,1>&, const Matrix<double,n,1>&)> q = std::bind(&GridWalk<n>::QGridWalk, this, std::placeholders::_1, std::placeholders::_2);
+    this->setP(p);
+    this->setQSampler(q_sample);
+    this->setQ(q);
 }
 
 template<std::size_t n>
-double uniform_neighborhood_sampler<n>::get_P(const Vector &x)
-{
-    return P_(x);
+double GridWalk<n>::PGridWalk(const Matrix<double,n,1> &x){
+    return (this->checkFeasible(x) && boundsCheck<n>(x, this->lb_, this->ub_)) ? 1 : 0;
 }
-*/
+
+template<std::size_t n>
+Matrix<double,n,1> GridWalk<n>::qSamplerGridWalk(const Matrix<double,n,1> &x){
+    Matrix<double,n,1> lb = x - widths_;
+    Matrix<double,n,1> ub = x + widths_;
+    UniformSampler<n> qsampler(lb, ub);
+    return qsampler.sample();
+}
+
+template<std::size_t n>
+double GridWalk<n>::QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x){
+    return 1;
+}
 
 
-
-// dimension
-
-// bounds
- 
-// uniform sampler
-
-// x_star
-
-// q
-
-//p
-//A
 #endif

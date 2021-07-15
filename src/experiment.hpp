@@ -1,6 +1,7 @@
 #ifndef EXPERIMENT_H
 #define EXPERIMENT_H
 
+#include <memory>
 #include "optimizer.hpp"
 #include <cassert>
 #include <iostream>
@@ -47,6 +48,7 @@ class Experiment {
         void setBandwidthEstimator(std::string estimator);
         void setGridSpacing(double delta);
         void setSphere(double r);
+        void setSave(bool save);
         void run();
     
     private:
@@ -79,6 +81,9 @@ class Experiment {
         double bandwidth_{0.1};
         std::string bandwidth_estimator_{"silverman"};
         bool use_bandwidth_estimator_{false};
+        bool use_local_optimizer_{true};
+        bool use_global_optimizer_{true};
+        bool save_{false};
 };
 
 template<std::size_t n, std::size_t m>
@@ -102,6 +107,7 @@ Experiment<n,m>::Experiment(
 
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::setLocalOptimizer(std::string local_optimizer){
+    use_local_optimizer_ = true;
     local_optimizer_ = local_optimizer;
 }
 
@@ -114,6 +120,7 @@ void Experiment<n,m>::setLocalSampler(std::string local_sampler){
 
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::setGlobalOptimizer(std::string global_optimizer){
+    use_global_optimizer_ = true;
     global_optimizer_ = global_optimizer;
 }
 
@@ -141,6 +148,11 @@ void Experiment<n,m>::setLocalUpperBounds(const std::vector<double> &ub){
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::setGlobalUpperBounds(const std::vector<double> &ub){
     ub_global_ = ub;
+}
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setSave(bool save){
+    save_ = save;
 }
 
 template<std::size_t n, std::size_t m>
@@ -234,11 +246,11 @@ bool Experiment<n,m>::validOptimizer(std::string opt){
 
 template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validSampler(std::string samp){
-    if (samp == "RRT" || samp == "metropolis_hastings" || samp == "uniform"){
+    if (samp == "RRT" || samp == "grid-walk" || samp == "uniform"){
         return true;
     }
     else {
-        std::cout << "Choose any of the following samplers: 'uniform', 'metropolis_hastings', 'RRT'" << std::endl;
+        std::cout << "Choose any of the following samplers: 'uniform', 'grid-walk', 'RRT'" << std::endl;
         return false;
     }
 }
@@ -250,21 +262,26 @@ void Experiment<n,m>::run(){
     assert (validOptimizer(global_optimizer_)); 
     assert (validOptimizer(local_optimizer_)); 
     
-    BaseSampler<n> * global_sampler_ptr{nullptr};
-    BaseSampler<n> * local_sampler_ptr{nullptr};
-    BaseOptimizer<n> * global_optimizer_ptr{nullptr};
-    BaseOptimizer<n> * local_optimizer_ptr{nullptr};
+    std::unique_ptr<BaseSampler<n>> global_sampler_ptr{nullptr};
+    std::unique_ptr<BaseSampler<n>> local_sampler_ptr{nullptr};
+    std::shared_ptr<BaseOptimizer<n>> global_optimizer_ptr{nullptr};
+    std::shared_ptr<BaseOptimizer<n>> local_optimizer_ptr{nullptr};
  
 
     if (global_sampler_ == "uniform"){
-        global_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
+        global_sampler_ptr = std::make_unique<UniformSampler<n>>(lb_global_, ub_global_);
     } else if (global_sampler_ == "RRT") {
-        global_sampler_ptr = new RRT<n,m>(lb_global_, ub_global_, global_alpha_, global_use_tangent_);
+        global_sampler_ptr = std::make_unique<RRT<n,m>>(lb_global_, ub_global_, global_alpha_, global_use_tangent_);
+    } else if (gloval_sampler_ == "grid-walk") {
+        global_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, global_use_tangent_);
+    } else {
+        global_sampler_ptr = std::make_unique<BallWalk<n,m>>(lb_global_, ub_global_, global_use_tangent_);
     }
-   
+   /*
     if (global_optimizer_ == "biased") {
-        global_optimizer_ptr = new BiasedOptimizer<n>(lb_global_, ub_global_);
-    }
+        //global_optimizer_ptr = std::make_shared<BiasedOptimizer<n>>(lb_global_, ub_global_);
+        global_sampler_ptr->setOptimizer("biased",);
+    }*/
 
     std::string name;
     name = utils::getDateTimeString();
@@ -272,31 +289,39 @@ void Experiment<n,m>::run(){
 
     // global sampler
     global_sampler_ptr->addConstraints(cons_);
-    global_sampler_ptr->setOptimizer(global_optimizer_ptr);
+    std::cout << "using global otp" << use_global_optimizer_ << std::endl;
+    if (use_global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_, lb_global_, ub_global_);
+    //if (global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_ptr);
 
     // global results
     global_sampler_ptr->run(global_n_iter_);
     global_samples_ = global_sampler_ptr->samples();
     global_results_ = global_sampler_ptr->results();
-    global_sampler_ptr->saveResults(name+"_global");
-    global_sampler_ptr->saveSamples(name+"_global");
-
+    if (save_){
+        global_sampler_ptr->saveResults(name+"_global");
+        global_sampler_ptr->saveSamples(name+"_global");
+    }
 
     if (local_sampler_ == "uniform") {
-        local_sampler_ptr = new UniformSampler<n>(lb_global_, ub_global_);
+        local_sampler_ptr = std::make_unique<UniformSampler<n>>(lb_global_, ub_global_);
     } else if (local_sampler_ == "RRT"){
-        local_sampler_ptr = new RRT<n,m>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
+        local_sampler_ptr = std::make_unique<RRT<n,m>>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
+    } else if (local_sampler_ == "grid-walk") {
+        local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_local_, ub_local_, local_use_tangent_);
+    } else {
+        local_sampler_ptr = std::make_unique<BallWalk<n,m>>(lb_local_, ub_local_, local_use_tangent_);
     }
-   
+  /* 
     if (local_optimizer_ == "biased"){
-        local_optimizer_ptr = new BiasedOptimizer<n>(lb_global_, ub_global_);
-    }
+        local_optimizer_ptr = std::make_shared<BiasedOptimizer<n>>(lb_global_, ub_global_);
+    }*/
 
     
     // local sampler
     local_sampler_ptr->addConstraints(cons_);
-    local_sampler_ptr->setOptimizer(local_optimizer_ptr);
+    if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
 
+    std::cout << "global_results_.size()" << global_results_.size() << std::endl;
     // local results 
     for (int i=0; i<global_results_.size() ;i++){
         if (local_use_tangent_) {
@@ -304,9 +329,12 @@ void Experiment<n,m>::run(){
         } else {
            local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
         }
-        local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
-        local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+        if (save_) {
+            local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
+            local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+        }
         utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
+        std::cout << "local_samples_.size()" << local_samples_.size() << std::endl;
         local_sampler_ptr->reset();
     }
     
@@ -323,7 +351,9 @@ void Experiment<n,m>::run(){
         kdest.setSphere(sphere_radius_);
     }
     kdest.predict(lb_global_ ,ub_global_ ,delta_);
-    kdest.savePdes(name+"_pdes");
+    if (save_) {
+        kdest.savePdes(name+"_pdes");
+    }
 }
 
 

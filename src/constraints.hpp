@@ -162,7 +162,7 @@ bool isFeasiblePtr(std::vector<double> &x, ConstraintCoeffs<n> *cons){
 
 
 template<std::size_t n>
-bool isFeasibleM(std::vector<double> &x, std::vector<ConstraintCoeffs<n>> &cons){
+bool isFeasibleM(const std::vector<double> &x, const std::vector<ConstraintCoeffs<n>> &cons){
     if (std::all_of(cons.begin(), cons.end(), std::bind(isFeasible<n>,x, std::placeholders::_1))){
         return true;
     } else {
@@ -172,7 +172,7 @@ bool isFeasibleM(std::vector<double> &x, std::vector<ConstraintCoeffs<n>> &cons)
 
 
 template<std::size_t n>
-bool isFeasibleM(std::vector<double> &x, std::vector<ConstraintCoeffs<n>*> &cons){
+bool isFeasibleM(const std::vector<double> &x, const std::vector<ConstraintCoeffs<n>*> &cons){
     if (std::all_of(cons.begin(), cons.end(), std::bind(isFeasiblePtr<n>,x, std::placeholders::_1))){
         return true;
     } else {
@@ -181,7 +181,7 @@ bool isFeasibleM(std::vector<double> &x, std::vector<ConstraintCoeffs<n>*> &cons
 }
 
 template<std::size_t n>
-bool boundsCheck(Matrix<double,n,1> &x, Matrix<double,n,1> &lb, Matrix<double,n,1> &ub){
+bool boundsCheck(const Matrix<double,n,1> &x, const Matrix<double,n,1> &lb, const Matrix<double,n,1> &ub){
     if ((ub.array()>=x.array()).all() && ((lb.array()<=x.array()).all())){
         return true;
     } else {

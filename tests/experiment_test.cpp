@@ -60,7 +60,6 @@ int main(){
     rrt_exp.setLocalNumIter(5);
     //rrt_exp.run();
  
-    // uniform_none + rrt_none_
     const int sphere_n{3};
     Experiment<sphere_n,1> u_b_r_n("biased","uniform","biased","RRT");
     vector<double> local_lb_sphere{-0.25,-0.25,-0.25};
@@ -71,19 +70,19 @@ int main(){
     u_b_r_n.setGlobalBounds(global_lb_sphere,global_ub_sphere);
     ConstraintCoeffs<sphere_n> sphere = createSphere<sphere_n>(1);
     u_b_r_n.addConstraints(sphere);
-    u_b_r_n.setGlobalNumIter(500);
-    u_b_r_n.setLocalNumIter(100);
+    u_b_r_n.setGlobalNumIter(5);
+    u_b_r_n.setLocalNumIter(10);
     u_b_r_n.setLocalAlpha(0.005);
     u_b_r_n.setLocalUseTangent(true);
     u_b_r_n.setBandwidth(5);
     u_b_r_n.setSphere(1);
     u_b_r_n.setGridSpacing(0.5);
+    u_b_r_n.setSave(true);
     u_b_r_n.run();
-/*
 
 
-    // uniform_biased + rrt_tangent_biased
-    Experiment<2,1> u_b_r_b_t("none","uniform","none","RRT");
+
+    Experiment<2,1> u_b_r_b_t("biased","uniform","biased","grid-walk");
     vector<double> local_lb{-0.25,-0.25};
     vector<double> local_ub{0.25,0.25};
     u_b_r_b_t.setLocalBounds(local_lb, local_ub);
@@ -94,7 +93,7 @@ int main(){
     u_b_r_b_t.setLocalNumIter(5);
     u_b_r_b_t.setLocalAlpha(0.005);
     u_b_r_b_t.run();
-   */ 
+    
 
     // uniform_biased + metropolis_hastings_rejection
 
