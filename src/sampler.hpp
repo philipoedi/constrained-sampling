@@ -58,7 +58,7 @@ class BaseSampler
         std::vector<std::vector<double>> samples_;
         std::vector<ConstraintCoeffs<n>*> cons_ptr_;
         std::unique_ptr<BaseOptimizer<n>> opt_ptr_{nullptr};
-
+};
 
 
 template<std::size_t n>
@@ -442,8 +442,39 @@ void MetropolisHastings<n>::run(int n_iter)
     }
 };
 
-
-
+/*
+template<std::size_t n>
+void MetropolisHastings<n>::runOnTangent(int n_iter){
+    std::vector<double> x_star_vec(n,0), x_i_vec(n,0);
+    Map<Vector> x_star(x_star_vec.date(),n);
+    Map<Vector> x_i(x_i_vec.data(),n)
+    x_i = start_.sample();
+    TangentSpace<n,m> tang;
+    if (project_on_each_step_) {
+        //initialize 
+        for (int i=0; i<n_iter; i++){
+            // find tangent
+            tang = tangentSpaceFromConstraints(this->cons_ptr_,x_i_vec, 1e-6);
+            tang.setSamplerBounds();
+            tang.sampleInAmbient();
+            if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
+                x_i_vev = this->optimize(x_star_vec);
+            }
+            x_star = Q_(x_i);
+        }
+    } else {
+        tang = tangentSpaceFromConstraints(this->cons_ptr_,x_i_vec, 1e-6);
+        tang.setBounds();
+        for (int i=0; i<n_iter; i++){
+            x_star = tang.sampleInAmbient();
+            if (boundsCheck<n> x_star, this->lb_, this->ub_){
+                x_i_vec = this->optimize(x_star_vec);
+                tang.setBounds();
+            }
+        }
+    }
+}
+*/
 
 
 template<std::size_t n>

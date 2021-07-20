@@ -17,6 +17,7 @@ class UniformSampler;
 
 using namespace Eigen;
 using namespace nlopt;
+using namespace std::placeholders;
 
 template<std::size_t n, std::size_t m>
 struct TangentConstraintData{
@@ -196,24 +197,25 @@ void tangentSpaceConstraints(unsigned l, double *result, unsigned k, const doubl
     utils::copyEig2Arr(result_eig, result);
 }
 
-/*
+
 template<std::size_t n, std::size_t m>
-TangentSpace<n,m> (const std::vector<ConstraintCoeffs<n>> &const_ptrs, std::vector<double> x, double h){
+TangentSpace<n,m> tangentSpaceFromConstraints(const std::vector<ConstraintCoeffs<n>*> &cons_ptrs, std::vector<double> x, double h){
     ConstraintCoeffs<n> * c_ptr;
-    std::vector<std::function<double(std::vector<double>&>)>> funcs;
+    std::vector<std::function<double(std::vector<double>&)>> funcs;
     for (int i=0; i<cons_ptrs.size(); i++){
-        c_ptr = cons_ptr[i];
+        c_ptr = cons_ptrs[i];
         if (c_ptr->type == "eq"){
-            auto f = std::bind(evaluateConstraints<n>,_1, *c_ptr);
+            auto f = std::bind(evaluateConstraint<n>,_1, *c_ptr);
             funcs.push_back(f);
         }
     }
     Matrix<double,m,n> jac = numericJacobian<n,m>(x,funcs, h);
     TangentSpace<n,m> tang;
-    tang.findTangentSpace(x,jac);
+    Map<Matrix<double,n,1>> x_eig(x.data(),n); 
+    tang.findTangentSpace(x_eig,jac);
     return tang;
 }
-*/
+
 
 
 /*

@@ -2,6 +2,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include "tangent.hpp"
+#include "constraints.hpp"
 
 int main(){
     using namespace Eigen;
@@ -121,9 +122,14 @@ int main(){
     tp_sphere.setSamplerBounds(lb_sp, ub_sp);
     std::cout << "Sample on Tangent: \n" << tp_sphere.sampleOnTangent() << std::endl;
     std::cout << "Sample in Ambient: \n" << tp_sphere.sampleInAmbient() << std::endl;
-
-
-
+   
+    ConstraintCoeffs<3> sphere = createSphere<3>(1);
+    ConstraintCoeffs<3> * sphere_ptr = &sphere;
+    std::vector<ConstraintCoeffs<3>*> cons_ptrs;
+    cons_ptrs.push_back(sphere_ptr);
+    std::vector<double> xsphere{0,0,1};
+    TangentSpace<3,1> t;
+    t = tangentSpaceFromConstraints<3,1>(cons_ptrs, xsphere, 1e-3);
+    std::cout << t.getTheta() << std::endl;
     return 0;
-
 };
