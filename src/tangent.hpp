@@ -7,6 +7,14 @@
 #include <nlopt.hpp>
 #include "objectives.hpp"
 
+template<std::size_t n>
+class BaseSampler;
+
+template<std::size_t n>
+class UniformSampler;
+
+#include "sampler.hpp"
+
 using namespace Eigen;
 using namespace nlopt;
 
@@ -39,6 +47,9 @@ class TangentSpace {
         ThetaFlat getSlack(const ConsMatrix &A, const ThetaFlat &theta, const ThetaFlat &b);
         ThetaFlat getSlack(const ThetaFlat &theta);
         ThetaMatrix getTheta();
+        TangVector sampleOnTangent();
+        AmbientVector sampleInAmbient();
+        void setSamplerBounds(const std::vector<double> &lb, const std::vector<double> &ub);
 
     private:
 
@@ -49,7 +60,7 @@ class TangentSpace {
         //opt opt_{"AUGLAG_EQ",n*(n-m)};
         opt opt_{"LN_COBYLA",n*(n-m)};
         opt local_opt_{"LD_SLSQP",n*(n-m)};
-       
+        UniformSampler<n-m> uni_;
         //BiasedOptimizer<n*(n-m)> bopt_;
 };
 
@@ -122,13 +133,21 @@ Matrix<double,m*(n-m)+(n-m)*(n-m),n*(n-m),RowMajor> TangentSpace<n,m>::getGradie
     return getGradient(data_.A);
 }
 
-/*
-template<std::size_t n,m>
-TangentSpace<n,m>::TangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac){
-    findTangentSpace(x0, jac);
-};
-*/
+template<std::size_t n, std::size_t m>
+void TangentSpace<n,m>::setSamplerBounds(const std::vector<double> &lb, const std::vector<double> &ub){
+    uni_.setBounds(lb, ub);
+}
 
+template<std::size_t n, std::size_t m>
+Matrix<double,n-m,1> TangentSpace<n,m>::sampleOnTangent(){
+    return uni_.sample();
+}
+
+
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> TangentSpace<n,m>::sampleInAmbient(){
+    return toAmbient(uni_.sample());
+}
 
 template<std::size_t n, std::size_t m>
 void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac){
@@ -176,6 +195,27 @@ void tangentSpaceConstraints(unsigned l, double *result, unsigned k, const doubl
     Matrix<double,n*(n-m),1> result_eig  = tang->getSlack(theta);
     utils::copyEig2Arr(result_eig, result);
 }
+
+/*
+template<std::size_t n, std::size_t m>
+TangentSpace<n,m> (const std::vector<ConstraintCoeffs<n>> &const_ptrs, std::vector<double> x, double h){
+    ConstraintCoeffs<n> * c_ptr;
+    std::vector<std::function<double(std::vector<double>&>)>> funcs;
+    for (int i=0; i<cons_ptrs.size(); i++){
+        c_ptr = cons_ptr[i];
+        if (c_ptr->type == "eq"){
+            auto f = std::bind(evaluateConstraints<n>,_1, *c_ptr);
+            funcs.push_back(f);
+        }
+    }
+    Matrix<double,m,n> jac = numericJacobian<n,m>(x,funcs, h);
+    TangentSpace<n,m> tang;
+    tang.findTangentSpace(x,jac);
+    return tang;
+}
+*/
+
+
 /*
     Map<Matrix<double,n*(n-m),1>> theta(x);    
     int num_vars{n*(n-m)};

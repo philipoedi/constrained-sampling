@@ -58,7 +58,7 @@ class BaseSampler
         std::vector<std::vector<double>> samples_;
         std::vector<ConstraintCoeffs<n>*> cons_ptr_;
         std::unique_ptr<BaseOptimizer<n>> opt_ptr_{nullptr};
-};
+
 
 
 template<std::size_t n>
@@ -410,25 +410,41 @@ void MetropolisHastings<n>::run(int n_iter)
     std::default_random_engine generator;
     std::uniform_real_distribution<double> u_sampler(0.0,1.0);
     // initialize starting point
-    Vector x_i = start_.sample();
-    Vector x_star;
+    std::vector<double> x_star_vec(n,0), x_i_vec(n,0);
+    Map<Vector> x_star(x_star_vec.data(),n);
+    Map<Vector> x_i(x_i_vec.data(),n);
+    x_i = start_.sample();
     double A, u;
     if (this->use_default_A_) 
     {
         for (int i=0; i< n_iter; i++)
         {
-            u = u_sampler(generator);
             x_star = Q_(x_i);
-            A = aDefault(x_star, x_i);
-            if (u<A)
-            {
-                x_i = x_star;
-                results_.push_back(utils::copyEig2Vec(x_i));
-            }               
-            samples_.push_back(utils::copyEig2Vec(x_star));
+            if (this->hasOptimizer()) {
+                samples_.push_back(x_star_vec);
+                if (boundsCheck<n>(x_star, this->lb_, this->ub_)) {
+                    if (!this->checkFeasible(x_star)) {
+                        x_i_vec = this->optimize(x_star_vec);
+                        results_.push_back(x_i_vec);
+                    }
+                }
+            } else {
+                u = u_sampler(generator);
+                A = aDefault(x_star, x_i);
+                if (u<A)
+                {
+                    x_i = x_star;
+                    results_.push_back(utils::copyEig2Vec(x_i));
+                }               
+                samples_.push_back(utils::copyEig2Vec(x_star));
+            }
         }
     }
 };
+
+
+
+
 
 template<std::size_t n>
 void MetropolisHastings<n>::saveResults(const std::string &name)

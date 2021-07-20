@@ -35,4 +35,9 @@ int main(){
     std::cout << "ballwalk" << std::endl;
     gw2.makeBallWalk(0.5);
     gw2.run(5);
+    std::cout << gw2.hasOptimizer() << std::endl;
+    gw2.setOptimizer("biased", lb, ub);
+    std::cout << gw2.hasOptimizer() << std::endl;
+
+    gw2.run(5);
 }

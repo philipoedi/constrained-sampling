@@ -102,10 +102,26 @@ double quadraticConstraint(const std::vector<double>& x, std::vector<double>& gr
     if (!grad.empty()){
         utils::copyEig2Vec(c->P.transpose()*x_vec + c->q, grad);
     }
-    res += 0.5 * x_vec.transpose() * c->P * x_vec; 
-    res += x_vec.transpose()*c->q;  
+    res =   (0.5 * x_vec.transpose() * c->P * x_vec); 
+    res +=   (x_vec.transpose()*c->q);  
     return res - c->r;
 }
+
+template<> 
+double quadraticConstraint<1>(const std::vector<double>& x, std::vector<double>& grad, void* data)
+{
+    double res = 0;
+    ConstraintCoeffs<1> *c = (ConstraintCoeffs<1>*) data;
+    // 0.5 * x.T@P@x + q.T@x+ r
+    if (!grad.empty()){
+        //utils::copyEig2Vec((c->P.transpose()*x[0] + c->q).value(), grad);
+        grad[0] = (c->P*x[0] + c->q).value();
+    }
+    res =   (0.5 * x[0] * c->P * x[0]).value(); 
+    res +=   (x[0]*c->q).value();  
+    return res - c->r;
+}
+
 
 template<std::size_t n>
 double quadraticConstraint(const Matrix<double,n,1> &x, void*data)

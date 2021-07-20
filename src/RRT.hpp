@@ -358,12 +358,10 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
         }
     }
     Matrix<double,m,n> jac = numericJacobian<n,m>(seed,funcs,h_);
-    std::cout<<"jac\n" << jac << std::endl;
     TangentSpace<n,m> tang;
 
     Matrix<double,n,1> x0(seed.data());
     tang.findTangentSpace(x0,jac);
-    std::cout << tang.getTheta() << std::endl;
     //set lb and ub size to fit smaller rrt tang space
     std::vector<double> lb_ambient, ub_ambient;
     lb_ambient = utils::slice(lb,0,n-m-1);

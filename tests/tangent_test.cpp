@@ -90,7 +90,7 @@ int main(){
     TangentConstraintData<> d1;
     TangentConstriantData<> d2;
 
-    d1 = tp1.getConstraintData();
+    d1 = tp1.getConstraintData()
     d2 = tp2.getConstraintData();
     
     cout <<"d1.A: " << d1.A << "d1.b: " << d1.b << endl;
@@ -115,6 +115,13 @@ int main(){
     Matrix<double,2,1> u2{1,1};
     cout << "map from tangent to ambient: " << endl;
     cout << tp_sphere.toAmbient(u2) << endl;
+    
+    std::vector<double> lb_sp(2,-1);
+    std::vector<double> ub_sp(2,1);
+    tp_sphere.setSamplerBounds(lb_sp, ub_sp);
+    std::cout << "Sample on Tangent: \n" << tp_sphere.sampleOnTangent() << std::endl;
+    std::cout << "Sample in Ambient: \n" << tp_sphere.sampleInAmbient() << std::endl;
+
 
 
     return 0;
