@@ -16,10 +16,10 @@
 #include <algorithm>
 #include <string>
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 class BaseSampler;
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 class UniformSampler;
 
 
@@ -82,7 +82,7 @@ class BaseOptimizer
         opt opt_{"AUGLAG_EQ",n};
         opt local_opt_{"LD_SLSQP",n};
         double minf_;
-        UniformSampler<n> uni_;
+        UniformSampler<n,0> uni_;
 };
 
 

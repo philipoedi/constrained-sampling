@@ -23,7 +23,7 @@ class BiasedOptimizer;
 using namespace Eigen;
 
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 class BaseSampler
 {
     public:
@@ -61,23 +61,23 @@ class BaseSampler
 };
 
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 template<typename T>
-BaseSampler<n>::BaseSampler(const T &lb, const T &ub)
+BaseSampler<n,m>::BaseSampler(const T &lb, const T &ub)
 {
     this->setBounds(lb, ub);
 };
 
-template<std::size_t n>
-void BaseSampler<n>::setBounds(const Vector &lb, const Vector &ub)
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::setBounds(const Vector &lb, const Vector &ub)
 {
     lb_=lb;
     ub_=ub;
 };
 
 
-template<std::size_t n>
-void BaseSampler<n>::setBounds(const std::vector<double> &lb, const std::vector<double> &ub)
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::setBounds(const std::vector<double> &lb, const std::vector<double> &ub)
 {
     assert (ub.size() == lb.size());
     assert (ub.size() == lb_.size());
@@ -88,44 +88,44 @@ void BaseSampler<n>::setBounds(const std::vector<double> &lb, const std::vector<
     };
 };
 
-template<std::size_t n>
-bool BaseSampler<n>::hasOptimizer(){
+template<std::size_t n, std::size_t m>
+bool BaseSampler<n,m>::hasOptimizer(){
     return (opt_ptr_ ==  nullptr) ? false : true;
 }
 
-template<std::size_t n>
-std::vector<double> BaseSampler<n>::optimize(std::vector<double> &seed){
+template<std::size_t n, std::size_t m>
+std::vector<double> BaseSampler<n,m>::optimize(std::vector<double> &seed){
     assert (hasOptimizer());
     return this->opt_ptr_->optimize(seed);
 }
 
-template<std::size_t n>
-std::pair<Matrix<double,n,1>,Matrix<double,n,1>> BaseSampler<n>::getBounds()
+template<std::size_t n, std::size_t m>
+std::pair<Matrix<double,n,1>,Matrix<double,n,1>> BaseSampler<n,m>::getBounds()
 {  
     return std::make_pair(lb_,ub_);
 }
 
-template<std::size_t n>
-std::vector<std::vector<double>> BaseSampler<n>::results(){
+template<std::size_t n, std::size_t m>
+std::vector<std::vector<double>> BaseSampler<n,m>::results(){
     return results_;
 }
 
 
-template<std::size_t n>
-std::vector<std::vector<double>> BaseSampler<n>::samples(){
+template<std::size_t n, std::size_t m>
+std::vector<std::vector<double>> BaseSampler<n,m>::samples(){
     return samples_;
 }
 
-template<std::size_t n>
-void BaseSampler<n>::saveSamples(std::string name){
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::saveSamples(std::string name){
     std::string new_name;
     new_name = name +"_seeds";
     utils::writeVec2File(samples_,new_name);
 }
 
 
-template<std::size_t n>
-void BaseSampler<n>::saveResults(std::string name){
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::saveResults(std::string name){
     std::string new_name;
     new_name = name +"_samples";
     if (!results_.empty()){
@@ -133,21 +133,21 @@ void BaseSampler<n>::saveResults(std::string name){
     }
 }
 
-template<std::size_t n>
-void BaseSampler<n>::reset(){
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::reset(){
     results_.clear();
     samples_.clear();
 }
 
-template<std::size_t n>
-void BaseSampler<n>::addConstraints(std::vector<ConstraintCoeffs<n>> & cons){
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::addConstraints(std::vector<ConstraintCoeffs<n>> & cons){
     for (int i=0; i<cons.size(); i++){
         cons_ptr_.push_back(&cons[i]);
     } 
 }
 
-template<std::size_t n>
-bool BaseSampler<n>::checkFeasible(const std::vector<double> &x){
+template<std::size_t n, std::size_t m>
+bool BaseSampler<n,m>::checkFeasible(const std::vector<double> &x){
     if (cons_ptr_.empty()){
         return true;
     } else {
@@ -155,23 +155,23 @@ bool BaseSampler<n>::checkFeasible(const std::vector<double> &x){
     }
 }
 
-template<std::size_t n>
-bool BaseSampler<n>::checkFeasible(const Vector &x){
+template<std::size_t n, std::size_t m>
+bool BaseSampler<n,m>::checkFeasible(const Vector &x){
     std::vector<double> x_vec(n);
     utils::copyEig2Vec(x, x_vec);
     return checkFeasible(x_vec);
 }
 /*
-template<std::size_t n>
-void BaseSampler<n>::setOptimizer(BaseOptimizer<n> *opt){
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::setOptimizer(BaseOptimizer<n> *opt){
     opt_ptr_ = opt;
     if (opt != nullptr) {
         opt_ptr_->addConstraints(cons_ptr_);
     }
 }*/
 
-template<std::size_t n>
-void BaseSampler<n>::setOptimizer(std::string method, std::vector<double> &lb, std::vector<double> &ub){
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::setOptimizer(std::string method, std::vector<double> &lb, std::vector<double> &ub){
     if (method == "biased"){
         opt_ptr_ = std::make_unique<BiasedOptimizer<n>>(lb, ub);
         opt_ptr_->addConstraints(cons_ptr_);
@@ -179,7 +179,8 @@ void BaseSampler<n>::setOptimizer(std::string method, std::vector<double> &lb, s
 }
 
 
-template<std::size_t n> class UniformSampler: public BaseSampler<n>
+template<std::size_t n, std::size_t m>
+class UniformSampler: public BaseSampler<n,m>
 {
     typedef Matrix<double, n, 1> Vector;
     enum {NeedsToAlign = (sizeof(Vector)%16)==0};
@@ -202,39 +203,39 @@ template<std::size_t n> class UniformSampler: public BaseSampler<n>
         Vector ones_;
 };
 
-template<std::size_t n> 
+template<std::size_t n, std::size_t m> 
 template<typename T>
-UniformSampler<n>::UniformSampler(const T &lb, const T &ub): BaseSampler<n>(lb, ub) 
+UniformSampler<n,m>::UniformSampler(const T &lb, const T &ub): BaseSampler<n,m>(lb, ub) 
 {
     this->setBounds(lb, ub);
 }
 
-template<std::size_t n>
-Matrix<double, n, 1> UniformSampler<n>::sample(const Vector& range, const Vector& lb)
+template<std::size_t n, std::size_t m>
+Matrix<double, n, 1> UniformSampler<n,m>::sample(const Vector& range, const Vector& lb)
 {
     this->x_.setRandom();
     x_temp_ = ((this->x_ + ones_) * 0.5).cwiseProduct(range)  +lb; 
     return x_temp_;
 }
 
-template<std::size_t n>
-Matrix<double, n, 1> UniformSampler<n>::sample()
+template<std::size_t n, std::size_t m>
+Matrix<double, n, 1> UniformSampler<n,m>::sample()
 {
     return this->sample(range_, this->lb_);
 }
 
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 template<typename T>
-void UniformSampler<n>::setBounds(const T &lb, const T &ub)
+void UniformSampler<n,m>::setBounds(const T &lb, const T &ub)
 {
-    BaseSampler<n>::setBounds(lb, ub);
+    BaseSampler<n,m>::setBounds(lb, ub);
     range_ = this->ub_ - this->lb_;
     ones_.setOnes();
 }
 
-template<std::size_t n>
-void UniformSampler<n>::run(int n_iter, Vector &lb, Vector &ub){
+template<std::size_t n, std::size_t m>
+void UniformSampler<n,m>::run(int n_iter, Vector &lb, Vector &ub){
     std::vector<double> sample_vec(n); 
     std::vector<double> result(n);
     for (int i=0; i<n_iter; i++){
@@ -254,13 +255,13 @@ void UniformSampler<n>::run(int n_iter, Vector &lb, Vector &ub){
     }
 }
 
-template<std::size_t n>
-void UniformSampler<n>::run(int n_iter){
+template<std::size_t n, std::size_t m>
+void UniformSampler<n,m>::run(int n_iter){
     run(n_iter, this->lb_, this->ub_);
 }
 
-template<std::size_t n>
-void UniformSampler<n>::run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){
+template<std::size_t n, std::size_t m>
+void UniformSampler<n,m>::run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){
     Matrix<double,n,1> seed_eig(seed.data());
     Matrix<double,n,1> lb_old, ub_old, lb_new(lb.data()), ub_new(ub.data());
     lb_old = this->lb_;
@@ -270,7 +271,7 @@ void UniformSampler<n>::run(int n_iter, std::vector<double> &seed, std::vector<d
     this->setBounds(lb_old, ub_old);
 }
 
-template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
+template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSampler<n,m>
 {
     typedef Matrix<double, n, 1> Vector;
     enum {NeedsToAlign = (sizeof(Vector)%16)==0};
@@ -278,7 +279,7 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
     public:
 
         MetropolisHastings(){};
-        template <typename T> MetropolisHastings(const T &lb, const T &ub);//: BaseSampler<n>(lb,ub){};
+        template <typename T> MetropolisHastings(const T &lb, const T &ub);//: BaseSampler<n,m>(lb,ub){};
         //void setP(double (*p)(const Vector&));
         void setP(std::function<double(const Vector&)> &p);
         //void setQ(double (*q)(const Vector&, const Vector&));
@@ -304,7 +305,7 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
         bool use_default_A_{true};
         std::vector<std::vector<double>> samples_; // x_star
         std::vector<std::vector<double>> results_; //x_i
-        UniformSampler<n> start_;
+        UniformSampler<n,m> start_;
         int n_samples;
         //double (*p_)(const Vector&);
         //double (*q_)(const Vector&, const Vector&);
@@ -318,78 +319,78 @@ template<std::size_t n> class MetropolisHastings: public BaseSampler<n>
 
 // this is not finished
 // return results propoerly
-template<std::size_t n>
-std::vector<std::vector<double>> MetropolisHastings<n>::results()
+template<std::size_t n, std::size_t m>
+std::vector<std::vector<double>> MetropolisHastings<n,m>::results()
 {
     return results_;
 };
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 template<typename T>
-MetropolisHastings<n>::MetropolisHastings(const T &lb, const T &ub)
+MetropolisHastings<n,m>::MetropolisHastings(const T &lb, const T &ub)
 {
     start_.setBounds(lb, ub);
 };
 
-template<std::size_t n>
-void MetropolisHastings<n>::setQSampler(std::function<Vector(const Vector&)> &Q)
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::setQSampler(std::function<Vector(const Vector&)> &Q)
 {
     Q_ = Q;
 };
 
-template<std::size_t n>
-void MetropolisHastings<n>::setQ(std::function<double(const Vector&, const Vector&)> &q)
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::setQ(std::function<double(const Vector&, const Vector&)> &q)
 {
     q_ = q;
 };
 
-template<std::size_t n>
-Matrix<double,n,1> MetropolisHastings<n>::sampleQ(const Vector &x)
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> MetropolisHastings<n,m>::sampleQ(const Vector &x)
 {
     return Q_(x);
 };
 
     /*
-template<std::size_t n>
-void MetropolisHastings<n>::set_Q(Vector (*Q)(const Vector&))
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::set_Q(Vector (*Q)(const Vector&))
 {
     this->Q_ = Q;
 };*/
 
-template<std::size_t n>
-void MetropolisHastings<n>::setP(std::function<double(const Vector&)> &p)
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::setP(std::function<double(const Vector&)> &p)
 {
     p_ = p;
 };
 /*
-template<std::size_t n>
-void MetropolisHastings<n>::setQ(double (*q)(const Vector&, const Vector&))
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::setQ(double (*q)(const Vector&, const Vector&))
 {
     this->q_ = q;
 };*/
 
-template<std::size_t n>
-void MetropolisHastings<n>::setA(double (*A)(const Vector&, const Vector&))
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::setA(double (*A)(const Vector&, const Vector&))
 {
     this->A_ = A;
 }
 
 
-template<std::size_t n>
-double MetropolisHastings<n>::getP(const Vector &x)
+template<std::size_t n, std::size_t m>
+double MetropolisHastings<n,m>::getP(const Vector &x)
 {
     return this->p_(x);
 };
 
-template<std::size_t n>
-double MetropolisHastings<n>::getQ(const Vector &x_star, const Vector &x_i)
+template<std::size_t n, std::size_t m>
+double MetropolisHastings<n,m>::getQ(const Vector &x_star, const Vector &x_i)
 {
     return this->q_(x_star, x_i);
 };
 
 
-template<std::size_t n>
-double MetropolisHastings<n>::aDefault(const Vector &x_star, const Vector &x_i)
+template<std::size_t n, std::size_t m>
+double MetropolisHastings<n,m>::aDefault(const Vector &x_star, const Vector &x_i)
 {
     double p_star, q_star, pq_q, q_i, p_i;
     p_star = this->p_(x_star);
@@ -403,8 +404,8 @@ double MetropolisHastings<n>::aDefault(const Vector &x_star, const Vector &x_i)
 
 
 
-template<std::size_t n>
-void MetropolisHastings<n>::run(int n_iter)
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::run(int n_iter)
 {
 
     std::default_random_engine generator;
@@ -443,8 +444,8 @@ void MetropolisHastings<n>::run(int n_iter)
 };
 
 /*
-template<std::size_t n>
-void MetropolisHastings<n>::runOnTangent(int n_iter){
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::runOnTangent(int n_iter){
     std::vector<double> x_star_vec(n,0), x_i_vec(n,0);
     Map<Vector> x_star(x_star_vec.date(),n);
     Map<Vector> x_i(x_i_vec.data(),n)
@@ -477,28 +478,28 @@ void MetropolisHastings<n>::runOnTangent(int n_iter){
 */
 
 
-template<std::size_t n>
-void MetropolisHastings<n>::saveResults(const std::string &name)
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::saveResults(const std::string &name)
 {
     utils::writeVec2File(results_, name);
 };
 
-template<std::size_t n>
-void MetropolisHastings<n>::saveSamples(const std::string &name)
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::saveSamples(const std::string &name)
 {
     utils::writeVec2File(samples_, name);
 };
 
 
-template <std::size_t n>
-class UniformNeighborhoodSampler: public BaseSampler<n>
+template <std::size_t n, std::size_t m>
+class UniformNeighborhoodSampler: public BaseSampler<n,m>
 {
     typedef Matrix<double, n, 1> Vector;
     enum {NeedsToAlign = (sizeof(Vector)%16)==0};
 
     public:
         UniformNeighborhoodSampler(){};
-        template<typename T> UniformNeighborhoodSampler(const T &lb, const T &ub): BaseSampler<n>(lb, ub){};
+        template<typename T> UniformNeighborhoodSampler(const T &lb, const T &ub): BaseSampler<n,m>(lb, ub){};
         // proposal prob density
         double operator()(const Vector& x_star, const Vector& x_i);
         // sample from proposal dist
@@ -507,11 +508,11 @@ class UniformNeighborhoodSampler: public BaseSampler<n>
 
     private:
         Vector widths_, lb_i_, ub_i_;
-        UniformSampler<n> uni_;
+        UniformSampler<n,m> uni_;
 };
 
 // target prob dens
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 struct TargetProb
 {
     std::vector<ConstraintCoeffs<n>> cons;
@@ -536,23 +537,23 @@ struct TargetProb
     }
 };
 
-template<std::size_t n>
-void UniformNeighborhoodSampler<n>::setWidths(const Vector &widths)
+template<std::size_t n, std::size_t m>
+void UniformNeighborhoodSampler<n,m>::setWidths(const Vector &widths)
 {
     widths_ = widths;
 }
 
 
 // proposal prob dens
-template<std::size_t n>
-double UniformNeighborhoodSampler<n>::operator()(const Vector &x_star, const Vector &x_i)
+template<std::size_t n, std::size_t m>
+double UniformNeighborhoodSampler<n,m>::operator()(const Vector &x_star, const Vector &x_i)
 {
     return 1;
 };
 
 // sample from prop dist
-template<std::size_t n>
-Matrix<double,n,1> UniformNeighborhoodSampler<n>::operator()(const Vector &x)
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> UniformNeighborhoodSampler<n,m>::operator()(const Vector &x)
 {
     lb_i_ = x - widths_;
     ub_i_ = x + widths_; 
@@ -562,8 +563,8 @@ Matrix<double,n,1> UniformNeighborhoodSampler<n>::operator()(const Vector &x)
     return uni_.sample();
 };
 
-template<std::size_t n>
-class GridWalk : public MetropolisHastings<n> {
+template<std::size_t n, std::size_t m>
+class GridWalk : public MetropolisHastings<n,m> {
 
     typedef Matrix<double, n, 1> Vector;
     enum {NeedsToAlign = (sizeof(Vector)%16)==0};
@@ -585,43 +586,43 @@ class GridWalk : public MetropolisHastings<n> {
     
 };
 
-template<std::size_t n>
-GridWalk<n>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const std::vector<double> &widths)  {
+template<std::size_t n, std::size_t m>
+GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const std::vector<double> &widths)  {
     this->setBounds(lb,ub);
     widths_ = Matrix<double,n,1>(widths.data()); 
-    std::function<double(const Matrix<double,n,1>&)> p = std::bind(&GridWalk<n>::PGridWalk, this, std::placeholders::_1);
-    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q_sample = std::bind(&GridWalk<n>::qSamplerGridWalk, this, std::placeholders::_1);
-    std::function<double(const Matrix<double,n,1>&, const Matrix<double,n,1>&)> q = std::bind(&GridWalk<n>::QGridWalk, this, std::placeholders::_1, std::placeholders::_2);
+    std::function<double(const Matrix<double,n,1>&)> p = std::bind(&GridWalk<n,m>::PGridWalk, this, std::placeholders::_1);
+    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q_sample = std::bind(&GridWalk<n,m>::qSamplerGridWalk, this, std::placeholders::_1);
+    std::function<double(const Matrix<double,n,1>&, const Matrix<double,n,1>&)> q = std::bind(&GridWalk<n,m>::QGridWalk, this, std::placeholders::_1, std::placeholders::_2);
     this->setP(p);
     this->setQSampler(q_sample);
     this->setQ(q);
 }
 
-template<std::size_t n>
-double GridWalk<n>::PGridWalk(const Matrix<double,n,1> &x){
+template<std::size_t n, std::size_t m>
+double GridWalk<n,m>::PGridWalk(const Matrix<double,n,1> &x){
     return (this->checkFeasible(x) && boundsCheck<n>(x, this->lb_, this->ub_)) ? 1 : 0;
 }
 
-template<std::size_t n>
-Matrix<double,n,1> GridWalk<n>::qSamplerGridWalk(const Matrix<double,n,1> &x){
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> GridWalk<n,m>::qSamplerGridWalk(const Matrix<double,n,1> &x){
     Matrix<double,n,1> lb = x - widths_;
     Matrix<double,n,1> ub = x + widths_;
-    UniformSampler<n> qsampler(lb, ub);
+    UniformSampler<n,m> qsampler(lb, ub);
     return qsampler.sample();
 }
 
-template<std::size_t n>
-double GridWalk<n>::QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x){
+template<std::size_t n, std::size_t m>
+double GridWalk<n,m>::QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x){
     return 1;
 }
 
-template<std::size_t n>
-Matrix<double,n,1> GridWalk<n>::qSamplerBallWalk(const Matrix<double,n,1> &x){
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> GridWalk<n,m>::qSamplerBallWalk(const Matrix<double,n,1> &x){
     Matrix<double,n,1> candidate;
     double d;
     Matrix<double,n,1> lb = x - widths_;
     Matrix<double,n,1> ub = x + widths_;
-    UniformSampler<n> qsampler(lb, ub);
+    UniformSampler<n,m> qsampler(lb, ub);
     do {
         candidate = qsampler.sample();
         d = (candidate - x).norm();
@@ -632,10 +633,10 @@ Matrix<double,n,1> GridWalk<n>::qSamplerBallWalk(const Matrix<double,n,1> &x){
     return candidate;
 }
 
-template<std::size_t n>
-void GridWalk<n>::makeBallWalk(double radius) {
+template<std::size_t n, std::size_t m>
+void GridWalk<n,m>::makeBallWalk(double radius) {
     r_ = radius;
-    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q = std::bind(&GridWalk<n>::qSamplerBallWalk, this, std::placeholders::_1);
+    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q = std::bind(&GridWalk<n,m>::qSamplerBallWalk, this, std::placeholders::_1);
     this->setQSampler(q);
 }
 

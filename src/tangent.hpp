@@ -7,10 +7,10 @@
 #include <nlopt.hpp>
 #include "objectives.hpp"
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 class BaseSampler;
 
-template<std::size_t n>
+template<std::size_t n, std::size_t m>
 class UniformSampler;
 
 #include "sampler.hpp"
@@ -61,7 +61,7 @@ class TangentSpace {
         //opt opt_{"AUGLAG_EQ",n*(n-m)};
         opt opt_{"LN_COBYLA",n*(n-m)};
         opt local_opt_{"LD_SLSQP",n*(n-m)};
-        UniformSampler<n-m> uni_;
+        UniformSampler<n-m,0> uni_;
         //BiasedOptimizer<n*(n-m)> bopt_;
 };
 
@@ -154,7 +154,6 @@ template<std::size_t n, std::size_t m>
 void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac){
     createConstraintData(jac);
     x0_ = x0;
-    std::cout <<" b  \n:" << data_.b << std::endl;
     std::vector<double> tols(m*(n-m)+(n-m)*(n-m),1e-8);
     
     opt_.add_equality_mconstraint(tangentSpaceConstraints<n,m>, this, tols);

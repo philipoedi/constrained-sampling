@@ -11,12 +11,12 @@ void check_bounds(std::pair<Vector2d,Vector2d> b)
     assert (b.second(1) == 2);
 }
 
-double func(const Vector2d &a)
+double func1(const Vector2d &a)
 {
     return a.sum();
 }
 
-double func2(const Vector2d &a, const Vector2d &b)
+double func12(const Vector2d &a, const Vector2d &b)
 {
     return a.sum()  + b.sum();
 }
@@ -37,9 +37,9 @@ double P(const Matrix<double,2,1> &x)
 int main()
 {
     const std::size_t n = 2;
-
+    const std::size_t m = 0;
     // check default init
-    UniformSampler<n> uni;
+    UniformSampler<n,m> uni;
     
     // check setBounds using std::vector
     std::vector<double> ub{1,2};
@@ -74,17 +74,19 @@ int main()
     assert (sample(0) >= lb_eig(0));
     assert (sample(1) >= lb_eig(1));
 
-    MetropolisHastings<n> mh;
+    MetropolisHastings<n,m> mh;
     mh.setBounds(lb, ub);
     bounds = mh.getBounds();
     check_bounds(bounds);
 
-    MetropolisHastings<n> mh2(lb, ub);
+    MetropolisHastings<n,m> mh2(lb, ub);
     bounds = mh.getBounds();
     check_bounds(bounds);
-    mh.setP(func);
-    mh.setQ(func2);
-    MetropolisHastings<n> mh3(lb_eig, ub_eig);
+    std::function<double(const Matrix<double,2,1>&)> f1 = func1;
+    mh.setP(f1);
+    std::function<double(const Matrix<double,2,1>&, const Matrix<double,2,1>&)> f2 = func12;
+    mh.setQ(f2);
+    MetropolisHastings<n,m> mh3(lb_eig, ub_eig);
     bounds = mh.getBounds();
     check_bounds(bounds);
 
@@ -92,7 +94,7 @@ int main()
 
     std::cout << mh.getP(ub_eig) << std::endl;
     std::cout << mh.getQ(ub_eig,lb_eig) << std::endl;
-    std::cout << "Default A: "<< mh.aDefault(0.22, ub_eig, lb_eig) << std::endl;
+    std::cout << "Default A: "<< mh.aDefault(ub_eig, lb_eig) << std::endl;
     
     int j{0};
     j = f();
