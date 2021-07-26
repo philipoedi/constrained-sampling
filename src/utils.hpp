@@ -6,7 +6,9 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <string>
-
+#include <algorithm>
+#include <random>
+#include <chrono>
 
 using namespace Eigen;
 /*
@@ -32,6 +34,9 @@ namespace utils
     void copyMatvec2Matvec(const std::vector<std::vector<double>>& src, std::vector<std::vector<double>>& dst);
 
     void writeVec2File(const std::vector<std::vector<double>> &data, const std::string &name);
+    
+    void writeVec2File(const std::vector<int> &data, const std::string &name);
+    void writeVec2File(const std::vector<double> &data, const std::string &name);
 
     void writeVec2File(const std::vector<std::vector<int>> &data, const std::string &name);
    
@@ -46,6 +51,9 @@ namespace utils
     std::string getDateTimeString();
 
     std::vector<double> spherical2cartesian(double theta, double phi, double r);
+    
+    void shuffleVector(std::vector<std::vector<double>> &data);
+  
 
     template<std::size_t n>
     double squaredDist(const Matrix<double,n,1> &v1, const Matrix<double,n,1> &v2) 

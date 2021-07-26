@@ -15,6 +15,7 @@ using namespace Eigen;
 template<std::size_t n>
 struct Bias {
     /// Eigen Vector representing the bias
+    std::size_t num_iterations{0};
     Matrix<double, n, 1> x0;
 };
 
@@ -25,6 +26,7 @@ struct SlackData {
     bool state{false};
     Matrix<double, n+m+l+l, 1> a = Matrix<double, n+m+l+l,1>::Zero();
     Matrix<double, n+m+l+l, 1> g = Matrix<double, n+m+l+l,1>::Zero();
+    std::size_t num_iterations{0};
 };
 
 /**
@@ -69,6 +71,7 @@ double BiasedObjective(const std::vector<double>& x, std::vector<double>& grad, 
         grad[i] = 2*x_x0[i];
     }*/
     }   
+    b->num_iterations += 1;
     return x_x0.transpose()*x_x0;    
 }
 
@@ -88,6 +91,7 @@ double slackObjective(const std::vector<double>& x, std::vector<double>& grad, v
     if(!grad.empty()){
         utils::copyEig2Vec(u->a, grad);
     }
+    u->num_iterations += 1;
     return u->a.transpose()*x_vec;
 }
 #endif

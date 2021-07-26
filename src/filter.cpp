@@ -276,4 +276,39 @@ std::vector<std::size_t> removeNodes(const std::vector<std::vector<double>> &poi
     return nodes_to_remove;
 }
 
+void greedyNodeRemoval(std::vector<std::vector<double>> &samples, double d_min){
+    std::set<std::size_t> removed;
+    double d_ij;
+    int choice;
+    std::size_t n = samples.size();
+    for (std::size_t i=0; i<n; i++){
+        for (std::size_t j=0; j<n; j++){
+            if (i>j){
+                if (removed.count(i) == 0 && removed.count(j) == 0) {
+                    d_ij = distance(samples[i],samples[j]);
+                    if (d_ij < d_min) {
+                        choice = rand() % 2;
+                        if (choice == 0) {
+                            removed.insert(i);
+                        } else {
+                            removed.insert(j);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    std::vector<std::vector<double>> new_samples(n-removed.size());
+    std::size_t j{0};
+    for (std::size_t i=0; i<n; i++){
+        if (removed.count(i) == 0){
+            new_samples[j] = samples[i];
+            j += 1;
+        }
+    }
+    samples = new_samples;
+}
+
+
+
 

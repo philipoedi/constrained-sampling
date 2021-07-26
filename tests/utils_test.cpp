@@ -109,6 +109,15 @@ int main(){
     utils::appendVec2Vec(src, dst);
     assert (dst.size() == 2);
 
+    std::vector<std::vector<double>> data_to_shuffle;
+    for (int i=0; i<10 ; i++){
+        data_to_shuffle.push_back(std::vector<double>(1,i));
+    }
+    utils::shuffleVector(data_to_shuffle);
+    for (int i=0; i<10 ; i++){
+        std::cout << data_to_shuffle[i][0] << std::endl;
+    }
+    
     return 0;
 }
 

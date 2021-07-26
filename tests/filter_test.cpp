@@ -115,6 +115,12 @@ int main(){
         c1 = c2;
     }
     
-    removeNodes(data, 2);
+//    removeNodes(data, 2);
+    cout << "data.size() " << data.size() << endl;
+    greedyNodeRemoval(data, 2);
+    cout << "data.size() " << data.size() << endl;
+
+
+
     return 0;
 }

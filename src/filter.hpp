@@ -8,6 +8,8 @@
 #include <cassert>
 #include <set>
 #include <map>
+#include <cstdlib>
+
 
 using namespace Eigen;
 
@@ -79,6 +81,9 @@ std::map<std::size_t,double> getNodeTotalDistanceMap(std::set<std::size_t> &node
 void getStartNodes(std::list<Path> &paths, std::list<Path*> &unexplored_paths, UpperTriMat &distances, std::vector<std::pair<std::size_t,std::size_t>> &vertices, std::map<std::size_t,double> &cost_map);
 
 std::vector<std::size_t> removeNodes(const std::vector<std::vector<double>> &points, double d_min);
+
+void greedyNodeRemoval(std::vector<std::vector<double>> &samples, double d_min);
+
 /*
 class Path {
 

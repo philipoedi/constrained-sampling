@@ -110,6 +110,60 @@ namespace utils
 
     };
 
+    void writeVec2File(const std::vector<int> &data, const std::string &name)
+    {
+        std::ofstream file;
+        std::string file_name;
+        file_name = name + ".dat";
+        file.open(file_name);
+        std::size_t d{data.size()};
+        std::string line;
+        if (file.is_open())
+        {
+            for (int i=0; i<d; i++)
+            {
+                line = "";
+                line += std::to_string(data[i]);
+                line += "\n";
+                file << line;
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "unable to open file" << std::endl;
+        }
+
+    };
+
+    void writeVec2File(const std::vector<double> &data, const std::string &name)
+    {
+        std::ofstream file;
+        std::string file_name;
+        file_name = name + ".dat";
+        file.open(file_name);
+        std::size_t d{data.size()};
+        std::string line;
+        if (file.is_open())
+        {
+            for (int i=0; i<d; i++)
+            {
+                line = "";
+                line += std::to_string(data[i]);
+                line += "\n";
+                file << line;
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "unable to open file" << std::endl;
+        }
+
+    };
+
+
+ 
     void writeVec2File(const std::vector<std::vector<int>> &data, const std::string &name)
     {
         std::ofstream file;
@@ -206,5 +260,10 @@ namespace utils
         return date_string;
     };
 
+
+    void shuffleVector(std::vector<std::vector<double>> &data){
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::shuffle(data.begin(), data.end(), std::default_random_engine(seed)); 
+    }
 
 }

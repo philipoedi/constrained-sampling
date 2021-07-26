@@ -143,7 +143,7 @@ void tree<n>::save(std::string name)
 
 
 template< std::size_t n, std::size_t m>
-class RRT : public BaseSampler<n> {
+class RRT : public BaseSampler<n,m> {
     typedef Matrix<double,n,1> Vector;
     enum {NeedsToAlign = (sizeof(Vector)%16) == 0};
 
@@ -172,9 +172,9 @@ class RRT : public BaseSampler<n> {
     private:
         // step size
         bool use_tangent_{false};
-        TargetProb<n> feasible_region_;
+        TargetProb<n,m> feasible_region_;
         double alpha_;
-        UniformSampler<n> uni_;
+        UniformSampler<n,m> uni_;
         tree<n> tree_;
         double h_{1e-8}; // step width for numeric jacobian evaluation
 };
@@ -184,7 +184,7 @@ template< std::size_t n, std::size_t m>
 template<typename T>
 void RRT<n,m>::setBounds(const T &lb, const T &ub)
 {
-    BaseSampler<n>::setBounds(lb, ub);
+    BaseSampler<n,m>::setBounds(lb, ub);
     uni_.setBounds(lb, ub);
 }
 
@@ -383,7 +383,7 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
     std::vector<double> x_ambient(n);
     //std::pair<node<n-m>,int> sample_pair;
 
-    UniformSampler<n-m> uni_local(lb_ambient, ub_ambient);
+    UniformSampler<n-m,0> uni_local(lb_ambient, ub_ambient);
 
     for (int i=0; i<n_iter; i++){
         target_node.location = tang.toAmbient(uni_local.sample());

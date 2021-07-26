@@ -157,6 +157,9 @@ def get_surfaceplot(data):
     #return go.Scatter3d(x=data["x"],y=data["y"],z=data["z"],mode="markers")#z=data[["z","pdes"]])
     return go.Mesh3d(x=data["x"],y=data["y"],z=data["z"], alphahull=0, intensity=data["pdes"])
 
+def get_histogram(data):
+    return go.Histogram(x=data, nbinsx=100)
+
 
 
 def seeds_plot(path):

@@ -44,6 +44,7 @@ template<std::size_t n, std::size_t d> class Kernel
         int nu_ = 2;
         double R_ = 3./5.;
         double kappa_ = 1./5.;
+        double H_;
         std::size_t num_rows{n};
         bool bandwidth_initialized_{false};
 };
@@ -61,6 +62,7 @@ Kernel<n,d>::Kernel(const Vector& bandwidth)
 template<std::size_t n, std::size_t d>
 void Kernel<n,d>::fit(const MatrixXd &data)
 {
+    nh_ = H_*data.rows();
     data_.resize(data.rows(), data.cols());
     data_ = data;
 }
@@ -93,7 +95,7 @@ template<std::size_t n, std::size_t d>
 void Kernel<n,d>::setBandwidth(const Vector& bandwidth)
 {
    bandwidth_ = bandwidth; 
-   nh_ = bandwidth.prod()/n_;
+   H_ = bandwidth.prod();
    bandwidth_initialized_ = true;
 }
 
@@ -177,6 +179,7 @@ template<std::size_t n, std::size_t d> class KernelEstimator
         void fit(const MatrixXd& data);
         void fit(const std::vector<std::vector<double>>& data);
         void predict(const std::vector<Vector>& x, std::vector<double>& res);
+        std::vector<double> predict(const std::vector<std::vector<double>> &x);
         void predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step);
         void predict(const Vector &lb, const Vector &ub, const double step);
         void predictOnGrid(const std::vector<double> &lb, const std::vector<double> &ub, const double step);
@@ -189,7 +192,7 @@ template<std::size_t n, std::size_t d> class KernelEstimator
         void savePdes(const std::string name);
         void setSphere(double r);
         void resizeDataMatrix(std::size_t n_rows);
-    
+        void setNh(int n_samples); 
     private:
         
         Kernel<n,d> k_;
@@ -241,6 +244,11 @@ void KernelEstimator<n,d>::find_optimal_bandwidth(const std::string bandwidth_es
 }
 
 template<std::size_t n, std::size_t d>
+void KernelEstimator<n,d>::setNh(int n_samples){
+    nh_ = H*n_samples;
+}
+
+template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::setSphere(double r){
     r_ = r;
     method_ = "sphere";
@@ -252,6 +260,18 @@ void KernelEstimator<n,d>::predict(const std::vector<Vector>& x, std::vector<dou
     for(std::size_t i = 0; i < x.size(); ++i){
         res[i] = k_.evaluate(x[i]);
     }
+}
+
+
+template<std::size_t n, std::size_t d>
+std::vector<double> KernelEstimator<n,d>::predict(const std::vector<std::vector<double>> &x){
+    std::vector<double> res;
+    for (int i=0; i<x.size() ; i++){
+        
+        Map<const Matrix<double,n,1>> x_eig(x[i].data());
+        res.push_back(k_.evaluate(x_eig));
+    }
+    return res;
 }
 
 /*template<std::size_t n, std::size_t d>
@@ -367,6 +387,7 @@ void KernelEstimator<n,d>::predictOnSphere(int n_points, double r){
 template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::fit(const std::vector<std::vector<double>>& data)
 {
+    k_.setNh(data.size());
     resizeDataMatrix(data.size());
     for (int i=0; i<data.size(); i++)
     {

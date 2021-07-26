@@ -74,9 +74,11 @@ class BaseOptimizer
         void save_samples(const std::string &name);
         virtual void run(std::vector<std::vector<double>> &seeds){};
         virtual std::vector<double> optimize(std::vector<double> &seed){ return seed;};
+        std::vector<int> getNumIterations();
 
    protected:
 
+        std::vector<int> num_iterations_;
         std::vector<std::vector<double>> results_;
         std::vector<std::vector<double>> samples_;
         opt opt_{"AUGLAG_EQ",n};
@@ -144,7 +146,6 @@ class SlackOptimizer: public BaseOptimizer<n+m+l+l>
         double findSlack(const std::vector<double>& x, ConstraintCoeffs<n>& coeffs);
         double findSlack(const std::vector<double>& x, ConstraintCoeffs<n>* coeffs);
         void sample(std::vector<double>& x);
-       
 
     private:
 
@@ -211,6 +212,12 @@ void BaseOptimizer<n>::setBounds(const std::vector<double>& lb, const std::vecto
     opt_.set_upper_bounds(ub);
     opt_.set_lower_bounds(lb);
 }
+
+template<std::size_t n>
+std::vector<int> BaseOptimizer<n>::getNumIterations(){
+    return num_iterations_;
+}
+
 
 template<std::size_t n>
 void BaseOptimizer<n>::run(const int niter)
@@ -376,6 +383,8 @@ std::vector<double> BiasedOptimizer<n>::optimize(std::vector<double> &seed){
     catch(std::exception &e){
         std::cerr << e.what() << std::endl;
     }
+    this->num_iterations_.push_back(b_.num_iterations);
+    b_.num_iterations = 0;
     return x;
 }
 

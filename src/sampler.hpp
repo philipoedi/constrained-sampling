@@ -8,7 +8,7 @@
 #include <functional>
 #include <cassert>
 #include <memory>
-
+#include "tangent.hpp"
 
 template<std::size_t n>
 class BaseOptimizer;
@@ -47,6 +47,7 @@ class BaseSampler
         void setOptimizer(std::string method, std::vector<double> &lb, std::vector<double> &ub);
         void saveResults(std::string name);
         void saveSamples(std::string name);
+        void saveNumIterations(std::string name);
         bool hasOptimizer();
         std::vector<double> optimize(std::vector<double> &seed);
         void reset();
@@ -132,6 +133,18 @@ void BaseSampler<n,m>::saveResults(std::string name){
         utils::writeVec2File(results_,new_name);
     }
 }
+
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::saveNumIterations(std::string name){
+    std::string new_name;
+    new_name = name +"_num_iterations";
+    std::vector<int> num_its;
+    num_its = opt_ptr_->getNumIterations();
+    if (!num_its.empty()){
+        utils::writeVec2File(num_its, new_name);
+    }
+}
+
 
 template<std::size_t n, std::size_t m>
 void BaseSampler<n,m>::reset(){
@@ -290,23 +303,29 @@ template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSamp
         double getP(const Vector &x);
         double getQ(const Vector &x_star, const Vector &x_i);
         Vector sampleQ(const Vector &x);
-        void run(const int n_iter);
+        void runOnTangent(const int n_iter);
+        virtual void run(const int n_iter);
+        virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
+        virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
         double aDefault(const Vector &x_star, const Vector &x_i);
         void saveResults(const std::string &name);
         void saveSamples(const std::string &name);
         std::vector<std::vector<double>> results();
+        void setProjectOnEachStep(bool proj);
         /* virtual void run(int n_iter){};
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
         virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
         *///void set_Q_2(std::function<Vector(const Vector&)> &Q2);
 
-    private:
+    protected:
 
         bool use_default_A_{true};
+        bool project_on_each_step_{true};
         std::vector<std::vector<double>> samples_; // x_star
         std::vector<std::vector<double>> results_; //x_i
         UniformSampler<n,m> start_;
         int n_samples;
+        TangentSpace<n,m> tang_;
         //double (*p_)(const Vector&);
         //double (*q_)(const Vector&, const Vector&);
         double (*A_)(const Vector&, const Vector&);
@@ -349,6 +368,11 @@ Matrix<double,n,1> MetropolisHastings<n,m>::sampleQ(const Vector &x)
 {
     return Q_(x);
 };
+
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::setProjectOnEachStep(bool proj) {
+    project_on_each_step_ = proj;
+}
 
     /*
 template<std::size_t n, std::size_t m>
@@ -403,19 +427,19 @@ double MetropolisHastings<n,m>::aDefault(const Vector &x_star, const Vector &x_i
 
 
 
-
+/*
 template<std::size_t n, std::size_t m>
 void MetropolisHastings<n,m>::run(int n_iter)
 {
 
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> u_sampler(0.0,1.0);
+    //std::default_random_engine generator;
+    //std::uniform_real_distribution<double> u_sampler(0.0,1.0);
     // initialize starting point
     std::vector<double> x_star_vec(n,0), x_i_vec(n,0);
     Map<Vector> x_star(x_star_vec.data(),n);
     Map<Vector> x_i(x_i_vec.data(),n);
     x_i = start_.sample();
-    double A, u;
+    //double A, u;
     if (this->use_default_A_) 
     {
         for (int i=0; i< n_iter; i++)
@@ -442,40 +466,74 @@ void MetropolisHastings<n,m>::run(int n_iter)
         }
     }
 };
+*/
 
-/*
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::run(int n_iter) {
+    std::vector<double> x_star_vec(n,0), x_i_vec(n,0);
+    Map<Vector> x_i(x_i_vec.data(),n);
+    Map<Vector> x_star(x_star_vec.data(),n);
+    for (int i=0; i<3; i++){
+        std::cout << start_.sample() << std::endl;
+    }
+    x_i = start_.sample();
+    run(n_iter, x_i_vec, x_i_vec, x_i_vec);
+    std::cout << "run finsihing" << std::endl;
+}
+
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub) {
+    std::vector<double> x_i_vec = seed;
+    std::vector<double> x_star_vec(n,0);
+    Map<Vector> x_i(x_i_vec.data(),n);
+    Map<Vector> x_star(x_star_vec.data(),n);
+    for (int i=0; i<n_iter; i++){
+        x_star = Q_(x_i);
+        std::cout << "inner run" << std::endl;
+        samples_.push_back(x_star_vec);
+        if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
+            if (!this->checkFeasible(x_star)) {
+                if (this->hasOptimizer()){
+                    x_i_vec = this->optimize(x_star_vec);                  
+                    results_.push_back(x_i_vec);
+                }
+             } else {
+                results_.push_back(x_i_vec);
+                x_i = x_star;
+            }
+        }
+    }
+    std::cout << "done" << std::endl;
+}
+
+
 template<std::size_t n, std::size_t m>
 void MetropolisHastings<n,m>::runOnTangent(int n_iter){
-    std::vector<double> x_star_vec(n,0), x_i_vec(n,0);
-    Map<Vector> x_star(x_star_vec.date(),n);
-    Map<Vector> x_i(x_i_vec.data(),n)
+    std::vector<double> x_i_vec(n,0);
+    Map<Vector> x_i(x_i_vec.data(),n);
     x_i = start_.sample();
-    TangentSpace<n,m> tang;
-    if (project_on_each_step_) {
-        //initialize 
+    x_i_vec = this->optimize(x_i_vec);
+    runOnTangent(n_iter, x_i_vec, x_i_vec, x_i_vec);
+}
+
+template<std::size_t n, std::size_t m>
+void MetropolisHastings<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub) {
+    std::vector<double> x_i_vec = seed;
+    std::vector<double> x_star_vec(n,0);
+    Map<Vector> x_i(x_i_vec.data(), n);
+    Map<Vector> x_star(x_star_vec.data(), n);
+    if (project_on_each_step_){
         for (int i=0; i<n_iter; i++){
-            // find tangent
-            tang = tangentSpaceFromConstraints(this->cons_ptr_,x_i_vec, 1e-6);
-            tang.setSamplerBounds();
-            tang.sampleInAmbient();
-            if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
-                x_i_vev = this->optimize(x_star_vec);
-            }
+            this->tang_ = tangentSpaceFromConstraints<n,m>(this->cons_ptr_, x_i_vec, 1e-6);
             x_star = Q_(x_i);
-        }
-    } else {
-        tang = tangentSpaceFromConstraints(this->cons_ptr_,x_i_vec, 1e-6);
-        tang.setBounds();
-        for (int i=0; i<n_iter; i++){
-            x_star = tang.sampleInAmbient();
-            if (boundsCheck<n> x_star, this->lb_, this->ub_){
+            samples_.push_back(x_star_vec);
+            if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
                 x_i_vec = this->optimize(x_star_vec);
-                tang.setBounds();
+                results_.push_back(x_i_vec);
             }
         }
     }
 }
-*/
 
 
 template<std::size_t n, std::size_t m>
@@ -573,22 +631,28 @@ class GridWalk : public MetropolisHastings<n,m> {
      
         GridWalk(){};
         GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths);
+        GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent);
+        GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent, double r_ball_walk);
         double PGridWalk(const Matrix<double,n,1> &x);
         Matrix<double,n,1> qSamplerGridWalk(const Matrix<double,n,1> &x);
+        Matrix<double,n,1> qSamplerGridWalkOnTangent(const Matrix<double,n,1> &x);
         Matrix<double,n,1> qSamplerBallWalk(const Matrix<double,n,1> &x);
+        Matrix<double,n,1> qSamplerBallWalkOnTangent(const Matrix<double,n,1> &x);
         double QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x);
         void makeBallWalk(double radius);
+        void setRunOnTangent(bool run);
 
     protected:
 
         Matrix<double,n,1> widths_;
         double r_;
-    
+        bool run_on_tangent_{false}, ball_walk_{false}; 
 };
 
 template<std::size_t n, std::size_t m>
 GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const std::vector<double> &widths)  {
     this->setBounds(lb,ub);
+    this->start_.setBounds(lb,ub);
     widths_ = Matrix<double,n,1>(widths.data()); 
     std::function<double(const Matrix<double,n,1>&)> p = std::bind(&GridWalk<n,m>::PGridWalk, this, std::placeholders::_1);
     std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q_sample = std::bind(&GridWalk<n,m>::qSamplerGridWalk, this, std::placeholders::_1);
@@ -596,6 +660,19 @@ GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double>
     this->setP(p);
     this->setQSampler(q_sample);
     this->setQ(q);
+}
+
+
+template<std::size_t n, std::size_t m>
+GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent){
+    GridWalk(lb, ub, widths);
+    setRunOnTangent(use_tangent);
+}
+
+template<std::size_t n, std::size_t m>
+GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent, double r_ball_walk){   
+    GridWalk(lb, ub, widths, use_tangent);
+    makeBallWalk(r_ball_walk);
 }
 
 template<std::size_t n, std::size_t m>
@@ -609,6 +686,24 @@ Matrix<double,n,1> GridWalk<n,m>::qSamplerGridWalk(const Matrix<double,n,1> &x){
     Matrix<double,n,1> ub = x + widths_;
     UniformSampler<n,m> qsampler(lb, ub);
     return qsampler.sample();
+}
+
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> GridWalk<n,m>::qSamplerGridWalkOnTangent(const Matrix<double,n,1> &x){
+    this->tang_.setSamplerBounds((widths_/-2).head(n-m), (widths_/2).head(n-m));
+    return this->tang_.sampleInAmbient();
+}
+
+template<std::size_t n, std::size_t m>
+Matrix<double,n,1> GridWalk<n,m>::qSamplerBallWalkOnTangent(const Matrix<double,n,1> &x){
+    double d;
+    Matrix<double,n,1> candidate;
+    this->tang_.setSamplerBounds((widths_/-2).head(n-m), (widths_/2).head(n-m));
+    do {
+        candidate = this->tang_.sampleInAmbient();
+        d = (candidate - x).norm();
+    } while (d < r_);
+    return candidate;
 }
 
 template<std::size_t n, std::size_t m>
@@ -626,17 +721,40 @@ Matrix<double,n,1> GridWalk<n,m>::qSamplerBallWalk(const Matrix<double,n,1> &x){
     do {
         candidate = qsampler.sample();
         d = (candidate - x).norm();
-        std::cout<< "x: \n"  << x << std::endl;
-        std::cout<< "c: \n"  << candidate << std::endl;
-        std::cout<< "d: \n"  << d << std::endl;
     } while (d > r_) ;
     return candidate;
 }
 
 template<std::size_t n, std::size_t m>
 void GridWalk<n,m>::makeBallWalk(double radius) {
+    ball_walk_ = true;
     r_ = radius;
-    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q = std::bind(&GridWalk<n,m>::qSamplerBallWalk, this, std::placeholders::_1);
+    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q;
+    if (run_on_tangent_) {
+        q = std::bind(&GridWalk<n,m>::qSamplerBallWalkOnTangent, this, std::placeholders::_1);
+    } else {
+        q = std::bind(&GridWalk<n,m>::qSamplerBallWalk, this, std::placeholders::_1);
+    }
+    this->setQSampler(q);
+}
+
+template<std::size_t n, std::size_t m>
+void GridWalk<n,m>::setRunOnTangent(bool run){
+    run_on_tangent_ = run;
+    std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q;
+    if (run) {
+        if (ball_walk_) {
+            q = std::bind(&GridWalk<n,m>::qSamplerBallWalkOnTangent, this, std::placeholders::_1);
+        } else {
+            q = std::bind(&GridWalk<n,m>::qSamplerGridWalkOnTangent, this, std::placeholders::_1);
+        }
+    } else {
+         if (ball_walk_) {
+            q = std::bind(&GridWalk<n,m>::qSamplerBallWalk, this, std::placeholders::_1);
+        } else {
+            q = std::bind(&GridWalk<n,m>::qSamplerGridWalk, this, std::placeholders::_1);
+        }
+    }
     this->setQSampler(q);
 }
 

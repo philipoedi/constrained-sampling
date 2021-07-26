@@ -100,5 +100,11 @@ int main(){
     kdest22.setSphere(1);
     kdest22.predict(lb,ub, 0.1);
     std::cout << "finished predict" << std::endl;
+    std::vector<double> res_2;
+    std::vector<std::vector<double>> check_data;
+    check_data.push_back(std::vector<double>(2,1));
+    check_data.push_back(std::vector<double>(2,2));
+    res_2 = kdest22.predict(check_data);
+    std::cout << "res_2: " << res_2[0] << res_2[1] << std::endl;
     return 0; 
 }

@@ -48,7 +48,7 @@ int main(){
     
     RRT<n,m> rrt22;
     rrt22.setStepSize(1e-2);
-    BaseSampler<n> * rrt2 = &rrt22; 
+    BaseSampler<n,m> * rrt2 = &rrt22; 
     rrt2->setBounds(lb,ub);
     ConstraintCoeffs<n> c2;
     c2.type = "eq";
@@ -60,12 +60,12 @@ int main(){
     cons2.push_back(c2);
     rrt2->addConstraints(cons2);
     BaseOptimizer<n> * b = new BiasedOptimizer<n>(lb, ub);
-    rrt2->setOptimizer(b);
+    rrt2->setOptimizer("biased", lb, ub);
     std::cout << rrt2->hasOptimizer() << std::endl;
     rrt22.runOnTangent(10,seed,lb,ub);
     rrt22.setUseTangent(true);
     rrt22.run(10,seed,lb,ub);
-   std::cout <<"finnisef2" << std::endl;   // run
+    std::cout <<"finnisef2" << std::endl;   // run
 
 
     return 0;

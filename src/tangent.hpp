@@ -50,7 +50,8 @@ class TangentSpace {
         ThetaMatrix getTheta();
         TangVector sampleOnTangent();
         AmbientVector sampleInAmbient();
-        void setSamplerBounds(const std::vector<double> &lb, const std::vector<double> &ub);
+        template<typename T>
+        void setSamplerBounds(const T &lb, const T &ub);
 
     private:
 
@@ -135,7 +136,8 @@ Matrix<double,m*(n-m)+(n-m)*(n-m),n*(n-m),RowMajor> TangentSpace<n,m>::getGradie
 }
 
 template<std::size_t n, std::size_t m>
-void TangentSpace<n,m>::setSamplerBounds(const std::vector<double> &lb, const std::vector<double> &ub){
+template<typename T>
+void TangentSpace<n,m>::setSamplerBounds(const T &lb, const T &ub){
     uni_.setBounds(lb, ub);
 }
 
@@ -216,58 +218,4 @@ TangentSpace<n,m> tangentSpaceFromConstraints(const std::vector<ConstraintCoeffs
 }
 
 
-
-/*
-    Map<Matrix<double,n*(n-m),1>> theta(x);    
-    int num_vars{n*(n-m)};
-    double g{0};
-
-  A@theta - b = 0
-     
-     with A = [jac      0
-                0       jac
-                theta_m 0
-                0       theta_m]
-    b =     [0
-             0
-             1
-             0
-             0
-             1]
-        theta_m being matrix of thetas nx(n-m) -> theta corresponding to flattend version of theta_m
-   
-   */
-   /*
-   if (grad){
-        // grad of size n*(n-m)
-        // upper part of grad matrix stays as is
-     */
-     /* [jac 0
-            0  jac]
-
-        */
-       /*
-       Map<Matrix<double,n*(n-m),1> res_flat(d->A.data(),d->A.size());   
-        for (int i=0; i<(n*(n-m)); i++){
-            if (i < n*m) {
-                grad[i] = res_flat(i);
-            }
-            else {
-                
-                grad[i];
-            }
-        }
-    };
-    // adjust lower part of consrtaints matrix corresponding to theta.T@theta = identity
-    // here instead use function transformign theta
-    (d->A).block<n,n-m>((m*2)+(n-m),n) = theta_m;
-    (d->A).block<n,n-m>(m*2,0) = theta_m;
-    // evluate constraints matrix
-    res = (d->A * theta) - d->b;
-    for (int i=0; i<num_vars, i++){
-        result[i] = res[i];
-    }
-};
-
-*/
 #endif
