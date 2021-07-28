@@ -127,28 +127,31 @@ app.layout = dbc.Container(id="main-container", children=[
                 Input("local_checklist_left","value")])
 def update_plot(experiment, global_checklist, local_checklist):
     experiment_name = os.path.join(results_folder,experiment)
+    print(experiment_name) 
     samples, seeds, pdes = create_dataframe(experiment_name)
     print("finished loading data")
     
     plots = []
-    if "samples" in global_checklist:
-        plots.append(get_scatterplot(samples, local=False))
-    
-    if "seeds" in global_checklist:
-        plots.append(get_scatterplot(seeds, local=False))
-    
-    if "samples" in local_checklist:
-        plots.append(get_scatterplot(samples, local=True))
-    
-    if "seeds" in local_checklist:
-        plots.append(get_scatterplot(seeds, local=True))
-    if "projections" in global_checklist:
-        plots.extend(get_projections(samples, seeds, local=False))
+    try:
+        if "samples" in global_checklist:
+            plots.append(get_scatterplot(samples, local=False))
+        
+        if "seeds" in global_checklist:
+            plots.append(get_scatterplot(seeds, local=False))
+        
+        if "samples" in local_checklist:
+            plots.append(get_scatterplot(samples, local=True))
+        
+        if "seeds" in local_checklist:
+            plots.append(get_scatterplot(seeds, local=True))
+        if "projections" in global_checklist:
+            plots.extend(get_projections(samples, seeds, local=False))
 
-    fig = go.Figure(data=plots).update_layout(autosize=False,height=800,width=1600)
-    if "surface" in global_checklist:
-        fig.add_trace(get_surfaceplot(pdes)) 
-    plots2.append(seeds_fig)
+        fig = go.Figure(data=plots).update_layout(autosize=False,height=800,width=1600)
+        if "surface" in global_checklist:
+            fig.add_trace(get_surfaceplot(pdes)) 
+    except:
+        pdb.set_trace()
     fig.update_layout(width=1000)
     return fig
 
@@ -208,8 +211,11 @@ def get_iterations_data(experiment):
     data = []
     for f in files:
         sub_data = np.loadtxt(f)
-        if len(sub_data) > 0:
-            data.append(sub_data)
+        try:
+            if len(sub_data) > 0:
+                data.append(sub_data)
+        except TypeError:
+            data.append(np.array(int(sub_data)).reshape(1,))
     return np.concatenate(data) 
 
 def avg_iterations(experiment):
@@ -245,7 +251,7 @@ def update_statistics(experiment):
     stdev = np.std(data)
     entropy = resub_entropy_estimate(data) 
     num_samples = len(data)
-    avg_its = 2#avg_iterations(experiment)
+    avg_its = avg_iterations(experiment)
     global_samples = get_num_global_samples(experiment)
     local_seeds = get_num_local_seeds(experiment)
     filtered_seeds = global_samples - local_seeds
@@ -253,7 +259,7 @@ def update_statistics(experiment):
     table = go.Table(header=headers,
         cells = {"values":
          [["variance","std","entropy","#samples","avg iterations","# global samples","# local seeds","# removed seeds"],
-         [np.round(val,2) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds]]]})
+         [np.round(val,3) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds]]]})
     fig = go.Figure(data=[table])
     return fig
 

@@ -30,7 +30,8 @@ template<std::size_t n, std::size_t d> class Kernel
         void addData(const std::vector<double> data, const std::size_t i);
         void resize(std::size_t n_rows, std::size_t n_cols);
         bool bandwidthInitialized();
-    
+        void setNh(int num_samples);
+     
     private:
 
         Vector bandwidth_; // 1/bandwidth
@@ -38,6 +39,7 @@ template<std::size_t n, std::size_t d> class Kernel
         MatrixXd data_;
   //      dataMatrix distances_;
         double nh_; // num_samples * product over hi 
+        int num_samples_;
         std::size_t n_ = n;
         std::size_t d_ = d;
         double C_;
@@ -62,7 +64,8 @@ Kernel<n,d>::Kernel(const Vector& bandwidth)
 template<std::size_t n, std::size_t d>
 void Kernel<n,d>::fit(const MatrixXd &data)
 {
-    nh_ = H_*data.rows();
+    nh_ = H_/data.rows();
+    num_samples_ = data.rows();
     data_.resize(data.rows(), data.cols());
     data_ = data;
 }
@@ -77,6 +80,12 @@ void Kernel<n,d>::addData(const std::vector<double> data, const std::size_t i)
 }
 
 template<std::size_t n, std::size_t d>
+void Kernel<n,d>::setNh(int num_samples){
+    nh_ = H_/num_samples;
+    num_samples_ = num_samples;
+}
+
+template<std::size_t n, std::size_t d>
 double Kernel<n,d>::evaluate(const Vector& x)
 {
     double prob;
@@ -87,7 +96,7 @@ double Kernel<n,d>::evaluate(const Vector& x)
     distances = (data_- x.transpose().replicate(n_rows,1)).cwiseProduct(bandwidth_.transpose().replicate(n_rows,1));
     distances = (distances.array().abs() > 1.0).select(1, distances);  // select(1 instead of 0 -> 
     distances = 3./4. *( 1.0 - distances.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
-    prob = distances.rowwise().prod().sum()*nh_; 
+    prob = distances.rowwise().prod().sum()*H_/num_samples_; 
     return prob;
 }
 
@@ -245,7 +254,7 @@ void KernelEstimator<n,d>::find_optimal_bandwidth(const std::string bandwidth_es
 
 template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::setNh(int n_samples){
-    nh_ = H*n_samples;
+    k_.setNh(n_samples);
 }
 
 template<std::size_t n, std::size_t d>

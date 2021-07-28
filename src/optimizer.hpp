@@ -75,6 +75,7 @@ class BaseOptimizer
         virtual void run(std::vector<std::vector<double>> &seeds){};
         virtual std::vector<double> optimize(std::vector<double> &seed){ return seed;};
         std::vector<int> getNumIterations();
+        void reset();
 
    protected:
 
@@ -204,6 +205,12 @@ BaseOptimizer<n>::BaseOptimizer(
     this->setBounds(lb, ub);
     this->addConstraints(cons);
 }
+
+template<std::size_t n>
+void BaseOptimizer<n>::reset() {
+    num_iterations_.clear();
+}
+
 
 template<std::size_t n>
 void BaseOptimizer<n>::setBounds(const std::vector<double>& lb, const std::vector<double>& ub)

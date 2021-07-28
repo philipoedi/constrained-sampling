@@ -13,7 +13,7 @@
 #include "RRT.hpp"
 #include "kde.hpp"
 #include "filter.hpp"
-
+#include <filesystem>
 
 template<std::size_t n, std::size_t m>
 class Experiment {
@@ -320,6 +320,9 @@ void Experiment<n,m>::run(){
     name = utils::getDateTimeString();
     name = name + "_" + global_sampler_ + "_" + global_optimizer_+ "_" + local_sampler_ +"_" + local_optimizer_;
 
+    // create folder for results
+    std::filesystem::create_directory(name);
+    name = name + "/" + name;
     // global sampler
     global_sampler_ptr->addConstraints(cons_);
     if (use_global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_, lb_global_, ub_global_);
@@ -363,6 +366,7 @@ void Experiment<n,m>::run(){
 
     // local results 
     for (int i=0; i<global_results_.size() ;i++){
+        std::cout << i << std::endl;
         if (local_use_tangent_) {
            local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
         } else {

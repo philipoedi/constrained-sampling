@@ -150,6 +150,9 @@ template<std::size_t n, std::size_t m>
 void BaseSampler<n,m>::reset(){
     results_.clear();
     samples_.clear();
+    if (hasOptimizer()) {
+        opt_ptr_->reset();
+    }
 }
 
 template<std::size_t n, std::size_t m>
@@ -294,6 +297,7 @@ template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSamp
         MetropolisHastings(){};
         template <typename T> MetropolisHastings(const T &lb, const T &ub);//: BaseSampler<n,m>(lb,ub){};
         //void setP(double (*p)(const Vector&));
+        template<typename T> void setBounds(const T &lb, const T &ub);
         void setP(std::function<double(const Vector&)> &p);
         //void setQ(double (*q)(const Vector&, const Vector&));
         void setA(double (*A)(const Vector&, const Vector&));
@@ -308,9 +312,9 @@ template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSamp
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
         virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
         double aDefault(const Vector &x_star, const Vector &x_i);
-        void saveResults(const std::string &name);
-        void saveSamples(const std::string &name);
-        std::vector<std::vector<double>> results();
+        //void saveResults(const std::string &name);
+        //void saveSamples(const std::string &name);
+        //std::vector<std::vector<double>> results();
         void setProjectOnEachStep(bool proj);
         /* virtual void run(int n_iter){};
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
@@ -321,8 +325,8 @@ template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSamp
 
         bool use_default_A_{true};
         bool project_on_each_step_{true};
-        std::vector<std::vector<double>> samples_; // x_star
-        std::vector<std::vector<double>> results_; //x_i
+ //       std::vector<std::vector<double>> samples_; // x_star
+   //     std::vector<std::vector<double>> results_; //x_i
         UniformSampler<n,m> start_;
         int n_samples;
         TangentSpace<n,m> tang_;
@@ -335,21 +339,29 @@ template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSamp
         //Vector& (*Q_)(const Vector&, void*data);
 };
 
-
+/*
 // this is not finished
 // return results propoerly
 template<std::size_t n, std::size_t m>
 std::vector<std::vector<double>> MetropolisHastings<n,m>::results()
 {
-    return results_;
+    return this->results_;
 };
-
+*/
 template<std::size_t n, std::size_t m>
 template<typename T>
 MetropolisHastings<n,m>::MetropolisHastings(const T &lb, const T &ub)
 {
-    start_.setBounds(lb, ub);
+    setBounds(lb,ub);
+    //tart_.setBounds(lb, ub);
 };
+
+template<std::size_t n, std::size_t m>
+template<typename T>
+void MetropolisHastings<n,m>::setBounds(const T &lb, const T &ub){
+    BaseSampler<n,m>::setBounds(lb,ub);
+    start_.setBounds(lb,ub);
+}
 
 template<std::size_t n, std::size_t m>
 void MetropolisHastings<n,m>::setQSampler(std::function<Vector(const Vector&)> &Q)
@@ -478,7 +490,6 @@ void MetropolisHastings<n,m>::run(int n_iter) {
     }
     x_i = start_.sample();
     run(n_iter, x_i_vec, x_i_vec, x_i_vec);
-    std::cout << "run finsihing" << std::endl;
 }
 
 template<std::size_t n, std::size_t m>
@@ -489,21 +500,19 @@ void MetropolisHastings<n,m>::run(int n_iter, std::vector<double> &seed, std::ve
     Map<Vector> x_star(x_star_vec.data(),n);
     for (int i=0; i<n_iter; i++){
         x_star = Q_(x_i);
-        std::cout << "inner run" << std::endl;
-        samples_.push_back(x_star_vec);
+        this->samples_.push_back(x_star_vec);
         if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
             if (!this->checkFeasible(x_star)) {
                 if (this->hasOptimizer()){
                     x_i_vec = this->optimize(x_star_vec);                  
-                    results_.push_back(x_i_vec);
+                    this->results_.push_back(x_i_vec);
                 }
              } else {
-                results_.push_back(x_i_vec);
+                this->results_.push_back(x_i_vec);
                 x_i = x_star;
             }
         }
     }
-    std::cout << "done" << std::endl;
 }
 
 
@@ -526,16 +535,16 @@ void MetropolisHastings<n,m>::runOnTangent(int n_iter, std::vector<double> &seed
         for (int i=0; i<n_iter; i++){
             this->tang_ = tangentSpaceFromConstraints<n,m>(this->cons_ptr_, x_i_vec, 1e-6);
             x_star = Q_(x_i);
-            samples_.push_back(x_star_vec);
+            this->samples_.push_back(x_star_vec);
             if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
                 x_i_vec = this->optimize(x_star_vec);
-                results_.push_back(x_i_vec);
-            }
+                this->results_.push_back(x_i_vec);
+           } 
         }
     }
 }
 
-
+/*
 template<std::size_t n, std::size_t m>
 void MetropolisHastings<n,m>::saveResults(const std::string &name)
 {
@@ -547,7 +556,7 @@ void MetropolisHastings<n,m>::saveSamples(const std::string &name)
 {
     utils::writeVec2File(samples_, name);
 };
-
+*/
 
 template <std::size_t n, std::size_t m>
 class UniformNeighborhoodSampler: public BaseSampler<n,m>
@@ -633,6 +642,7 @@ class GridWalk : public MetropolisHastings<n,m> {
         GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths);
         GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent);
         GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent, double r_ball_walk);
+        template<typename T> void setBounds(const T &lb, const T &ub);
         double PGridWalk(const Matrix<double,n,1> &x);
         Matrix<double,n,1> qSamplerGridWalk(const Matrix<double,n,1> &x);
         Matrix<double,n,1> qSamplerGridWalkOnTangent(const Matrix<double,n,1> &x);
@@ -641,6 +651,7 @@ class GridWalk : public MetropolisHastings<n,m> {
         double QGridWalk(const Matrix<double,n,1> &x_star, const Matrix<double,n,1> &x);
         void makeBallWalk(double radius);
         void setRunOnTangent(bool run);
+        virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub); 
 
     protected:
 
@@ -651,8 +662,8 @@ class GridWalk : public MetropolisHastings<n,m> {
 
 template<std::size_t n, std::size_t m>
 GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const std::vector<double> &widths)  {
-    this->setBounds(lb,ub);
-    this->start_.setBounds(lb,ub);
+    //MetropolisHastings(lb, ub);
+    setBounds(lb,ub);
     widths_ = Matrix<double,n,1>(widths.data()); 
     std::function<double(const Matrix<double,n,1>&)> p = std::bind(&GridWalk<n,m>::PGridWalk, this, std::placeholders::_1);
     std::function<Matrix<double,n,1>(const Matrix<double,n,1>&)> q_sample = std::bind(&GridWalk<n,m>::qSamplerGridWalk, this, std::placeholders::_1);
@@ -662,16 +673,22 @@ GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double>
     this->setQ(q);
 }
 
+template<std::size_t n, std::size_t m>
+template<typename T>
+void GridWalk<n,m>::setBounds(const T &lb, const T &ub){
+    MetropolisHastings<n,m>::setBounds(lb, ub);
+}
+
 
 template<std::size_t n, std::size_t m>
-GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent){
-    GridWalk(lb, ub, widths);
+GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent):
+    GridWalk<n,m>(lb, ub, widths) {
     setRunOnTangent(use_tangent);
 }
 
 template<std::size_t n, std::size_t m>
-GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent, double r_ball_walk){   
-    GridWalk(lb, ub, widths, use_tangent);
+GridWalk<n,m>::GridWalk(const std::vector<double> &lb, const std::vector<double> &ub, const::std::vector<double> &widths, bool use_tangent, double r_ball_walk)  :  
+    GridWalk<n,m>(lb, ub, widths, use_tangent) {
     makeBallWalk(r_ball_walk);
 }
 
@@ -757,6 +774,12 @@ void GridWalk<n,m>::setRunOnTangent(bool run){
     }
     this->setQSampler(q);
 }
+
+template<std::size_t n, std::size_t m>
+void GridWalk<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub) {
+    MetropolisHastings<n,m>::runOnTangent(n_iter, seed, lb, ub);
+}
+
 
 
 #endif
