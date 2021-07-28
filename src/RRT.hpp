@@ -293,14 +293,14 @@ void RRT<n,m>::run(int n_iter, Vector &lb, Vector &ub){
     {
         target_node.location = uni_.sample();
         nearest_node  = tree_.findNearestNode(target_node);
-        if (squaredDistNodes(nearest_node, target_node) > alpha_) {
+//        if (squaredDistNodes(nearest_node, target_node) > alpha_) {
             new_node = getNewNode(nearest_node, target_node, alpha_);
             if (this->checkFeasible(new_node.location) && boundsCheck<n>(new_node.location,lb,ub)){
                 tree_.addNode(new_node, nearest_node);
                 utils::copyEig2Vec(new_node.location, new_node_vec);
                 this->results_.push_back(new_node_vec);
             }
-        }
+  //      }
         this->samples_.push_back(utils::copyEig2Vec(target_node()));
     }
 }
