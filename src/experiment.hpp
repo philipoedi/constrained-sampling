@@ -2,6 +2,7 @@
 #define EXPERIMENT_H
 
 #include <memory>
+#include <cmath>
 #include "optimizer.hpp"
 #include <cassert>
 #include <iostream>
@@ -55,6 +56,7 @@ class Experiment {
         void setSave(bool save);
         void setFilter(double d_min);    
         void run();
+        void setSuffix(std::string suf);
     
 
     private:
@@ -86,6 +88,7 @@ class Experiment {
         std::vector<double> widths_local_;
         std::vector<double> widths_global_;
 
+        std::string suffix_{""};
         // kernel density estimator
         double delta_{1e-3};
         double sphere_radius_{0};
@@ -194,6 +197,10 @@ void Experiment<n,m>::setFilter(double d_min) {
     d_min_ = d_min;
 }
 
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setSuffix(std::string suf){
+    suffix_ = suf;
+}
 
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::setLocalUseTangent(bool use){
@@ -267,7 +274,7 @@ void Experiment<n,m>::setRBallWalk(double r){
 
 template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validOptimizer(std::string opt){
-    if (opt == "biased" || opt == "slack" || "none"){
+    if (opt == "biased" || opt == "slack" || opt == ""){
         return true;
     }
     else {
@@ -279,7 +286,7 @@ bool Experiment<n,m>::validOptimizer(std::string opt){
 
 template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validSampler(std::string samp){
-    if (samp == "RRT" || samp == "grid-walk" || samp == "uniform"){
+    if (samp == "RRT" || samp == "grid-walk" || samp == "uniform" || samp == ""){
         return true;
     }
     else {
@@ -301,6 +308,9 @@ void Experiment<n,m>::run(){
     std::shared_ptr<BaseOptimizer<n>> local_optimizer_ptr{nullptr};
  
 
+    int last_n_iter{local_n_iter_};
+    int total_n_iter = global_n_iter_ * local_n_iter_;
+
     if (global_sampler_ == "uniform"){
         global_sampler_ptr = std::make_unique<UniformSampler<n,m>>(lb_global_, ub_global_);
     } else if (global_sampler_ == "RRT") {
@@ -316,13 +326,14 @@ void Experiment<n,m>::run(){
         global_sampler_ptr->setOptimizer("biased",);
     }*/
 
-    std::string name;
+    std::string name, folder;
     name = utils::getDateTimeString();
     name = name + "_" + global_sampler_ + "_" + global_optimizer_+ "_" + local_sampler_ +"_" + local_optimizer_;
 
     // create folder for results
-    std::filesystem::create_directory(name);
-    name = name + "/" + name;
+    folder = name + suffix_;
+    std::filesystem::create_directory(folder);
+    name = folder + "/" + name;
     // global sampler
     global_sampler_ptr->addConstraints(cons_);
     if (use_global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_, lb_global_, ub_global_);
@@ -338,11 +349,18 @@ void Experiment<n,m>::run(){
         global_sampler_ptr->saveNumIterations(name+"_global");
     }
 
+    std::vector<bool> accepted_results;
     if (d_min_ > 0) {
         std::cout << "global_results_.size()" << global_results_.size() << std::endl;
-        greedyNodeRemoval(global_results_, d_min_);
+        greedyNodeRemoval(global_results_, d_min_, accepted_results);
+        local_n_iter_ = std::floor(total_n_iter / global_results_.size());
+        std::cout << "total_n_iter: " << total_n_iter << std::endl;
+        std::cout << "local_n_iter: " << local_n_iter_ << std::endl;
+        last_n_iter = local_n_iter_ + total_n_iter - (local_n_iter_ * global_results_.size());
         std::cout << "global_results_.size()" << global_results_.size() << std::endl;
     }
+
+    bool local{true};
 
     if (local_sampler_ == "uniform") {
         local_sampler_ptr = std::make_unique<UniformSampler<n,m>>(lb_global_, ub_global_);
@@ -350,9 +368,12 @@ void Experiment<n,m>::run(){
         local_sampler_ptr = std::make_unique<RRT<n,m>>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
     } else if (local_sampler_ == "grid-walk") {
         local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_local_, local_use_tangent_);
-    } else {
+    } else if (local_sampler_ == "ball-walk"){
         // case ballwalk
         local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_local_, local_use_tangent_, r_ballwalk_);
+    } else {
+        local_samples_ = global_results_;
+        local = false;
     }
   /* 
     if (local_optimizer_ == "biased"){
@@ -360,27 +381,32 @@ void Experiment<n,m>::run(){
     }*/
 
     
-    // local sampler
-    local_sampler_ptr->addConstraints(cons_);
-    if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
+    if (local) {
+        // local sampler
+        local_sampler_ptr->addConstraints(cons_);
+        if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
 
-    // local results 
-    for (int i=0; i<global_results_.size() ;i++){
-        std::cout << i << std::endl;
-        if (local_use_tangent_) {
-           local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
-        } else {
-           local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+        // local results 
+        for (int i=0; i<global_results_.size() ;i++){
+            std::cout << i << std::endl;
+            if (d_min_ > 0 && !accepted_results[i]) continue; 
+            if (i-1 == global_results_.size()){ 
+                local_n_iter_ = last_n_iter;
+            }
+            if (local_use_tangent_) {
+               local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+            } else {
+               local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+            }
+            if (save_) {
+                local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
+                local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+                local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
+            }
+            utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
+            local_sampler_ptr->reset();
         }
-        if (save_) {
-            local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
-            local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
-            local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
-        }
-        utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
-        local_sampler_ptr->reset();
     }
-    
     // probability density estimation of local samples
     KernelEstimator<n,n> kdest;
     kdest.fit(local_samples_);

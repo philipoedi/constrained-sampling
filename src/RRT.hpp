@@ -385,10 +385,11 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
 
     UniformSampler<n-m,0> uni_local(lb_ambient, ub_ambient);
 
-    for (int i=0; i<n_iter; i++){
+    while (this->results_.size() < n_iter){
+    //for (int i=0; i<n_iter; i++){
         target_node.location = tang.toAmbient(uni_local.sample());
         nearest_node  = tree_tangent_ambient.findNearestNode(target_node);
-        if (squaredDistNodes(nearest_node, target_node) > alpha_) {
+     //   if (squaredDistNodes(nearest_node, target_node) > alpha_) {
             new_node_tangent = getNewNode(nearest_node, target_node, alpha_);
             if (boundsCheck<n>(new_node_tangent.location,this->lb_,this->ub_)){
                 tree_tangent_ambient.addNode(new_node_tangent, nearest_node);
@@ -400,8 +401,8 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
                 tree_.addNode(new_node_manifold, nearest_node);
                 this->results_.push_back(x_ambient);
             }
-        this->samples_.push_back(utils::copyEig2Vec(target_node()));
-        }
+        //this->samples_.push_back(utils::copyEig2Vec(target_node()));
+   //     }
     }/*
     //    sample_pair = rrt_tang.sampleNewNode();
         sample_tangent_node = sample_pair.first;

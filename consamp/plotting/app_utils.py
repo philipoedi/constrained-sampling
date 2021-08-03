@@ -46,7 +46,10 @@ def create_dataframe(folder_path):
 def load_pdes(filename):
     data = np.loadtxt(filename)
     df = pd.DataFrame(data)
-    df.columns = ["x","y","z","pdes"]
+    if len(df.columns) == 4:
+        df.columns = ["x","y","z","pdes"]
+    else:
+        df.columns = ["x","y","pdes"]
     return df
 
 
@@ -68,7 +71,11 @@ def read_file(filename):
         for r in f:
             row = r.split(" ")
             data.append([float(num) for num in row[:-1]])
-    data = pd.DataFrame(data, columns=["x","y","z"])
+    if (len(data[0]) == 3):
+        columns = ["x","y","z"]
+    else:
+        columns = ["x","y"]
+    data = pd.DataFrame(data, columns=columns)
     return data
 
 
@@ -86,7 +93,9 @@ def load_data(files):
     ---------
     data: pd.DataFrame
     """
+
     data = []
+
     for f in files:
         f_data = read_file(f)
         metadata = get_metadata(f)
@@ -96,7 +105,12 @@ def load_data(files):
         else:
             f_data["global"] = metadata["root"]
             f_data["local"] = np.arange(len(f_data))
-        f_data.columns = ["x","y","z","global","local"]
+    
+        if f_data.shape[1] == 5:
+            columns = ["x","y","z","global","local"]
+        else:
+            columns = ["x","y","global","local"]
+        f_data.columns = columns 
         data.append(f_data)
     data = pd.concat(data,0)
     return data
@@ -148,14 +162,38 @@ def get_projections(samples, seeds, local):
 
 
 
-def get_surfaceplot(data):
+def get_surfaceplot(data, max_col):
     #data = data.head(200)
     #data = data.sort_values("x")
     z = data[["z"]]
     z["ww"] = data["z"]
     #return go.Surface(x=data["x"],y=data["y"],z=z.values)#z=data[["z","pdes"]])
     #return go.Scatter3d(x=data["x"],y=data["y"],z=data["z"],mode="markers")#z=data[["z","pdes"]])
-    return go.Mesh3d(x=data["x"],y=data["y"],z=data["z"], alphahull=0, intensity=data["pdes"])
+    return go.Mesh3d(x=data["x"],y=data["y"],z=data["z"], alphahull=0, intensity=data["pdes"],cmin=0, cmax=max_col)
+
+def get_scatterplot2(data, local):
+    plotdata = get_plotdata(data, local)
+    return go.Scatter3d(x=plotdata["x"], y=plotdata["y"], z=np.zeros(len(plotdata)),mode="markers",marker={"size":2})
+
+def get_projections2(samples, seeds, local):
+    sample_data = get_plotdata(samples, local)
+    seeds_data = get_plotdata(seeds, local)
+    figs = []
+    count = 0
+    for index, row in seeds_data.iterrows():
+        start = row[["x","y"]]
+        end = sample_data.iloc[index][["x","y"]]
+        line_data = pd.concat([start,end],axis=1).T 
+        figs.append(go.Scatter3d(x=line_data["x"], y=line_data["y"], z=np.zeros(len(line_data)),mode="lines", line={"color":"#ffe476"}))
+    return figs
+
+def get_surfaceplot2(data, max_col):
+    x = np.unique(data["x"].values)
+    y = np.unique(data["y"].values)
+    z = data["pdes"].values.reshape(len(x),len(y))
+    #return go.Mesh3d(x=data["x"],y=data["y"],z=data["pdes"], alphahull=0, intensity=data["pdes"],cmin=0, cmax=max_col)
+    return go.Surface(x=x,y=y,z=z)
+
 
 def get_histogram(data):
     return go.Histogram(x=data, nbinsx=100)

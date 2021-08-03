@@ -11,6 +11,7 @@ import dash_core_components as dcc
 import plotly.express as px
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 from app_utils import *
 
@@ -63,49 +64,53 @@ app.layout = html.Div(children=[
   ])])
 """
 
-app.layout = dbc.Container(id="main-container", children=[
+app.layout = html.Div([
+    dcc.Store(id="samples"),
+    dcc.Store(id="samples2"),
+    dcc.Store(id="seeds"),
+    dcc.Store(id="seeds2"),
+    dcc.Store(id="pdes"),
+    dcc.Store(id="pdes2"),
+    dbc.Container(id="main-container", children=[
     dbc.Row(id="experiment-select-row", children=[
         dbc.Col([
             dcc.Dropdown(id="experiment-select-left", multi=False,
                 options=experiments_dropdown_map,
                 value="")], width={"size":6,"order":1}),
-        dbc.Col([
+        dbc.Col([   
             dcc.Dropdown(id="experiment-select-right", multi=False,
                 options=experiments_dropdown_map_right,
                 value="")], width={"size":6,"order":2}),
         ]),
+    dbc.Row(id="local-number", children=[
+        dbc.Col([
+            dcc.Dropdown(id="local-left", multi=True,
+                options=[],
+                value="")], width={"size":6,"order":1}),
+        dbc.Col([
+            dcc.Dropdown(id="local-right", multi=True,
+                options=[],
+                value="")], width={"size":6,"order":2}),
+        ]),
     dbc.Row(id="show-options", children=[
         dbc.Col([
-            dcc.Checklist(id="global_checklist_left",
+            dcc.Checklist(id="global_checklist",
                 options=global_checklist,
                 #value=[k for k in global_selected_buttons.keys()]),
                 value=[]),
-            dcc.Checklist(id="local_checklist_left",
+            dcc.Checklist(id="local_checklist",
                 options=local_checklist,
                 value=[])], width={"size":6}),
-        dbc.Col([
-            dcc.Checklist(id="global_checklist_right",
-                options=global_checklist_right,
-                value=[]),
-            dcc.Checklist(id="local_checklist_right",
-                options=local_checklist_right,
-                value=[])], width={"size":6}),
-        ]),
+         ]),
     dbc.Row(id="graph-left-row", children=[
         dbc.Col([
-            dcc.Graph(id="graph-left")
-            ], width={"size":6,"order":1}),
-        dbc.Col([
-            dcc.Graph(id="graph-right")
-            ], width={"size":6,"order":2})
+            dcc.Graph(id="graph-main", figure={})
+            ], width={"size":12})
         ]),
     dbc.Row(id="hist-row", children=[
         dbc.Col([
-            dcc.Graph(id="hist-left")
-            ], width={"size":6,"order":1}),
-        dbc.Col([
-            dcc.Graph(id="hist-right")
-            ], width={"size":6,"order":2})
+            dcc.Graph(id="hist", figure={})
+            ], width={"size":12}),
         ]),
      dbc.Row(id="statistics-row", children=[
         dbc.Col([
@@ -115,78 +120,173 @@ app.layout = dbc.Container(id="main-container", children=[
             dcc.Graph(id="stats-right")
             ], width={"size":6,"order":2})
         ])
- 
-    ],fluid=True)
+    ],fluid=True)])
 
 
 
+def create_dropdown_options(data):
+    opt = [{"label": str(l),"value": int(l)} for l in data["global"].unique()]
+    opt.append({"label":"all","value": -1}) 
+    return sorted(opt, key=lambda x: x["value"])
 
-@app.callback(Output("graph-left","figure"),
-                [Input("experiment-select-left","value"),
-                Input("global_checklist_left","value"),
-                Input("local_checklist_left","value")])
-def update_plot(experiment, global_checklist, local_checklist):
+
+@app.callback(Output("local-left","options"),
+            Output("local-right","options"),
+            [Input("samples","data"),
+            Input("samples2","data")])
+def update_locals(samplesj, samples2j):
+    samples = pd.read_json(samplesj, orient="split")
+    samples2 = pd.read_json(samples2j, orient="split")
+    opt1 = create_dropdown_options(samples)
+    opt2 = create_dropdown_options(samples2)
+    return opt1, opt2 
+
+@app.callback(Output("samples","data"),
+            Output("samples2","data"),
+            Output("seeds","data"),
+            Output("seeds2","data"),
+            Output("pdes","data"),
+            Output("pdes2","data"),
+            [Input("experiment-select-left","value"),
+            Input("experiment-select-right","value")])
+def store_data(experiment,experiment2):
     experiment_name = os.path.join(results_folder,experiment)
-    print(experiment_name) 
+    experiment_name2 = os.path.join(results_folder,experiment2)
     samples, seeds, pdes = create_dataframe(experiment_name)
-    print("finished loading data")
-    
+    samples2, seeds2, pdes2 = create_dataframe(experiment_name2)
+    samples = samples.to_json(orient="split") 
+    samples2 = samples2.to_json(orient="split") 
+    seeds = seeds.to_json(orient="split") 
+    seeds2 = seeds2.to_json(orient="split") 
+    pdes = pdes.to_json(orient="split") 
+    pdes2 = pdes2.to_json(orient="split") 
+    return samples, samples2, seeds, seeds2, pdes, pdes2
+
+
+@app.callback(Output("graph-main","figure"),
+                [Input("global_checklist","value"),
+                Input("local_checklist","value"),
+                Input("samples","data"),
+                Input("samples2","data"),
+                Input("seeds","data"),
+                Input("seeds2","data"),
+                Input("pdes","data"),
+                Input("pdes2","data"),
+                Input("local-left","value"),
+                Input("local-right","value"),
+                ])
+def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, seeds2j, pdesj, pdes2j, local_left, local_right):
+    samples = pd.read_json(samplesj, orient="split")
+    samples2 = pd.read_json(samples2j, orient="split")
+    seeds = pd.read_json(seedsj, orient="split")
+    seeds2 = pd.read_json(seeds2j, orient="split")
+    pdes = pd.read_json(pdesj, orient="split")
+    pdes2 = pd.read_json(pdes2j, orient="split")
+
     plots = []
-    try:
+    plots2 = []
+    max_col = max([pdes["pdes"].max(),pdes2["pdes"].max()])
+    if -1 not in local_left:
+        samples_plot = samples[np.isin(samples["global"].values, np.array(local_left))]
+        seeds_plot = seeds[np.isin(seeds["global"].values, np.array(local_left))]
+    else:
+        samples_plot = samples
+        seeds_plot = seeds
+
+    if -1 not in local_right:
+        samples2_plot = samples2[np.isin(samples2["global"].values,np.array(local_right))]
+        seeds2_plot = seeds2[np.isin(seeds2["global"].values, np.array(local_right))]
+    else:
+        samples2_plot = samples2
+        seeds2_plot = seeds2
+
+    dim_l = pdes.shape[1] - 1
+    dim_r = pdes2.shape[1] - 1
+    if dim_l == 3:
         if "samples" in global_checklist:
-            plots.append(get_scatterplot(samples, local=False))
+            plots.append(get_scatterplot(samples_plot, local=False))
         
         if "seeds" in global_checklist:
-            plots.append(get_scatterplot(seeds, local=False))
+            plots.append(get_scatterplot(seeds_plot, local=False))
         
         if "samples" in local_checklist:
-            plots.append(get_scatterplot(samples, local=True))
+            plots.append(get_scatterplot(samples_plot, local=True))
         
         if "seeds" in local_checklist:
-            plots.append(get_scatterplot(seeds, local=True))
+            plots.append(get_scatterplot(seeds_plot, local=True))
+
         if "projections" in global_checklist:
-            plots.extend(get_projections(samples, seeds, local=False))
+            plots.extend(get_projections(samples_plot, seeds_plot, local=False))
 
-        fig = go.Figure(data=plots).update_layout(autosize=False,height=800,width=1600)
         if "surface" in global_checklist:
-            fig.add_trace(get_surfaceplot(pdes)) 
-    except:
-        pdb.set_trace()
-    fig.update_layout(width=1000)
+            plots.append(get_surfaceplot(pdes,max_col)) 
+    
+    if dim_l  == 2:
+        if "samples" in global_checklist:
+            plots.append(get_scatterplot2(samples_plot, local=False))
+        
+        if "seeds" in global_checklist:
+            plots.append(get_scatterplot2(seeds_plot, local=False))
+        
+        if "samples" in local_checklist:
+            plots.append(get_scatterplot2(samples_plot, local=True))
+        
+        if "seeds" in local_checklist:
+            plots.append(get_scatterplot2(seeds_plot, local=True))
+
+        if "projections" in global_checklist:
+            plots.extend(get_projections2(samples_plot, seeds_plot, local=False))
+
+        if "surface" in global_checklist:
+            plots.append(get_surfaceplot2(pdes,max_col)) 
+  
+    if dim_r == 3:
+        if "samples" in global_checklist:
+            plots2.append(get_scatterplot(samples2_plot, local=False))
+        
+        if "seeds" in global_checklist:
+            plots2.append(get_scatterplot(seeds2_plot, local=False))
+        
+        if "samples" in local_checklist:
+            plots2.append(get_scatterplot(samples2_plot, local=True))
+        
+        if "seeds" in local_checklist:
+            plots2.append(get_scatterplot(seeds2_plot, local=True))
+
+        if "projections" in global_checklist:
+            plots2.extend(get_projections(samples2_plot, seeds2_plot, local=False))
+
+        if "surface" in global_checklist:
+            plots2.append(get_surfaceplot(pdes2,max_col)) 
+    
+    if dim_r == 2:
+        if "samples" in global_checklist:
+            plots2.append(get_scatterplot2(samples2_plot, local=False))
+        
+        if "seeds" in global_checklist:
+            plots2.append(get_scatterplot2(seeds2_plot, local=False))
+        
+        if "samples" in local_checklist:
+            plots2.append(get_scatterplot2(samples2_plot, local=True))
+        
+        if "seeds" in local_checklist:
+            plots2.append(get_scatterplot2(seeds2_plot, local=True))
+
+        if "projections" in global_checklist:
+            plots2.extend(get_projections2(samples2_plot, seeds2_plot, local=False))
+
+        if "surface" in global_checklist:
+            plots2.append(get_surfaceplot2(pdes2,max_col)) 
+  
+
+
+    fig = make_subplots(rows=1,cols=2,specs=[[{"type":"surface"},{"type":"surface"}]])
+    for c , plot_data in enumerate([plots, plots2]):
+        for p in plot_data:
+            fig.add_trace(p, row=1, col=c+1)    
+    fig.update_layout(autosize=False,height=800,width=1600)
     return fig
 
-
-@app.callback(Output("graph-right","figure"),
-                [Input("experiment-select-right","value"),
-                Input("global_checklist_right","value"),
-                Input("local_checklist_right","value")])
-def update_plot2(experiment, global_checklist_right, local_checklist_right):
-    experiment_name = os.path.join(results_folder,experiment)
-    samples, seeds, pdes = create_dataframe(experiment_name)
-    print("finished loading data")
-    
-    plots = []
-    if "samples" in global_checklist_right:
-        plots.append(get_scatterplot(samples, local=False))
-    
-    if "seeds" in global_checklist_right:
-        plots.append(get_scatterplot(seeds, local=False))
-    
-    if "samples" in local_checklist_right:
-        plots.append(get_scatterplot(samples, local=True))
-    
-    if "seeds" in local_checklist_right:
-        plots.append(get_scatterplot(seeds, local=True))
-
-    if "projections" in global_checklist_right:
-        plots.extend(get_projections(samples, seeds, local=False))
-
-    fig = go.Figure(data=plots).update_layout(autosize=False,height=800,width=1600)
-    if "surface" in global_checklist_right:
-        fig.add_trace(get_surfaceplot(pdes)) 
-    
-    fig.update_layout(width=1000)
-    return fig
 
 
 def load_prob_data(experiment):
@@ -195,11 +295,10 @@ def load_prob_data(experiment):
     data = np.loadtxt(files[0])
     return data 
 
-def update_histogram(experiment):
+def get_histogram_plot(experiment):
     data = load_prob_data(experiment)
     plot = get_histogram(data)
-    fig = go.Figure(data=[plot])
-    return fig
+    return plot 
 
 def resub_entropy_estimate(data):
     return -np.log(data).sum() / len(data)
@@ -234,10 +333,18 @@ def get_num_local_seeds(experiment):
     files = glob.glob(experiment_name)
     return len(files)
 
-@app.callback(Output("hist-left","figure"),
-     [Input("experiment-select-left","value")])
-def update_histogram_left(experiment):
-    return update_histogram(experiment)
+@app.callback(Output("hist","figure"),
+     [Input("experiment-select-left","value"),
+     Input("experiment-select-right","value")])
+def update_histogram(experiment,experiment2):
+    p = get_histogram_plot(experiment)
+    p2 = get_histogram_plot(experiment2)
+    fig = go.Figure()
+    fig.add_trace(p)
+    fig.add_trace(p2)
+    fig.update_layout(barmode="overlay")
+    fig.update_traces(opacity=0.75)
+    return fig 
 
 
 @app.callback(Output("hist-right","figure"),
@@ -259,7 +366,7 @@ def update_statistics(experiment):
     table = go.Table(header=headers,
         cells = {"values":
          [["variance","std","entropy","#samples","avg iterations","# global samples","# local seeds","# removed seeds"],
-         [np.round(val,3) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds]]]})
+         [np.round(val,5) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds]]]})
     fig = go.Figure(data=[table])
     return fig
 

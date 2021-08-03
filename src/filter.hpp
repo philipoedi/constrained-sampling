@@ -82,7 +82,7 @@ void getStartNodes(std::list<Path> &paths, std::list<Path*> &unexplored_paths, U
 
 std::vector<std::size_t> removeNodes(const std::vector<std::vector<double>> &points, double d_min);
 
-void greedyNodeRemoval(std::vector<std::vector<double>> &samples, double d_min);
+void greedyNodeRemoval(std::vector<std::vector<double>> &samples, double d_min, std::vector<bool> &accepted);
 
 /*
 class Path {

@@ -276,7 +276,7 @@ std::vector<std::size_t> removeNodes(const std::vector<std::vector<double>> &poi
     return nodes_to_remove;
 }
 
-void greedyNodeRemoval(std::vector<std::vector<double>> &samples, double d_min){
+void greedyNodeRemoval(std::vector<std::vector<double>> &samples, double d_min, std::vector<bool> &accepted){
     std::set<std::size_t> removed;
     double d_ij;
     int choice;
@@ -298,15 +298,13 @@ void greedyNodeRemoval(std::vector<std::vector<double>> &samples, double d_min){
             }
         }
     }
-    std::vector<std::vector<double>> new_samples(n-removed.size());
     std::size_t j{0};
+    accepted.resize(samples.size());
     for (std::size_t i=0; i<n; i++){
         if (removed.count(i) == 0){
-            new_samples[j] = samples[i];
-            j += 1;
+            accepted[i] = true;
         }
     }
-    samples = new_samples;
 }
 
 
