@@ -254,18 +254,22 @@ template<std::size_t n, std::size_t m>
 void UniformSampler<n,m>::run(int n_iter, Vector &lb, Vector &ub){
     std::vector<double> sample_vec(n); 
     std::vector<double> result(n);
-    for (int i=0; i<n_iter; i++){
+    int num_samples{0};
+    while (num_samples < n_iter) {
+    //for (int i=0; i<n_iter; i++){
         utils::copyEig2Vec(sample(), sample_vec);
         this->samples_.push_back(sample_vec);
         if (this->opt_ptr_ == nullptr) {
            //if (isFeasibleM<n>(sample_vec, this->cons_ptr_) && boundsCheckVec<n>(sample_vec,lb,ub)) {
            if (this->checkFeasible(sample_vec) && boundsCheckVec<n>(sample_vec,lb,ub)) {
               this->results_.push_back(sample_vec); 
+              num_samples++;
            }
         } else {
            if (boundsCheckVec<n>(sample_vec,lb,ub)){
               result = this->opt_ptr_->optimize(sample_vec);
               this->results_.push_back(result);
+              num_samples++;
            }
         }
     }
@@ -287,7 +291,209 @@ void UniformSampler<n,m>::run(int n_iter, std::vector<double> &seed, std::vector
     this->setBounds(lb_old, ub_old);
 }
 
-template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSampler<n,m>
+class SphereSampler : public UniformSampler<2,1>
+{
+    public:
+        template <typename T> SphereSampler(const T &lb, const T &ub);
+        virtual void run (int n_iter);
+        void setRadius(double r);
+        void setCenter(std::vector<double> x0);
+
+    private:
+        double r_{1};
+        std::vector<double> x0_{0,0};
+};
+
+template<typename T>
+SphereSampler::SphereSampler(const T &lb, const T &ub): UniformSampler<2,1>(lb,ub){
+}
+
+void SphereSampler::setRadius(double r) {
+    r_ = r;
+}
+
+void SphereSampler::setCenter(std::vector<double> x0){
+    x0_ = x0;
+}
+
+void SphereSampler::run(int n_iter) {
+    std::vector<double> sample_xyz(3,0);
+    std::vector<double> sample_polar(2,0);
+    double z;
+    double phi;
+    Map<Matrix<double,2,1>> sample_polar_eig(sample_polar.data());
+    for (int i=0; i<n_iter; i++){
+        sample_polar_eig = this->sample();
+        z = sample_polar_eig(1);
+        phi = sample_polar_eig(0);
+        sample_xyz = utils::spherical2cartesianSampled(z, r_, phi);
+        sample_xyz[0] += x0_[0];
+        sample_xyz[1] += x0_[1];
+        sample_xyz[2] += x0_[2];
+        this->samples_.push_back(sample_xyz);
+        this->results_.push_back(sample_xyz);
+    }   
+}
+
+class CircleSampler : public UniformSampler<1,1> {
+
+    public:
+        template<typename T> CircleSampler(const T &lb, const T &ub);
+        virtual void run(int n_iter);
+        void setRadius(double r);
+        void setCenter(std::vector<double> x0);
+
+    private:
+        double r_{1};
+        std::vector<double> x0_{0,0};
+};
+
+
+template<typename T>
+CircleSampler::CircleSampler(const T &lb, const T &ub) : UniformSampler<1,1>(lb,ub){
+}
+
+void CircleSampler::setRadius(double r){
+    r_ = r;
+}
+
+void CircleSampler::setCenter(std::vector<double> x0){
+    x0_ = x0;
+}
+
+void CircleSampler::run(int n_iter){
+    double phi;
+    Matrix<double,1,1> sample_eig;
+    std::vector<double> sample_vec(2,0);
+    for (int i=0; i<n_iter; i++){
+        sample_eig = this->sample();
+        phi = sample_eig(0);
+        sample_vec = utils::polar2cartesian(phi, r_, x0_);
+        this->samples_.push_back(sample_vec);
+        this->results_.push_back(sample_vec);
+    }
+}
+
+
+
+
+class LineSampler : public UniformSampler<2,1> {
+    
+    public:
+        template<typename T> LineSampler(const T &lb, const T &ub);
+        void getMap();
+        virtual void run(int n_iter);
+
+    public:
+        std::vector<double> b1_;
+        std::vector<double> b2_;
+        double a1_,a2_;
+};
+
+
+template<typename T>
+LineSampler::LineSampler(const T &lb, const T &ub) : UniformSampler<2,1>(lb,ub){
+}
+
+
+void LineSampler::getMap(){
+    std::vector<std::vector<double>> bounds;
+    std::vector<double> coords_on_bound(2,0);
+    // iterate over lb
+    ConstraintCoeffs<2> *  con = this->cons_ptr_[0];
+    double c = con->cons;
+    double  x1, x2;
+    a1_ = con->coeffs[0];
+    a2_ = con->coeffs[1];
+
+    x1 = this->lb_(0);
+    x2 = (-c - (a1_*x1)) / a2_;
+    coords_on_bound[0] = x1;
+    coords_on_bound[1] = x2;
+    if (boundsCheckVec<2>(coords_on_bound, this->lb_, this->ub_)){
+        bounds.push_back(coords_on_bound);
+    }
+      
+    x1 = this->ub_(0);
+    x2 = (-c - (a1_*x1)) / a2_;
+    coords_on_bound[0] = x1;
+    coords_on_bound[1] = x2;
+    if (boundsCheckVec<2>(coords_on_bound, this->lb_, this->ub_)){
+        bounds.push_back(coords_on_bound);
+    }
+
+    x2 = this->lb_(1);
+    x1 = (-c - (a2_*x2)) / a1_;
+    coords_on_bound[0] = x1;
+    coords_on_bound[1] = x2;
+    if (boundsCheckVec<2>(coords_on_bound, this->lb_, this->ub_)){
+        bounds.push_back(coords_on_bound);
+    }
+ 
+
+    x2 = this->ub_(1);
+    x1 = (-c - (a2_*x2)) / a1_;
+    coords_on_bound[0] = x1;
+    coords_on_bound[1] = x2;
+    if (boundsCheckVec<2>(coords_on_bound, this->lb_, this->ub_)){
+        bounds.push_back(coords_on_bound);
+    }
+
+    b1_ = bounds[0];
+    bool new_bound_found = false;
+    int j = 1;
+    double sub_space_bound;
+    while (!new_bound_found) {
+        b2_ = bounds[j];
+        if (b2_[0] == b1_[0] && b2_[1] == b2_[1]){
+            ++j; 
+        } else {
+            a1_ = b2_[0] - b1_[0];
+            a2_ = b2_[1] - b1_[1];
+            sub_space_bound = (b2_[0] - b1_[0]) / a1_;
+            new_bound_found = true;
+        }
+    }
+    
+
+
+    std::vector<double> lb_new(2,0);
+    std::vector<double> ub_new(2,0);
+    
+    if (sub_space_bound < 0) {
+        lb_new[0] = sub_space_bound;
+        ub_new[0] = 0;
+    } else {
+        lb_new[0] = 0;
+        ub_new[0] = sub_space_bound;
+    }
+    this->setBounds(lb_new, ub_new);
+}
+
+
+void LineSampler::run(int n_iter){
+    getMap();
+    std::cout << "a1: " << a1_ << " a2: " << a2_ << std::endl;
+    std::cout << "lb: " << this->lb_ << std::endl; 
+    std::cout << "ub: " << this->ub_ << std::endl; 
+    std::cout << "b1: " << b1_[0] << " " <<b1_[1]  << std::endl; 
+    std::cout << "b2: " << b2_[0] << " " <<b2_[1]  << std::endl; 
+
+    double t;
+    std::vector<double> sample(2);
+    this->cons_ptr_[0];
+    for (int i=0; i<n_iter; i++){
+        t = this->sample()(0);
+        std::cout << "t " << t << std::endl;
+        sample[0] = b1_[0] + t * a1_;
+        sample[1] = b1_[1] + t * a2_;
+        std::cout << sample[0] << " " << sample[1] << std::endl;
+    }
+    
+}
+
+template<std::size_t n, std::size_t m> 
+class MetropolisHastings: public BaseSampler<n,m>
 {
     typedef Matrix<double, n, 1> Vector;
     enum {NeedsToAlign = (sizeof(Vector)%16)==0};
@@ -316,10 +522,9 @@ template<std::size_t n, std::size_t m> class MetropolisHastings: public BaseSamp
         //void saveSamples(const std::string &name);
         //std::vector<std::vector<double>> results();
         void setProjectOnEachStep(bool proj);
-        /* virtual void run(int n_iter){};
-        virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
-        virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
-        *///void set_Q_2(std::function<Vector(const Vector&)> &Q2);
+        //virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
+        //virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
+        //void set_Q_2(std::function<Vector(const Vector&)> &Q2);
 
     protected:
 

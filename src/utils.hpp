@@ -51,7 +51,10 @@ namespace utils
     std::string getDateTimeString();
 
     std::vector<double> spherical2cartesian(double theta, double phi, double r);
-    
+    std::vector<double> spherical2cartesianSampled(double z, double r,  double phi);
+    std::vector<double> polar2cartesian(double phi, double r, std::vector<double> x0);
+
+
     void shuffleVector(std::vector<std::vector<double>> &data);
   
 

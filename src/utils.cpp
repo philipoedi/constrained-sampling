@@ -236,6 +236,21 @@ namespace utils
         return coords;
     }
 
+    std::vector<double> spherical2cartesianSampled(double z, double r, double phi) {
+        std::vector<double> coords(3,z);
+        coords[0] = sqrt(r*r - z*z) * cos(phi);
+        coords[1] = sqrt(r*r - z*z) * sin(phi);
+        return coords;
+    }
+    
+    std::vector<double> polar2cartesian(double phi, double r, std::vector<double> x0){
+        double x, y;
+        x = r*cos(phi);
+        y = r*sin(phi);
+        x0[0] += x;
+        x0[1] += y;
+        return x0; 
+    }
 
     std::string getDateString()
     {

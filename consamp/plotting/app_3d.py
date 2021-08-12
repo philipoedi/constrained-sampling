@@ -38,31 +38,9 @@ global_checklist_right = global_checklist.copy()
 local_checklist_right = local_checklist.copy()
 
 
-print(experiments_name)
 
 app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP],
     meta_tags=[{"name":"viewport","content":"width=device-width, initial-scale=1"}])
-"""
-app.layout = html.Div(children=[
-  html.Div(className="header", children=[
-    html.P("experiment"),
-    html.Div(className="dropdown", children=[
-        dcc.Dropdown(id="experimentselect",
-                     options=experiments_dropdown_map,
-                     multi=False,
-                     value="",
-                     className="experimentselect"),
-        dcc.Checklist(id="global_checklist",
-                    options=global_checklist,
-                    value=[k for k in global_selected_buttons.keys()]),
-        dcc.Checklist(id="local_checklist",
-                    options=local_checklist,
-                    value=[k for k in local_selected_buttons.keys()])]),
-  html.Div(className="graphs", children=[
-         html.Div(className="graph1div", children=[dcc.Graph(id="graph")])]
-         )
-  ])])
-"""
 
 app.layout = html.Div([
     dcc.Store(id="samples"),
@@ -176,6 +154,10 @@ def store_data(experiment,experiment2):
                 Input("local-right","value"),
                 ])
 def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, seeds2j, pdesj, pdes2j, local_left, local_right):
+    #check if any selected
+    if len(global_checklist) == 0 and len(local_checklist) == 0:
+        return {}
+
     samples = pd.read_json(samplesj, orient="split")
     samples2 = pd.read_json(samples2j, orient="split")
     seeds = pd.read_json(seedsj, orient="split")
@@ -337,22 +319,26 @@ def get_num_local_seeds(experiment):
      [Input("experiment-select-left","value"),
      Input("experiment-select-right","value")])
 def update_histogram(experiment,experiment2):
-    p = get_histogram_plot(experiment)
-    p2 = get_histogram_plot(experiment2)
+    if not experiment and not experiment2:
+        return {}
     fig = go.Figure()
-    fig.add_trace(p)
-    fig.add_trace(p2)
+    if experiment:
+        p = get_histogram_plot(experiment)
+        fig.add_trace(p)
+    if experiment2:
+        p2 = get_histogram_plot(experiment2)
+        fig.add_trace(p2)
     fig.update_layout(barmode="overlay")
     fig.update_traces(opacity=0.75)
     return fig 
 
 
-@app.callback(Output("hist-right","figure"),
-     [Input("experiment-select-right","value")])
-def update_histogram_right(experiment):
-    return update_histogram(experiment)
+#@app.callback(Output("hist-right","figure"),
+#     [Input("experiment-select-right","value")])
+#def update_histogram_right(experiment):
+#    return update_histogram(experiment)
 
-def update_statistics(experiment):      
+def update_statistics(experiment, samples, samples2):      
     data = load_prob_data(experiment)
     variance = np.var(data)
     stdev = np.std(data)
@@ -362,25 +348,54 @@ def update_statistics(experiment):
     global_samples = get_num_global_samples(experiment)
     local_seeds = get_num_local_seeds(experiment)
     filtered_seeds = global_samples - local_seeds
+
+    SRC = get_plotdata(samples,True).values[:,:-2]
+    REF = get_plotdata(samples2,True).values[:,:-2]
+    nn_mean_SRC_REF = get_mean_nn_dist(SRC,REF)
+    nn_mean_REF = get_mean_nn_dist(REF, REF, True) 
+    nn_mean_SRC = get_mean_nn_dist(SRC, SRC, True) 
+    nn_mean_SRC_REF_norm = nn_mean_SRC_REF / nn_mean_REF
     headers = {"values" : ["Metric","Value"]}
     table = go.Table(header=headers,
         cells = {"values":
-         [["variance","std","entropy","#samples","avg iterations","# global samples","# local seeds","# removed seeds"],
-         [np.round(val,5) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds]]]})
+         [["variance",
+         "std",
+         "entropy",
+         "#samples",
+         "avg iterations",
+         "# global samples",
+         "# local seeds",
+         "# removed seeds",
+         "nearest_neighbor_SRC_REF",            
+         "nearest_neighbor_SRC_REF/nearest_neighbor_REF",            
+         "nearest_neighbor_REF",            
+         "nearest_neighbor_SRC",            
+         ],
+         [np.round(val,5) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds,nn_mean_SRC_REF,nn_mean_SRC_REF_norm, nn_mean_REF,nn_mean_SRC]]]})
     fig = go.Figure(data=[table])
     return fig
 
 @app.callback(Output("stats-left","figure"),
-    [Input("experiment-select-left","value")])
-def update_stats_left(experiment):
-    return update_statistics(experiment)
+[Input("experiment-select-left","value"),
+     Input("samples","data"),
+     Input("samples2","data")])
+def update_stats_left(experiment, samplesj_left, samplesj_right):
+    if not experiment:
+        return {}
+    samples_left = pd.read_json(samplesj_left, orient="split")
+    samples_right = pd.read_json(samplesj_right, orient="split")
+    return update_statistics(experiment,samples_left,samples_right)
 
 @app.callback(Output("stats-right","figure"),
-    [Input("experiment-select-right","value")])
-def update_stats_right(experiment):
-    return update_statistics(experiment)
-
-
+     [Input("experiment-select-left","value"),
+     Input("samples","data"),
+     Input("samples2","data")])
+def update_stats_right(experiment, samplesj_left, samplesj_right):
+    if not experiment:
+        return {}
+    samples_left = pd.read_json(samplesj_left, orient="split")
+    samples_right = pd.read_json(samplesj_right, orient="split")
+    return update_statistics(experiment, samples_right, samples_left)
 
 
 if __name__ == "__main__":

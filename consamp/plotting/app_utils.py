@@ -6,6 +6,8 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 
+from scipy.spatial import distance_matrix
+
 root_folder = os.path.abspath(os.path.join(os.path.dirname("__file__"), "..", ".."))
 results_folder = os.path.join(root_folder, "results")
 
@@ -23,7 +25,7 @@ def experiment_dict(name):
     exp_dict = {
         "meta": os.path.join(results_folder, name+".meta"),
         "samples": os.path.join(results_folder, name+"_results.dat"),
-            "seeds": os.path.join(results_folder, name+"_samples.dat"),
+        "seeds": os.path.join(results_folder, name+"_samples.dat"),
         "pdes": os.path.join(results_folder, name+"_pdes.dat")}
     return exp_dict
 
@@ -197,6 +199,22 @@ def get_surfaceplot2(data, max_col):
 
 def get_histogram(data):
     return go.Histogram(x=data, nbinsx=100)
+
+
+def get_mean_nn_dist(data,data2,same=False):
+    dist = distance_matrix(data, data2)
+    if same:
+        dist = dist[dist != 0].reshape(len(data),len(data)-1)
+    min_dist = dist.min(0)
+    return min_dist.mean()
+
+def nearest_neighbor_coverage(src, ref, local):
+    SRC = get_plotdata(src, local)
+    REF = get_plotdata(ref, local)
+    nn_dist = get_mean_nn_dist(SRC.values,REF.values)
+    ref_mean = get_mean_nn_dist(REF.values,REF.values, same=True)
+    return nn_dist, nn_dist/ref_mean
+
 
 
 

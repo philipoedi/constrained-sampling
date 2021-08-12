@@ -3,7 +3,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
-
+#include <cmath>
 
 void check_bounds(std::pair<Vector2d,Vector2d> b)
 {
@@ -40,7 +40,7 @@ int main()
     const std::size_t m = 0;
     // check default init
     UniformSampler<n,m> uni;
-    
+   /* 
     // check setBounds using std::vector
     std::vector<double> ub{1,2};
     std::vector<double> lb{0,0};
@@ -99,12 +99,39 @@ int main()
     int j{0};
     j = f();
     std::cout << j << std::endl;
-    /*uniform_neighborhood_sampler<n> uns(lb_eig, ub_eig);
+   // uniform_neighborhood_sampler<n> uns(lb_eig, ub_eig);
     bounds = uns.getBounds();
     check_bounds(bounds);
     uns.set_P(P);
     std::cout << "checking get_P:" <<  uns.get_P(lb_eig) << std::endl;
     */
+    // testing sphere samples
+    std::vector<double> lb_sphere{0,-1};
+    std::vector<double> ub_sphere{M_PI*2,1};
+    SphereSampler ss(lb_sphere,ub_sphere);
+    ss.run(5);
+
+    std::cout << "testing circle sampler" << std::endl;
+    double radius{2};
+    std::vector<double> lb_circle{0};
+    std::vector<double> ub_circle{2*M_PI};
+    std::vector<double> x0_circle{1,2};
+    CircleSampler cs(lb_circle, ub_circle);
+    cs.run(5);
+
+
+    std::cout << "testing line sampler" << std::endl;
+
+    std::vector<double> lb_line{-3,-3};
+    std::vector<double> ub_line{3,3};
+    LineSampler ls(lb_line, ub_line);
+    ConstraintCoeffs<2> cons;
+    cons.coeffs << -1 , -1;
+    cons.cons = -1;
+    std::vector<ConstraintCoeffs<2>> cons_vec;
+    cons_vec.push_back(cons);
+    ls.addConstraints(cons_vec);
+    ls.run(5);
     return 0;
 }
 
