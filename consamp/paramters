@@ -1,0 +1,29 @@
+
+
+circle: 
+1 too small
+1.5?
+2 okay -> best
+
+
+line:
+1 too small
+1.5 ?
+2 okay
+
+rejection:
+1 too small
+1.5
+2 too big -> is okay
+
+sphere:
+1 too small
+1.5
+2
+
+
+
+bandwidth: 0.5,0.75,1,2
+sample size: 
+
+

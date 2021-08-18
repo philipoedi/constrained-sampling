@@ -97,7 +97,6 @@ def load_data(files):
     """
 
     data = []
-
     for f in files:
         f_data = read_file(f)
         metadata = get_metadata(f)
@@ -197,8 +196,8 @@ def get_surfaceplot2(data, max_col):
     return go.Surface(x=x,y=y,z=z)
 
 
-def get_histogram(data):
-    return go.Histogram(x=data, nbinsx=100)
+def get_histogram(data,name):
+    return go.Histogram(x=data, nbinsx=100,name=name)
 
 
 def get_mean_nn_dist(data,data2,same=False):

@@ -122,8 +122,8 @@ int main()
 
     std::cout << "testing line sampler" << std::endl;
 
-    std::vector<double> lb_line{-3,-3};
-    std::vector<double> ub_line{3,3};
+    std::vector<double> lb_line{-2,-2};
+    std::vector<double> ub_line{2,2};
     LineSampler ls(lb_line, ub_line);
     ConstraintCoeffs<2> cons;
     cons.coeffs << -1 , -1;

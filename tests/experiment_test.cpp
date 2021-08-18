@@ -69,17 +69,24 @@ int main(){
     ConstraintCoeffs<sphere_n> sphere = createSphere<sphere_n>(1);
     vector<double> local_w{0.5,0.5,0.5};
 
-    const double band{5};
-    const int local_yn_iter{100};
+    vector<double> global_lb_circle{-2,-2};
+    vector<double> global_ub_circle{2,2};
+    vector<double> local_lb_circle{-2,-2};
+    vector<double> local_ub_circle{-2,-2};
+
+
+
+    const double band{2};
+    const int local_n_iter{100};
     const int global_n_iter{200};
-/*
+    
     // RRT many global and filter 
     Experiment<sphere_n,1> u_b_r_n("biased","uniform","biased","RRT");
     u_b_r_n.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_n.setGlobalBounds(global_lb_sphere,global_ub_sphere);
     u_b_r_n.addConstraints(sphere);
-    u_b_r_n.setGlobalNumIter(200);
-    u_b_r_n.setLocalNumIter(100);
+    u_b_r_n.setGlobalNumIter(100);
+    u_b_r_n.setLocalNumIter(50);
     u_b_r_n.setLocalAlpha(0.01);
     u_b_r_n.setLocalUseTangent(true);
     u_b_r_n.setBandwidth(band);
@@ -97,8 +104,8 @@ int main(){
     u_b_r_n2.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_n2.setGlobalBounds(global_lb_sphere,global_ub_sphere);
     u_b_r_n2.addConstraints(sphere);
-    u_b_r_n2.setGlobalNumIter(200);
-    u_b_r_n2.setLocalNumIter(100);
+    u_b_r_n2.setGlobalNumIter(100);
+    u_b_r_n2.setLocalNumIter(50);
     u_b_r_n2.setLocalAlpha(0.005);
     u_b_r_n2.setLocalUseTangent(true);
     u_b_r_n2.setBandwidth(band);
@@ -116,8 +123,8 @@ int main(){
     u_b_r_n3.setLocalBounds(local_lb_sphere3, local_ub_sphere3);
     u_b_r_n3.setGlobalBounds(global_lb_sphere,global_ub_sphere);
     u_b_r_n3.addConstraints(sphere);
-    u_b_r_n3.setGlobalNumIter(200);
-    u_b_r_n3.setLocalNumIter(100);
+    u_b_r_n3.setGlobalNumIter(100);
+    u_b_r_n3.setLocalNumIter(50);
     u_b_r_n3.setLocalAlpha(0.005);
     u_b_r_n3.setLocalUseTangent(true);
     u_b_r_n3.setBandwidth(band);
@@ -134,8 +141,8 @@ int main(){
     u_b_r_b_t.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_b_t.setGlobalBounds(global_lb_sphere, global_ub_sphere);
     u_b_r_b_t.addConstraints(sphere);
-    u_b_r_b_t.setGlobalNumIter(200);
-    u_b_r_b_t.setLocalNumIter(100);
+    u_b_r_b_t.setGlobalNumIter(100);
+    u_b_r_b_t.setLocalNumIter(50);
     u_b_r_b_t.setLocalAlpha(0.005);
     u_b_r_b_t.setLocalWidths(local_w);
     u_b_r_b_t.setBandwidth(band);
@@ -145,16 +152,16 @@ int main(){
     u_b_r_b_t.setSave(true);
     u_b_r_b_t.setSuffix("_multiple");
     u_b_r_b_t.run();
- */ 
+ 
    
-/*
-    // gridwalk single global
+
+   // gridwalk single global
     Experiment<sphere_n,1> u_b_r_b_t2("biased","uniform","biased","grid-walk");
     u_b_r_b_t2.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_b_t2.setGlobalBounds(global_lb_sphere, global_ub_sphere);
     u_b_r_b_t2.addConstraints(sphere);
     u_b_r_b_t2.setGlobalNumIter(1);
-    u_b_r_b_t2.setLocalNumIter(20000);
+    u_b_r_b_t2.setLocalNumIter(5000);
     u_b_r_b_t2.setLocalAlpha(0.005);
     u_b_r_b_t2.setLocalWidths(local_w);
     u_b_r_b_t2.setBandwidth(band);
@@ -164,9 +171,28 @@ int main(){
     u_b_r_b_t2.setSave(true);
     u_b_r_b_t2.setSuffix("_single");
     u_b_r_b_t2.run();
-*/
+    
+    // biased optimizer only
+    Experiment<sphere_n,1> u_b("biased","uniform","","");
+    u_b.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    u_b.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    u_b.addConstraints(sphere);
+    u_b.setGlobalNumIter(5000);
+    u_b.setLocalNumIter(0);
+    u_b.setLocalAlpha(0.005);
+    u_b.setLocalWidths(local_w);
+    u_b.setBandwidth(band);
+    u_b.setSphere(1);
+    u_b.setGridSpacing(0.5);
+    u_b.setLocalUseTangent(true);
+    u_b.setSave(true);
+    u_b.setSuffix("");
+    u_b.run();
+    
+
 
     // 2d examples
+/*
 
     const int n2d{2};
     std::vector<double> local_bounds_lb_2d{-0.5,-0.5};
@@ -187,9 +213,90 @@ int main(){
     u_b_2d.setSave(true);
     u_b_2d.setSuffix("_2d");
     u_b_2d.run();
+*/
+/*
+    // reference sphere
+    Experiment<3,1> sphere_ref("sphere","reference","","");
+    sphere_ref.setLocalBounds(local_lb_sphere, local_lb_sphere);
+    sphere_ref.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    sphere_ref.setLocalNumIter(0);
+    sphere_ref.setGlobalNumIter(100);
+    sphere_ref.setSphere(1);
+    sphere_ref.setSave(true);
+    sphere_ref.setLocalUseTangent(false);
+    sphere_ref.setBandwidth(band);
+    sphere_ref.setGridSpacing(0.5);
+    //sphere_ref.run();
+    // reference circle
+
+    Experiment<2,1> circle_ref("circle","reference","","");
+    circle_ref.setLocalBounds(local_lb_circle, local_ub_circle);
+    circle_ref.setGlobalBounds(global_lb_circle, global_ub_circle);
+    circle_ref.setSphere(1);
+    circle_ref.setLocalNumIter(0);
+    circle_ref.setGlobalNumIter(100);
+    circle_ref.setSave(true);
+    circle_ref.setBandwidth(band);
+    circle_ref.setGridSpacing(0.1);
+    //circle_ref.run();
+
+    // reference line
+    Experiment<2,1> line_ref("line","reference","","");
+    line_ref.setLocalBounds(local_lb_circle, local_ub_circle);
+    line_ref.setGlobalBounds(global_lb_circle, global_ub_circle);
+    line_ref.addConstraints(c1); 
+    line_ref.setLocalNumIter(0);
+    line_ref.setGlobalNumIter(100);
+    line_ref.setSave(true);
+    line_ref.setBandwidth(band);
+    line_ref.setGridSpacing(0.1);
+    //line_ref.run();
+
+    // reference ineq linear
+    Experiment<2,1> ineq_ref("rejection","reference","","");
+    ineq_ref.setLocalBounds(local_lb_circle, local_ub_circle);
+    ineq_ref.setGlobalBounds(global_lb_circle,global_ub_circle);
+    ineq_ref.addConstraints(c1);
+    ineq_ref.setLocalNumIter(0);
+    ineq_ref.setGlobalNumIter(100);
+    ineq_ref.setSave(true);
+    ineq_ref.setBandwidth(band);
+    ineq_ref.setGridSpacing(0.1);
+    //ineq_ref.run();
 
 
-    
+    std::vector<int> num_samples{5000,5000,5000,5000};
+    std::vector<double> num_band{2,2.25,2.5,2.75};
+
+    int current_num_samples;
+    double current_band;
+    std::string suf;
+    for (int i=0; i<num_samples.size(); i++){
+        for (int j=0; j<num_samples.size(); j++){
+            current_num_samples = num_samples[j];
+            current_band = num_band[i];
+            suf = std::to_string(current_num_samples) + "-" + std::to_string(current_band);
+            ineq_ref.setGlobalNumIter(current_num_samples);
+            line_ref.setGlobalNumIter(current_num_samples);
+            circle_ref.setGlobalNumIter(current_num_samples);
+            sphere_ref.setGlobalNumIter(current_num_samples);
+            ineq_ref.setBandwidth(current_band);
+            line_ref.setBandwidth(current_band);
+            circle_ref.setBandwidth(current_band);
+            sphere_ref.setBandwidth(current_band);
+            ineq_ref.setSuffix(suf);
+            line_ref.setSuffix(suf);
+            circle_ref.setSuffix(suf);
+            sphere_ref.setSuffix(suf);
+            ineq_ref.run();
+            line_ref.run();
+            circle_ref.run();
+            sphere_ref.run();
+        }
+    }
+*/
+
+
 
     // uniform_biased + metropolis_hastings_rejection
 

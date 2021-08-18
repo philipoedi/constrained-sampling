@@ -397,6 +397,8 @@ LineSampler::LineSampler(const T &lb, const T &ub) : UniformSampler<2,1>(lb,ub){
 
 
 void LineSampler::getMap(){
+    std::cout << this->lb_ << std::endl;
+    std::cout << this->ub_ << std::endl;
     std::vector<std::vector<double>> bounds;
     std::vector<double> coords_on_bound(2,0);
     // iterate over lb
@@ -410,6 +412,8 @@ void LineSampler::getMap(){
     x2 = (-c - (a1_*x1)) / a2_;
     coords_on_bound[0] = x1;
     coords_on_bound[1] = x2;
+    std::cout << a1_ << " " << a2_ << std::endl;
+    std::cout << coords_on_bound[0] << " " << coords_on_bound[1] << std::endl;
     if (boundsCheckVec<2>(coords_on_bound, this->lb_, this->ub_)){
         bounds.push_back(coords_on_bound);
     }
@@ -438,7 +442,8 @@ void LineSampler::getMap(){
     if (boundsCheckVec<2>(coords_on_bound, this->lb_, this->ub_)){
         bounds.push_back(coords_on_bound);
     }
-
+    
+    std::cout << "bounds: 2"<< bounds[0][0] << std::endl;
     b1_ = bounds[0];
     bool new_bound_found = false;
     int j = 1;
@@ -473,21 +478,15 @@ void LineSampler::getMap(){
 
 void LineSampler::run(int n_iter){
     getMap();
-    std::cout << "a1: " << a1_ << " a2: " << a2_ << std::endl;
-    std::cout << "lb: " << this->lb_ << std::endl; 
-    std::cout << "ub: " << this->ub_ << std::endl; 
-    std::cout << "b1: " << b1_[0] << " " <<b1_[1]  << std::endl; 
-    std::cout << "b2: " << b2_[0] << " " <<b2_[1]  << std::endl; 
-
     double t;
     std::vector<double> sample(2);
     this->cons_ptr_[0];
     for (int i=0; i<n_iter; i++){
         t = this->sample()(0);
-        std::cout << "t " << t << std::endl;
         sample[0] = b1_[0] + t * a1_;
         sample[1] = b1_[1] + t * a2_;
-        std::cout << sample[0] << " " << sample[1] << std::endl;
+        this->samples_.push_back(sample);
+        this->results_.push_back(sample);
     }
     
 }

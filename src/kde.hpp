@@ -22,6 +22,8 @@ template<std::size_t n, std::size_t d> class Kernel
         Kernel(const Vector& bandwidth);
         void fit(const MatrixXd &data);
         double evaluate(const Vector& x);
+        double evaluate(const Vector& x, const MatrixXd &data);
+        double evaluateLeaveOneOut(std::size_t n_row);
         void setBandwidth(const Vector& bandwidth);    
         //void find_constant();
         void find_optimal_bandwidth(std::string method);
@@ -31,7 +33,8 @@ template<std::size_t n, std::size_t d> class Kernel
         void resize(std::size_t n_rows, std::size_t n_cols);
         bool bandwidthInitialized();
         void setNh(int num_samples);
-     
+        int getNumRows();
+
     private:
 
         Vector bandwidth_; // 1/bandwidth
@@ -71,6 +74,11 @@ void Kernel<n,d>::fit(const MatrixXd &data)
 }
 
 template<std::size_t n, std::size_t d>
+int Kernel<n,d>::getNumRows(){
+    return data_.rows();
+}
+
+template<std::size_t n, std::size_t d>
 void Kernel<n,d>::addData(const std::vector<double> data, const std::size_t i)
 {
     for (int j=0; j<d; j++)
@@ -86,19 +94,44 @@ void Kernel<n,d>::setNh(int num_samples){
 }
 
 template<std::size_t n, std::size_t d>
-double Kernel<n,d>::evaluate(const Vector& x)
+double Kernel<n,d>::evaluate(const Vector &x){
+   return evaluate(x, data_); 
+}
+
+template<std::size_t n, std::size_t d>
+double Kernel<n,d>::evaluate(const Vector& x, const MatrixXd &data)
 {
     double prob;
     MatrixXd distances;
     std::size_t n_rows;
-    n_rows = data_.rows();
-    distances.resize(n_rows,data_.cols());
-    distances = (data_- x.transpose().replicate(n_rows,1)).cwiseProduct(bandwidth_.transpose().replicate(n_rows,1));
+    n_rows = data.rows();
+    distances.resize(n_rows,data.cols());
+    distances = (data- x.transpose().replicate(n_rows,1)).cwiseProduct(bandwidth_.transpose().replicate(n_rows,1));
     distances = (distances.array().abs() > 1.0).select(1, distances);  // select(1 instead of 0 -> 
     distances = 3./4. *( 1.0 - distances.array().square()); // for all vals > 0 follows that distances = 0 because 1-1
     prob = distances.rowwise().prod().sum()*H_/num_samples_; 
     return prob;
 }
+
+template<std::size_t n, std::size_t d>
+double Kernel<n,d>::evaluateLeaveOneOut(std::size_t n_row){
+    Vector row;
+    double prob;
+    row = data_.row(n_row);
+    std::size_t n_rows_1;
+    n_rows_1 = data_.rows() - 1;
+    MatrixXd data;
+    data.resize(n_rows_1, data_.cols());
+    if (n_row > 0) {
+        data.topRows(n_row) = data_.topRows(n_row);
+    }
+    if (n_row < n_rows_1) {
+        data.bottomRows(n_rows_1 - n_row) = data_.bottomRows(n_rows_1 - n_row); 
+    }
+    prob = evaluate(row, data);
+    return prob;
+}
+
 
 template<std::size_t n, std::size_t d>
 void Kernel<n,d>::setBandwidth(const Vector& bandwidth)
@@ -202,6 +235,8 @@ template<std::size_t n, std::size_t d> class KernelEstimator
         void setSphere(double r);
         void resizeDataMatrix(std::size_t n_rows);
         void setNh(int n_samples); 
+        std::vector<double> leaveOneOutEstimation();
+
     private:
         
         Kernel<n,d> k_;
@@ -273,6 +308,17 @@ void KernelEstimator<n,d>::predict(const std::vector<Vector>& x, std::vector<dou
 
 
 template<std::size_t n, std::size_t d>
+std::vector<double> KernelEstimator<n,d>::leaveOneOutEstimation(){
+    int num_rows = k_.getNumRows();
+    std::vector<double> results;
+    for (int i=0; i<num_rows;  i++){
+        results.push_back(k_.evaluateLeaveOneOut(i));    
+    };
+    return results;
+}
+
+
+template<std::size_t n, std::size_t d>
 std::vector<double> KernelEstimator<n,d>::predict(const std::vector<std::vector<double>> &x){
     std::vector<double> res;
     for (int i=0; i<x.size() ; i++){
@@ -282,6 +328,7 @@ std::vector<double> KernelEstimator<n,d>::predict(const std::vector<std::vector<
     }
     return res;
 }
+
 
 /*template<std::size_t n, std::size_t d>
 void KernelEstimator<n,d>::predict(const std::vector<double>& lb, const std::vector<double>& ub, const double step)

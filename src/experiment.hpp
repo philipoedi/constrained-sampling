@@ -274,11 +274,11 @@ void Experiment<n,m>::setRBallWalk(double r){
 
 template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validOptimizer(std::string opt){
-    if (opt == "biased" || opt == "slack" || opt == ""){
+    if (opt == "rejection" || opt == "biased" || opt == "slack" || opt == "" || opt == "sphere" || opt == "circle" || opt == "line"){
         return true;
     }
     else {
-        std::cout << "Choose any of the following optimizers: 'slack', 'biased'" << std::endl;
+        std::cout << "Choose any of the following optimizers: 'slack', 'biased' or if creating a reference dataset 'circle', 'sphere', 'line', 'rejection'" << std::endl;
         return false;
     }
 }
@@ -286,11 +286,11 @@ bool Experiment<n,m>::validOptimizer(std::string opt){
 
 template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validSampler(std::string samp){
-    if (samp == "RRT" || samp == "grid-walk" || samp == "uniform" || samp == ""){
+    if (samp == "RRT" || samp == "grid-walk" || samp == "uniform" || samp == "" || samp == "reference"){
         return true;
     }
     else {
-        std::cout << "Choose any of the following samplers: 'uniform', 'grid-walk', 'RRT'" << std::endl;
+        std::cout << "Choose any of the following samplers: 'uniform', 'grid-walk', 'RRT' or 'reference'" << std::endl;
         return false;
     }
 }
@@ -307,25 +307,6 @@ void Experiment<n,m>::run(){
     std::shared_ptr<BaseOptimizer<n>> global_optimizer_ptr{nullptr};
     std::shared_ptr<BaseOptimizer<n>> local_optimizer_ptr{nullptr};
  
-
-    int last_n_iter{local_n_iter_};
-    int total_n_iter = global_n_iter_ * local_n_iter_;
-
-    if (global_sampler_ == "uniform"){
-        global_sampler_ptr = std::make_unique<UniformSampler<n,m>>(lb_global_, ub_global_);
-    } else if (global_sampler_ == "RRT") {
-        global_sampler_ptr = std::make_unique<RRT<n,m>>(lb_global_, ub_global_, global_alpha_, global_use_tangent_);
-    } else if (global_sampler_ == "grid-walk") {
-        global_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_global_, global_use_tangent_);
-    } else {
-        global_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_global_, global_use_tangent_, true);
-    }
-   /*
-    if (global_optimizer_ == "biased") {
-        //global_optimizer_ptr = std::make_shared<BiasedOptimizer<n>>(lb_global_, ub_global_);
-        global_sampler_ptr->setOptimizer("biased",);
-    }*/
-
     std::string name, folder;
     name = utils::getDateTimeString();
     name = name + "_" + global_sampler_ + "_" + global_optimizer_+ "_" + local_sampler_ +"_" + local_optimizer_;
@@ -334,80 +315,151 @@ void Experiment<n,m>::run(){
     folder = name + suffix_;
     std::filesystem::create_directory(folder);
     name = folder + "/" + name;
-    // global sampler
-    global_sampler_ptr->addConstraints(cons_);
-    if (use_global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_, lb_global_, ub_global_);
-    //if (global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_ptr);
-
-    // global results
-    global_sampler_ptr->run(global_n_iter_);
-    global_samples_ = global_sampler_ptr->samples();
-    global_results_ = global_sampler_ptr->results();
-    if (save_){
-        global_sampler_ptr->saveResults(name+"_global");
-        global_sampler_ptr->saveSamples(name+"_global");
-        global_sampler_ptr->saveNumIterations(name+"_global");
-    }
-
-    std::vector<bool> accepted_results;
-    if (d_min_ > 0) {
-        std::cout << "global_results_.size()" << global_results_.size() << std::endl;
-        greedyNodeRemoval(global_results_, d_min_, accepted_results);
-        local_n_iter_ = std::floor(total_n_iter / global_results_.size());
-        std::cout << "total_n_iter: " << total_n_iter << std::endl;
-        std::cout << "local_n_iter: " << local_n_iter_ << std::endl;
-        last_n_iter = local_n_iter_ + total_n_iter - (local_n_iter_ * global_results_.size());
-        std::cout << "global_results_.size()" << global_results_.size() << std::endl;
-    }
-
-    bool local{true};
-
-    if (local_sampler_ == "uniform") {
-        local_sampler_ptr = std::make_unique<UniformSampler<n,m>>(lb_global_, ub_global_);
-    } else if (local_sampler_ == "RRT"){
-        local_sampler_ptr = std::make_unique<RRT<n,m>>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
-    } else if (local_sampler_ == "grid-walk") {
-        local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_local_, local_use_tangent_);
-    } else if (local_sampler_ == "ball-walk"){
-        // case ballwalk
-        local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_local_, local_use_tangent_, r_ballwalk_);
-    } else {
-        local_samples_ = global_results_;
-        local = false;
-    }
-  /* 
-    if (local_optimizer_ == "biased"){
-        local_optimizer_ptr = std::make_shared<BiasedOptimizer<n>>(lb_global_, ub_global_);
-    }*/
-
+ 
+    int last_n_iter{local_n_iter_};
     
-    if (local) {
-        // local sampler
-        local_sampler_ptr->addConstraints(cons_);
-        if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
+    int total_n_iter = (local_n_iter_ == 0) ? global_n_iter_ : global_n_iter_ * local_n_iter_;
 
-        // local results 
-        for (int i=0; i<global_results_.size() ;i++){
-            std::cout << i << std::endl;
-            if (d_min_ > 0 && !accepted_results[i]) continue; 
-            if (i-1 == global_results_.size()){ 
-                local_n_iter_ = last_n_iter;
-            }
-            if (local_use_tangent_) {
-               local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
-            } else {
-               local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
-            }
-            if (save_) {
-                local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
-                local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
-                local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
-            }
-            utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
-            local_sampler_ptr->reset();
+    if (global_sampler_  == "reference"){ 
+        if (global_optimizer_  == "sphere"){
+            std::vector<double> lb_sphere{0,-sphere_radius_};
+            std::vector<double> ub_sphere{2*M_PI,sphere_radius_};
+            SphereSampler ssamp(lb_sphere, ub_sphere);
+            ssamp.run(total_n_iter);
+            ssamp.saveSamples(name+"_global");
+            ssamp.saveResults(name+"_global");
+            ssamp.saveResults(name+"_local_0");
+            ssamp.saveResults(name+"_local_0");
+            local_samples_ = ssamp.results();
+        } else if ( global_optimizer_ == "circle") {
+            std::vector<double> lb_circle{0};
+            std::vector<double> ub_circle{2*M_PI};
+            CircleSampler csamp(lb_circle, ub_circle);
+            csamp.setRadius(sphere_radius_);
+            csamp.run(total_n_iter);
+            csamp.saveSamples(name+"_global");
+            csamp.saveResults(name+"_global");
+            csamp.saveResults(name+"_local_0");
+            csamp.saveResults(name+"_local_0");
+            local_samples_ = csamp.results();
+    
+        } else if (global_optimizer_  == "line") {
+            LineSampler lsamp(lb_global_, ub_global_);
+            ConstraintCoeffs<2> line_con;
+            line_con.coeffs << cons_[0].coeffs(0), cons_[0].coeffs(1);
+            line_con.cons = cons_[0].cons;
+            std::vector<ConstraintCoeffs<2>> line_cons_vec;
+            line_cons_vec.push_back(line_con);
+            lsamp.addConstraints(line_cons_vec);
+            lsamp.run(total_n_iter);        
+            lsamp.saveSamples(name+"_global");
+            lsamp.saveResults(name+"_global");
+            lsamp.saveResults(name+"_local_0");
+            lsamp.saveResults(name+"_local_0");
+            local_samples_ = lsamp.results();
+        } else {
+            UniformSampler<n,m> usamp(lb_global_,ub_global_);
+            usamp.addConstraints(cons_);
+            usamp.run(total_n_iter);
+            usamp.saveSamples(name+"_global");
+            usamp.saveResults(name+"_global");
+            usamp.saveResults(name+"_local_0");
+            usamp.saveResults(name+"_local_0");
+            local_samples_ = usamp.results();
         }
+    } else {
+        if (global_sampler_ == "uniform"){
+            global_sampler_ptr = std::make_unique<UniformSampler<n,m>>(lb_global_, ub_global_);
+        } else if (global_sampler_ == "RRT") {
+            global_sampler_ptr = std::make_unique<RRT<n,m>>(lb_global_, ub_global_, global_alpha_, global_use_tangent_);
+        } else if (global_sampler_ == "grid-walk") {
+            global_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_global_, global_use_tangent_);
+        } else {
+            global_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_global_, global_use_tangent_, true);
+        }
+       /*
+        if (global_optimizer_ == "biased") {
+            //global_optimizer_ptr = std::make_shared<BiasedOptimizer<n>>(lb_global_, ub_global_);
+            global_sampler_ptr->setOptimizer("biased",);
+        }*/
+
+       // global sampler
+        global_sampler_ptr->addConstraints(cons_);
+        if (use_global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_, lb_global_, ub_global_);
+        //if (global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_ptr);
+
+        // global results
+        global_sampler_ptr->run(global_n_iter_);
+        global_samples_ = global_sampler_ptr->samples();
+        global_results_ = global_sampler_ptr->results();
+        if (save_){
+            global_sampler_ptr->saveResults(name+"_global");
+            global_sampler_ptr->saveSamples(name+"_global");
+            global_sampler_ptr->saveNumIterations(name+"_global");
+        }
+
+        std::vector<bool> accepted_results;
+        if (d_min_ > 0) {
+            std::cout << "global_results_.size()" << global_results_.size() << std::endl;
+            int num_accepted{0};
+            greedyNodeRemoval(global_results_, d_min_, accepted_results, num_accepted);
+            local_n_iter_ = std::floor(total_n_iter / num_accepted);
+            std::cout << "total_n_iter: " << total_n_iter << std::endl;
+            std::cout << "local_n_iter: " << local_n_iter_ << std::endl;
+            last_n_iter = local_n_iter_ + total_n_iter - (local_n_iter_ * global_results_.size());
+            std::cout << "global_results_.size()" << global_results_.size() << std::endl;
+        }
+
+        bool local{true};
+
+        if (local_sampler_ == "uniform") {
+            local_sampler_ptr = std::make_unique<UniformSampler<n,m>>(lb_global_, ub_global_);
+        } else if (local_sampler_ == "RRT"){
+            local_sampler_ptr = std::make_unique<RRT<n,m>>(lb_global_, ub_global_, local_alpha_, local_use_tangent_);
+        } else if (local_sampler_ == "grid-walk") {
+            local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_local_, local_use_tangent_);
+        } else if (local_sampler_ == "ball-walk"){
+            // case ballwalk
+            local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_local_, local_use_tangent_, r_ballwalk_);
+        } else {
+            local_samples_ = global_results_;
+            local = false;
+        }
+      /* 
+        if (local_optimizer_ == "biased"){
+            local_optimizer_ptr = std::make_shared<BiasedOptimizer<n>>(lb_global_, ub_global_);
+        }*/
+
+        
+        if (local) {
+            // local sampler
+            local_sampler_ptr->addConstraints(cons_);
+            if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
+
+            // local results 
+            for (int i=0; i<global_results_.size() ;i++){
+                std::cout << i << std::endl;
+                if (d_min_ > 0 && !accepted_results[i]) continue; 
+                if (i-1 == global_results_.size()){ 
+                    local_n_iter_ = last_n_iter;
+                }
+                if (local_use_tangent_) {
+                   local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+                } else {
+                   local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+                }
+                if (save_) {
+                    local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
+                    local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+                    local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
+                }
+                utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
+                local_sampler_ptr->reset();
+            }
+        }
+        // probability density estimation of local samples
+
     }
-    // probability density estimation of local samples
     KernelEstimator<n,n> kdest;
     kdest.fit(local_samples_);
     if (use_bandwidth_estimator_) {
@@ -415,7 +467,7 @@ void Experiment<n,m>::run(){
     } else {
         kdest.setBandwidth(bandwidth_);
     }
-    if (sphere_radius_ > 0) {
+    if (sphere_radius_ > 0 && global_optimizer_ != "circle") {
         kdest.setSphere(sphere_radius_);
     }
     kdest.predict(lb_global_ ,ub_global_ ,delta_);
@@ -423,7 +475,7 @@ void Experiment<n,m>::run(){
         kdest.savePdes(name+"_pdes");
     }
     std::vector<double> probs;
-    probs = kdest.predict(local_samples_);
+    probs = kdest.leaveOneOutEstimation();
     if (save_) {
         utils::writeVec2File(probs,name+"_probs");
     }

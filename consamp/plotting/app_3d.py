@@ -18,6 +18,7 @@ from app_utils import *
 root_folder = os.path.abspath(os.path.join(os.path.dirname("__file__"),"..",".."))
 results_folder = os.path.join(root_folder, "results")
 global_selected_buttons = {"samples": False,
+                    "samples_removed": False,
                     "seeds": False,
                     "surface": True,
                     "projections": False}
@@ -49,6 +50,8 @@ app.layout = html.Div([
     dcc.Store(id="seeds2"),
     dcc.Store(id="pdes"),
     dcc.Store(id="pdes2"),
+    dcc.Store(id="ref"),
+    dcc.Store(id="ref2"),
     dbc.Container(id="main-container", children=[
     dbc.Row(id="experiment-select-row", children=[
         dbc.Col([
@@ -60,15 +63,25 @@ app.layout = html.Div([
                 options=experiments_dropdown_map_right,
                 value="")], width={"size":6,"order":2}),
         ]),
+    dbc.Row(id="reference-select-row", children=[
+        dbc.Col([
+            dcc.Dropdown(id="reference-select-left", multi=False,
+                options=[e for e in experiments_dropdown_map_right if "reference" in e["label"]],
+                value="")], width={"size":6,"order":1}),
+        dbc.Col([   
+            dcc.Dropdown(id="reference-select-right", multi=False,
+                options=[e for e in experiments_dropdown_map_right if "reference" in e["label"]],
+                value="")], width={"size":6,"order":2}),
+        ]),
     dbc.Row(id="local-number", children=[
         dbc.Col([
             dcc.Dropdown(id="local-left", multi=True,
                 options=[],
-                value="")], width={"size":6,"order":1}),
+                value=[-1])], width={"size":6,"order":1}),
         dbc.Col([
             dcc.Dropdown(id="local-right", multi=True,
                 options=[],
-                value="")], width={"size":6,"order":2}),
+                value=[-1])], width={"size":6,"order":2}),
         ]),
     dbc.Row(id="show-options", children=[
         dbc.Col([
@@ -107,6 +120,17 @@ def create_dropdown_options(data):
     opt.append({"label":"all","value": -1}) 
     return sorted(opt, key=lambda x: x["value"])
 
+def find_filtered(data, removed=False):
+    if len(data["local"].unique()) == 1:
+        return data
+    not_filtered = data.groupby("global")["local"].count() > 1
+    if not removed:
+        seeds_kept = not_filtered[not_filtered == True].index.values
+        #return data[not_filtered.values]
+        return data[np.isin(data["global"].values, seeds_kept)]
+    else:
+        seeds_removed = not_filtered[not_filtered == False].index.values
+        return data[np.isin(data["global"].values, seeds_removed)]
 
 @app.callback(Output("local-left","options"),
             Output("local-right","options"),
@@ -115,8 +139,8 @@ def create_dropdown_options(data):
 def update_locals(samplesj, samples2j):
     samples = pd.read_json(samplesj, orient="split")
     samples2 = pd.read_json(samples2j, orient="split")
-    opt1 = create_dropdown_options(samples)
-    opt2 = create_dropdown_options(samples2)
+    opt1 = create_dropdown_options(find_filtered(samples))
+    opt2 = create_dropdown_options(find_filtered(samples2))
     return opt1, opt2 
 
 @app.callback(Output("samples","data"),
@@ -141,6 +165,21 @@ def store_data(experiment,experiment2):
     return samples, samples2, seeds, seeds2, pdes, pdes2
 
 
+@app.callback(Output("ref","data"),
+            Output("ref2","data"),
+            [Input("reference-select-left","value"),
+            Input("reference-select-right","value")])
+def store_data(experiment,experiment2):
+    experiment_name = os.path.join(results_folder,experiment)
+    experiment_name2 = os.path.join(results_folder,experiment2)
+    samples, seeds, pdes = create_dataframe(experiment_name)
+    samples2, seeds2, pdes2 = create_dataframe(experiment_name2)
+    samples = samples.to_json(orient="split") 
+    samples2 = samples2.to_json(orient="split") 
+    return samples, samples2
+
+
+
 @app.callback(Output("graph-main","figure"),
                 [Input("global_checklist","value"),
                 Input("local_checklist","value"),
@@ -158,8 +197,8 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
     if len(global_checklist) == 0 and len(local_checklist) == 0:
         return {}
 
-    samples = pd.read_json(samplesj, orient="split")
-    samples2 = pd.read_json(samples2j, orient="split")
+    samples_raw = pd.read_json(samplesj, orient="split")
+    samples2_raw = pd.read_json(samples2j, orient="split")
     seeds = pd.read_json(seedsj, orient="split")
     seeds2 = pd.read_json(seeds2j, orient="split")
     pdes = pd.read_json(pdesj, orient="split")
@@ -168,6 +207,11 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
     plots = []
     plots2 = []
     max_col = max([pdes["pdes"].max(),pdes2["pdes"].max()])
+    samples = find_filtered(samples_raw) 
+    samples2 = find_filtered(samples2_raw)
+    samples_removed = find_filtered(samples_raw, True)
+    samples2_removed = find_filtered(samples2_raw, True)
+
     if -1 not in local_left:
         samples_plot = samples[np.isin(samples["global"].values, np.array(local_left))]
         seeds_plot = seeds[np.isin(seeds["global"].values, np.array(local_left))]
@@ -202,6 +246,9 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
 
         if "surface" in global_checklist:
             plots.append(get_surfaceplot(pdes,max_col)) 
+
+        if "samples_removed" in global_checklist:
+            plots.append(get_scatterplot(samples_removed,local=False))
     
     if dim_l  == 2:
         if "samples" in global_checklist:
@@ -240,7 +287,11 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
 
         if "surface" in global_checklist:
             plots2.append(get_surfaceplot(pdes2,max_col)) 
+
+        if "samples_removed" in global_checklist:
+            plots2.append(get_scatterplot(samples2_removed,local=False))
     
+
     if dim_r == 2:
         if "samples" in global_checklist:
             plots2.append(get_scatterplot2(samples2_plot, local=False))
@@ -279,7 +330,7 @@ def load_prob_data(experiment):
 
 def get_histogram_plot(experiment):
     data = load_prob_data(experiment)
-    plot = get_histogram(data)
+    plot = get_histogram(data, experiment)
     return plot 
 
 def resub_entropy_estimate(data):
@@ -344,13 +395,16 @@ def update_statistics(experiment, samples, samples2):
     stdev = np.std(data)
     entropy = resub_entropy_estimate(data) 
     num_samples = len(data)
-    avg_its = avg_iterations(experiment)
+    try:
+        avg_its = avg_iterations(experiment)
+    except ValueError:
+        avg_its = 0
     global_samples = get_num_global_samples(experiment)
     local_seeds = get_num_local_seeds(experiment)
     filtered_seeds = global_samples - local_seeds
 
     SRC = get_plotdata(samples,True).values[:,:-2]
-    REF = get_plotdata(samples2,True).values[:,:-2]
+    REF = get_plotdata(samples2,False).values[:,:-2]
     nn_mean_SRC_REF = get_mean_nn_dist(SRC,REF)
     nn_mean_REF = get_mean_nn_dist(REF, REF, True) 
     nn_mean_SRC = get_mean_nn_dist(SRC, SRC, True) 
@@ -371,14 +425,14 @@ def update_statistics(experiment, samples, samples2):
          "nearest_neighbor_REF",            
          "nearest_neighbor_SRC",            
          ],
-         [np.round(val,5) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds,nn_mean_SRC_REF,nn_mean_SRC_REF_norm, nn_mean_REF,nn_mean_SRC]]]})
+         [np.round(val,7) for val in [variance,stdev,entropy,num_samples,avg_its, global_samples, local_seeds, filtered_seeds,nn_mean_SRC_REF,nn_mean_SRC_REF_norm, nn_mean_REF,nn_mean_SRC]]]})
     fig = go.Figure(data=[table])
     return fig
 
 @app.callback(Output("stats-left","figure"),
 [Input("experiment-select-left","value"),
      Input("samples","data"),
-     Input("samples2","data")])
+     Input("ref","data")])
 def update_stats_left(experiment, samplesj_left, samplesj_right):
     if not experiment:
         return {}
@@ -387,15 +441,15 @@ def update_stats_left(experiment, samplesj_left, samplesj_right):
     return update_statistics(experiment,samples_left,samples_right)
 
 @app.callback(Output("stats-right","figure"),
-     [Input("experiment-select-left","value"),
-     Input("samples","data"),
-     Input("samples2","data")])
+     [Input("experiment-select-right","value"),
+     Input("samples2","data"),
+     Input("ref2","data")])
 def update_stats_right(experiment, samplesj_left, samplesj_right):
     if not experiment:
         return {}
     samples_left = pd.read_json(samplesj_left, orient="split")
     samples_right = pd.read_json(samplesj_right, orient="split")
-    return update_statistics(experiment, samples_right, samples_left)
+    return update_statistics(experiment, samples_left, samples_right)
 
 
 if __name__ == "__main__":

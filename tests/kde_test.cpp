@@ -106,5 +106,9 @@ int main(){
     check_data.push_back(std::vector<double>(2,2));
     res_2 = kdest22.predict(check_data);
     std::cout << "res_2: " << res_2[0] << res_2[1] << std::endl;
+    // kernel evaluate on data
+    std::cout << "prob: " << k.evaluateLeaveOneOut(1) << std::endl;
+    std::vector<double> llo_probs;
+    llo_probs = kdest22.leaveOneOutEstimation();
     return 0; 
 }
