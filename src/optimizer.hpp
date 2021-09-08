@@ -222,7 +222,12 @@ void BaseOptimizer<n>::setBounds(const std::vector<double>& lb, const std::vecto
 
 template<std::size_t n>
 std::vector<int> BaseOptimizer<n>::getNumIterations(){
+    /*if (num_iterations_.empty()){
+        std::vector<int> emptyvec(1,0);
+        return emptyvec;
+    } else {*/
     return num_iterations_;
+    //}
 }
 
 

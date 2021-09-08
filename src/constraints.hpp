@@ -31,6 +31,31 @@ struct ConstraintCoeffs {
     std::string constype;
 };
 
+
+template<std::size_t n>
+ConstraintCoeffs<n> createConstraintParallelAxis(int dim, int dir,  double val, std::string type) {
+    ConstraintCoeffs<n> coeffs;
+    coeffs.coeffs(dim) = dir;
+    coeffs.cons = val;
+    coeffs.constype = "linear";
+    coeffs.type = type;
+    return coeffs;
+}
+
+template<std::size_t n>
+ConstraintCoeffs<n> createConstraint2in3d(int dim1, int dim2, double val1, double val2, double val3, std::string type) {
+     // 0.5 * x.T@P@x + q.T@x+ r
+    ConstraintCoeffs<n> coeffs;
+    coeffs.P(dim1,dim1) = val1;
+    coeffs.q(dim2) = val2;
+    coeffs.r = val3;
+    coeffs.constype = "quadratic";
+    coeffs.type = type;
+    return coeffs;
+}
+
+
+
 /**
     Evaluates a linear constraint, function can be used with nlopt
     @param x Current location at which to evaluate constraint 

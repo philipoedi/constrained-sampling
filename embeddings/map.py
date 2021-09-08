@@ -2,6 +2,8 @@ import numpy as np
 import pdb
 
 
+from map import *
+
 def get_spherical(x):
     theta = np.arccos(x[2])
     phi = np.arctan2(x[1],x[0])

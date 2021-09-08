@@ -345,7 +345,7 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
     // vector of functions that eval constraint
     // get jacobian in location x
 
-    assert (this->cons_ptr_.size() == m);
+    //assert (this->cons_ptr_.size() == m);
     assert (m > 0);
     if (m==0) exit(1);
     std::vector<std::function<double(std::vector<double>&)>> funcs;

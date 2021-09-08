@@ -137,7 +137,7 @@ void BaseSampler<n,m>::saveResults(std::string name){
 template<std::size_t n, std::size_t m>
 void BaseSampler<n,m>::saveNumIterations(std::string name){
     std::string new_name;
-    new_name = name +"_num_iterations";
+    new_name = name + "_num_iterations";
     std::vector<int> num_its;
     num_its = opt_ptr_->getNumIterations();
     if (!num_its.empty()){
@@ -301,7 +301,7 @@ class SphereSampler : public UniformSampler<2,1>
 
     private:
         double r_{1};
-        std::vector<double> x0_{0,0};
+        std::vector<double> x0_{0,0,0};
 };
 
 template<typename T>

@@ -1,0 +1,12 @@
+-variance
+	-at the sample location
+-entropy
+	-
+-coverage
+	-RRT, initial seed distribution important
+-num ites
+	- not taking tangent finding in account
+	
+-biased optimizer idea
+
+

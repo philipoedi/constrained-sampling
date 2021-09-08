@@ -156,6 +156,13 @@ template<std::size_t n, std::size_t m>
 void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<double,m,n> &jac){
     createConstraintData(jac);
     x0_ = x0;
+
+
+    HouseholderQR<MatrixXd> householderQR(jac.transpose());
+    MatrixXd q;
+    q = householderQR.householderQ();  
+    theta_ = q.rightCols(n-m); 
+    if (true == false){ 
     std::vector<double> tols(m*(n-m)+(n-m)*(n-m),1e-8);
     
     opt_.add_equality_mconstraint(tangentSpaceConstraints<n,m>, this, tols);
@@ -174,6 +181,7 @@ void TangentSpace<n,m>::findTangentSpace(const AmbientVector &x0, const Matrix<d
     result  res = opt_.optimize(x, minf);
     ThetaMatrix theta(x.data());
     theta_ = theta;
+    }
 }
 
 template<std::size_t n, std::size_t m>

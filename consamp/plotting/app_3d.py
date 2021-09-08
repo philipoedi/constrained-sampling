@@ -53,6 +53,7 @@ app.layout = html.Div([
     dcc.Store(id="ref"),
     dcc.Store(id="ref2"),
     dbc.Container(id="main-container", children=[
+    html.H3("Experiment"),
     dbc.Row(id="experiment-select-row", children=[
         dbc.Col([
             dcc.Dropdown(id="experiment-select-left", multi=False,
@@ -63,6 +64,7 @@ app.layout = html.Div([
                 options=experiments_dropdown_map_right,
                 value="")], width={"size":6,"order":2}),
         ]),
+    html.H3("Reference"),
     dbc.Row(id="reference-select-row", children=[
         dbc.Col([
             dcc.Dropdown(id="reference-select-left", multi=False,
@@ -73,6 +75,7 @@ app.layout = html.Div([
                 options=[e for e in experiments_dropdown_map_right if "reference" in e["label"]],
                 value="")], width={"size":6,"order":2}),
         ]),
+    html.H3("Local Explorations"),
     dbc.Row(id="local-number", children=[
         dbc.Col([
             dcc.Dropdown(id="local-left", multi=True,
@@ -83,12 +86,15 @@ app.layout = html.Div([
                 options=[],
                 value=[-1])], width={"size":6,"order":2}),
         ]),
+    html.H3("global"),
     dbc.Row(id="show-options", children=[
         dbc.Col([
             dcc.Checklist(id="global_checklist",
                 options=global_checklist,
                 #value=[k for k in global_selected_buttons.keys()]),
                 value=[]),
+
+            html.H3("local"),
             dcc.Checklist(id="local_checklist",
                 options=local_checklist,
                 value=[])], width={"size":6}),
@@ -98,6 +104,12 @@ app.layout = html.Div([
             dcc.Graph(id="graph-main", figure={})
             ], width={"size":12})
         ]),
+    dbc.Row(id="graph-proj", children=[
+        dbc.Col([
+            dcc.Graph(id="graph-main-proj", figure={})
+            ], width={"size":12})
+        ]),
+ 
     dbc.Row(id="hist-row", children=[
         dbc.Col([
             dcc.Graph(id="hist", figure={})
@@ -121,6 +133,10 @@ def create_dropdown_options(data):
     return sorted(opt, key=lambda x: x["value"])
 
 def find_filtered(data, removed=False):
+
+    if len(data["local"].unique())-1 == len(data["global"].unique()):
+        return data
+
     if len(data["local"].unique()) == 1:
         return data
     not_filtered = data.groupby("global")["local"].count() > 1
@@ -199,8 +215,8 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
 
     samples_raw = pd.read_json(samplesj, orient="split")
     samples2_raw = pd.read_json(samples2j, orient="split")
-    seeds = pd.read_json(seedsj, orient="split")
-    seeds2 = pd.read_json(seeds2j, orient="split")
+    seeds_raw = pd.read_json(seedsj, orient="split")
+    seeds2_raw = pd.read_json(seeds2j, orient="split")
     pdes = pd.read_json(pdesj, orient="split")
     pdes2 = pd.read_json(pdes2j, orient="split")
 
@@ -211,6 +227,11 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
     samples2 = find_filtered(samples2_raw)
     samples_removed = find_filtered(samples_raw, True)
     samples2_removed = find_filtered(samples2_raw, True)
+    seeds = find_filtered(seeds_raw) 
+    seeds2 = find_filtered(seeds2_raw)
+    seeds_removed = find_filtered(seeds_raw, True)
+    seeds2_removed = find_filtered(seeds2_raw, True)
+
 
     if -1 not in local_left:
         samples_plot = samples[np.isin(samples["global"].values, np.array(local_left))]
@@ -320,6 +341,207 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
     fig.update_layout(autosize=False,height=800,width=1600)
     return fig
 
+
+def append_trace_list(trace, l):
+    if trace is not None:
+        l.append(trace)
+    return l
+
+
+@app.callback(Output("graph-main-proj","figure"),
+                [Input("global_checklist","value"),
+                Input("local_checklist","value"),
+                Input("samples","data"),
+                Input("samples2","data"),
+                Input("seeds","data"),
+                Input("seeds2","data"),
+                Input("pdes","data"),
+                Input("pdes2","data"),
+                Input("local-left","value"),
+                Input("local-right","value"),
+                ])
+def update_plot_proj(global_checklist, local_checklist, samplesj, samples2j, seedsj, seeds2j, pdesj, pdes2j, local_left, local_right):
+    #check if any selected
+    if len(global_checklist) == 0 and len(local_checklist) == 0:
+        return {}
+
+    samples_raw = pd.read_json(samplesj, orient="split")
+    samples2_raw = pd.read_json(samples2j, orient="split")
+    seeds = pd.read_json(seedsj, orient="split")
+    seeds2 = pd.read_json(seeds2j, orient="split")
+    pdes = pd.read_json(pdesj, orient="split")
+    pdes2 = pd.read_json(pdes2j, orient="split")
+
+    plots = []
+    plots2 = []
+    upper_plots2 = []
+    lower_plots2 = []
+    upper_plots = []
+    lower_plots = []
+    max_col = max([pdes["pdes"].max(),pdes2["pdes"].max()])
+    samples = find_filtered(samples_raw) 
+    samples2 = find_filtered(samples2_raw)
+    samples_removed = find_filtered(samples_raw, True)
+    samples2_removed = find_filtered(samples2_raw, True)
+
+    if -1 not in local_left:
+        samples_plot = samples[np.isin(samples["global"].values, np.array(local_left))]
+        seeds_plot = seeds[np.isin(seeds["global"].values, np.array(local_left))]
+    else:
+        samples_plot = samples
+        seeds_plot = seeds
+    
+    if -1 not in local_right:
+        samples2_plot = samples2[np.isin(samples2["global"].values,np.array(local_right))]
+        seeds2_plot = seeds2[np.isin(seeds2["global"].values, np.array(local_right))]
+    else:
+        samples2_plot = samples2
+        seeds2_plot = seeds2
+
+    dim_l = pdes.shape[1] - 1
+    dim_r = pdes2.shape[1] - 1
+    if dim_l == 3:
+        if "samples" in global_checklist:
+            u,l = get_scatterplotproj(samples_plot,local=False)
+            upper_plots = append_trace_list(u, upper_plots)
+            lower_plots = append_trace_list(l, lower_plots)
+
+        if "seeds" in global_checklist:
+            u,l = get_scatterplotproj(seeds_plot, local=False)
+            upper_plots = append_trace_list(u, upper_plots)
+            lower_plots = append_trace_list(l, lower_plots)
+
+        if "samples" in local_checklist:
+            u,l = get_scatterplotproj(samples_plot, local=True)
+            upper_plots = append_trace_list(u, upper_plots)
+            lower_plots = append_trace_list(l, lower_plots)
+
+        if "seeds" in local_checklist:
+            u,l = get_scatterplotproj(seeds_plot, local=True)
+            upper_plots.append(u)
+            lower_plots.append(l)
+
+
+        if "surface" in global_checklist:
+            u,l = get_surfaceplotproj(pdes, max_col)
+            upper_plots.append(u)
+            lower_plots.append(l) 
+            #plots2.append(get_surfaceplot(pdes2,max_col)) 
+
+        if "samples_removed" in global_checklist:
+            u,l = get_scatterplotproj(samples_removed,local=False)
+            upper_plots.append(u)
+            lower_plots.append(l)
+   
+    if dim_l  == 2:
+        if "samples" in global_checklist:
+            plots.append(get_scatterplot2proj(samples_plot, local=False))
+        
+        if "seeds" in global_checklist:
+            plots.append(get_scatterplot2proj(seeds_plot, local=False))
+        
+        if "samples" in local_checklist:
+            plots.append(get_scatterplot2proj(samples_plot, local=True))
+        
+        if "seeds" in local_checklist:
+            plots.append(get_scatterplot2proj(seeds_plot, local=True))
+
+        if "projections" in global_checklist:
+            plots.extend(get_projections2proj(samples_plot, seeds_plot, local=False))
+
+        if "surface" in global_checklist:
+            plots.append(get_surfaceplot2proj(pdes,max_col)) 
+  
+    if dim_r == 3:
+        if "samples" in global_checklist:
+            u,l = get_scatterplotproj(samples2_plot,local=False)
+            upper_plots2.append(u)
+            lower_plots2.append(l)
+
+        if "seeds" in global_checklist:
+            u,l = get_scatterplotproj(seeds2_plot, local=False)
+            upper_plots2.append(u)
+            lower_plots2.append(l)
+
+
+         
+        if "samples" in local_checklist:
+            u,l = get_scatterplotproj(samples2_plot, local=True)
+            upper_plots2.append(u)
+            lower_plots2.append(l)
+
+
+        if "seeds" in local_checklist:
+            u,l = get_scatterplotproj(seeds2_plot, local=True)
+            upper_plots2.append(u)
+            lower_plots2.append(l)
+
+
+        if "projections" in global_checklist:
+            pass
+            #plots2.extend(get_projections(samples2_plot, seeds2_plot, local=False))
+
+        if "surface" in global_checklist:
+            u,l = get_surfaceplotproj(pdes2, max_col)
+            upper_plots2.append(u)
+            lower_plots2.append(l) 
+
+        if "samples_removed" in global_checklist:
+            u,l = get_scatterplotproj(samples2_removed,local=False)
+            upper_plots2.append(u)
+            lower_plots2.append(l)
+
+   
+
+    if dim_r == 2:
+        if "samples" in global_checklist:
+            plots2.append(get_scatterplot2proj(samples2_plot, local=False))
+        
+        if "seeds" in global_checklist:
+            plots2.append(get_scatterplot2proj(seeds2_plot, local=False))
+        
+        if "samples" in local_checklist:
+            plots2.append(get_scatterplot2proj(samples2_plot, local=True))
+        
+        if "seeds" in local_checklist:
+            plots2.append(get_scatterplot2(seeds2_plot, local=True))
+
+        if "projections" in global_checklist:
+            plots2.extend(get_projections2proj(samples2_plot, seeds2_plot, local=False))
+
+        if "surface" in global_checklist:
+            plots2.append(get_surfaceplot2proj(pdes2,max_col)) 
+  
+    spec = [[{"rowspan":2},{"rowspan":2}],
+            [None,None]]
+    if dim_l == 3:
+        spec[0][0] = {}
+        spec[1][0] = {}
+    if dim_r == 3:
+        spec[0][1] = {}
+        spec[1][1] = {}
+
+    fig = make_subplots(rows=2,cols=2,specs=spec) # ,specs=[[{"type":"surface"},{"type":"surface"}]])
+
+    if dim_l == 3:
+        for traces in zip(upper_plots,lower_plots):
+            up, low = traces
+            fig.add_trace(up, row=1, col=1)
+            fig.add_trace(low, row=2, col=1)
+    else:
+        for p in plots:
+            fig.add_trace(p, row=1,col=1)
+    
+    if dim_r == 3:
+        for traces in zip(upper_plots2,lower_plots2):
+            up, low = traces
+            fig.add_trace(up, row=1, col=2)
+            fig.add_trace(low, row=2, col=2)
+    else:
+        for p in plots2:
+            fig.add_trace(p, row=1,col=2)
+    fig.update_layout(autosize=False,height=800,width=1600)
+    return fig
 
 
 def load_prob_data(experiment):
@@ -453,4 +675,4 @@ def update_stats_right(experiment, samplesj_left, samplesj_right):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, host="localhost", port=8080)

@@ -55,6 +55,8 @@ class Experiment {
         void setRBallWalk(double r);
         void setSave(bool save);
         void setFilter(double d_min);    
+        void evaluateKdes(bool eval);
+        void evaluateKdesForPlot(bool eval);
         void run();
         void setSuffix(std::string suf);
     
@@ -71,9 +73,10 @@ class Experiment {
         // RRT related parameters
         double global_alpha_;
         double local_alpha_;
-        double d_min_;
+        double d_min_{0};
         bool global_use_tangent_{false};
         bool local_use_tangent_{false};
+        bool evaluate_kdes_{true};
         // run parameters
         int global_n_iter_;
         int local_n_iter_;
@@ -99,6 +102,7 @@ class Experiment {
         bool use_local_optimizer_{true};
         bool use_global_optimizer_{true};
         bool save_{false};
+        bool evaluate_kdes_for_plot_{true};
 };
 
 template<std::size_t n, std::size_t m>
@@ -117,13 +121,18 @@ Experiment<n,m>::Experiment(
     global_optimizer_(global_optimizer),
     local_sampler_(local_sampler),
     local_optimizer_(local_optimizer) {
+    setLocalOptimizer(local_optimizer);
 
 }
 
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::setLocalOptimizer(std::string local_optimizer){
-    use_local_optimizer_ = true;
-    local_optimizer_ = local_optimizer;
+    if (local_optimizer == ""){
+        use_local_optimizer_ = false;
+    } else {
+        use_local_optimizer_ = true;
+        local_optimizer_ = local_optimizer;
+    }
 }
 
 
@@ -273,6 +282,17 @@ void Experiment<n,m>::setRBallWalk(double r){
 }
 
 template<std::size_t n, std::size_t m>
+void Experiment<n,m>::evaluateKdes(bool eval){
+    evaluate_kdes_ = eval;
+}
+
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::evaluateKdesForPlot(bool eval){
+    evaluate_kdes_for_plot_ = eval;
+}
+
+template<std::size_t n, std::size_t m>
 bool Experiment<n,m>::validOptimizer(std::string opt){
     if (opt == "rejection" || opt == "biased" || opt == "slack" || opt == "" || opt == "sphere" || opt == "circle" || opt == "line"){
         return true;
@@ -320,15 +340,17 @@ void Experiment<n,m>::run(){
     
     int total_n_iter = (local_n_iter_ == 0) ? global_n_iter_ : global_n_iter_ * local_n_iter_;
 
+    std::size_t local_n_iter_old = local_n_iter_;
     if (global_sampler_  == "reference"){ 
         if (global_optimizer_  == "sphere"){
             std::vector<double> lb_sphere{0,-sphere_radius_};
+            std::cout << "sphere_radius" << " " << sphere_radius_ << std::endl;
             std::vector<double> ub_sphere{2*M_PI,sphere_radius_};
             SphereSampler ssamp(lb_sphere, ub_sphere);
             ssamp.run(total_n_iter);
             ssamp.saveSamples(name+"_global");
             ssamp.saveResults(name+"_global");
-            ssamp.saveResults(name+"_local_0");
+            ssamp.saveSamples(name+"_local_0");
             ssamp.saveResults(name+"_local_0");
             local_samples_ = ssamp.results();
         } else if ( global_optimizer_ == "circle") {
@@ -339,7 +361,7 @@ void Experiment<n,m>::run(){
             csamp.run(total_n_iter);
             csamp.saveSamples(name+"_global");
             csamp.saveResults(name+"_global");
-            csamp.saveResults(name+"_local_0");
+            csamp.saveSamples(name+"_local_0");
             csamp.saveResults(name+"_local_0");
             local_samples_ = csamp.results();
     
@@ -354,7 +376,7 @@ void Experiment<n,m>::run(){
             lsamp.run(total_n_iter);        
             lsamp.saveSamples(name+"_global");
             lsamp.saveResults(name+"_global");
-            lsamp.saveResults(name+"_local_0");
+            lsamp.saveSamples(name+"_local_0");
             lsamp.saveResults(name+"_local_0");
             local_samples_ = lsamp.results();
         } else {
@@ -363,7 +385,7 @@ void Experiment<n,m>::run(){
             usamp.run(total_n_iter);
             usamp.saveSamples(name+"_global");
             usamp.saveResults(name+"_global");
-            usamp.saveResults(name+"_local_0");
+            usamp.saveSamples(name+"_local_0");
             usamp.saveResults(name+"_local_0");
             local_samples_ = usamp.results();
         }
@@ -408,10 +430,9 @@ void Experiment<n,m>::run(){
             std::cout << "local_n_iter: " << local_n_iter_ << std::endl;
             last_n_iter = local_n_iter_ + total_n_iter - (local_n_iter_ * global_results_.size());
             std::cout << "global_results_.size()" << global_results_.size() << std::endl;
-        }
+        } 
 
         bool local{true};
-
         if (local_sampler_ == "uniform") {
             local_sampler_ptr = std::make_unique<UniformSampler<n,m>>(lb_global_, ub_global_);
         } else if (local_sampler_ == "RRT"){
@@ -422,6 +443,10 @@ void Experiment<n,m>::run(){
             // case ballwalk
             local_sampler_ptr = std::make_unique<GridWalk<n,m>>(lb_global_, ub_global_, widths_local_, local_use_tangent_, r_ballwalk_);
         } else {
+            if (save_){
+                global_sampler_ptr->saveResults(name+"_local_0");
+                global_sampler_ptr->saveSamples(name+"_local_0");
+            }
             local_samples_ = global_results_;
             local = false;
         }
@@ -438,8 +463,12 @@ void Experiment<n,m>::run(){
 
             // local results 
             for (int i=0; i<global_results_.size() ;i++){
-                std::cout << i << std::endl;
-                if (d_min_ > 0 && !accepted_results[i]) continue; 
+                //std::cout << i << std::endl;
+                if (d_min_ > 0){
+                    if (!accepted_results[i]){
+                         continue; 
+                    }
+                }
                 if (i-1 == global_results_.size()){ 
                     local_n_iter_ = last_n_iter;
                 }
@@ -451,35 +480,44 @@ void Experiment<n,m>::run(){
                 if (save_) {
                     local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
                     local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
-                    local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
+                    if (use_local_optimizer_) {
+                        local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
+                    }
                 }
                 utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
                 local_sampler_ptr->reset();
             }
-        }
+        } 
         // probability density estimation of local samples
 
     }
-    KernelEstimator<n,n> kdest;
-    kdest.fit(local_samples_);
-    if (use_bandwidth_estimator_) {
-        kdest.find_optimal_bandwidth(bandwidth_estimator_);
-    } else {
-        kdest.setBandwidth(bandwidth_);
+    if (evaluate_kdes_) {
+        KernelEstimator<n,n> kdest;
+        std::cout << local_sampler_ << " " << local_optimizer_ << local_samples_.size() << std::endl;
+        kdest.fit(local_samples_);
+        if (use_bandwidth_estimator_) {
+            kdest.find_optimal_bandwidth(bandwidth_estimator_);
+        } else {
+            kdest.setBandwidth(bandwidth_);
+        }
+        if (evaluate_kdes_for_plot_){
+            if (sphere_radius_ > 0 && global_optimizer_ != "circle") {
+            kdest.setSphere(sphere_radius_);
+            }
+            kdest.predict(lb_global_ ,ub_global_ ,delta_);
+            if (save_) {
+                kdest.savePdes(name+"_pdes");
+            }
+        }
+        std::vector<double> probs;
+        probs = kdest.leaveOneOutEstimation();
+        if (save_) {
+            utils::writeVec2File(probs,name+"_probs");
+        }
+        //utils::shuffleVector(local_samples_);
     }
-    if (sphere_radius_ > 0 && global_optimizer_ != "circle") {
-        kdest.setSphere(sphere_radius_);
-    }
-    kdest.predict(lb_global_ ,ub_global_ ,delta_);
-    if (save_) {
-        kdest.savePdes(name+"_pdes");
-    }
-    std::vector<double> probs;
-    probs = kdest.leaveOneOutEstimation();
-    if (save_) {
-        utils::writeVec2File(probs,name+"_probs");
-    }
-    //utils::shuffleVector(local_samples_);
+    local_n_iter_ = local_n_iter_old;
+    local_samples_.clear();
 }
 
 

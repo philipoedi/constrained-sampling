@@ -6,6 +6,8 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 
+from map import * 
+
 from scipy.spatial import distance_matrix
 
 root_folder = os.path.abspath(os.path.join(os.path.dirname("__file__"), "..", ".."))
@@ -35,7 +37,7 @@ def get_experiments():
     experiments = [{"label": experiment_name(f), "value": experiment_name(f)} for f in files if "meta" in f]
     return experiments
 
-def create_dataframe(folder_path):
+def create_dataframe(folder_path,num_its=False):
     files = glob.glob(os.path.join(results_folder, folder_path,"*"))
     sample_files = [f for f in files if "samples" in f]
     seed_files = [f for f in files if "seeds" in f]
@@ -53,6 +55,8 @@ def load_pdes(filename):
     else:
         df.columns = ["x","y","pdes"]
     return df
+
+
 
 
 def read_file(filename):
@@ -149,6 +153,17 @@ def get_scatterplot(data, local):
     plotdata = get_plotdata(data, local)
     return go.Scatter3d(x=plotdata["x"], y=plotdata["y"], z=plotdata["z"],mode="markers",marker={"size":2})
 
+def get_scatterplotproj(data,local):
+    plotdata = get_plotdata(data, local)
+    upper, lower = sphere_embeddings(plotdata.values)
+    upper_plot = None
+    lower_plot = None
+    if upper is not None:
+        upper_plot = go.Scatter(x=upper[:,0],y=upper[:,1],mode="markers",marker={"size":5}) 
+    if lower is not None:
+        lower_plot = go.Scatter(x=lower[:,0],y=lower[:,1],mode="markers",marker={"size":5})
+    return upper_plot, lower_plot 
+
 def get_projections(samples, seeds, local):
     sample_data = get_plotdata(samples, local)
     seeds_data = get_plotdata(seeds, local)
@@ -156,11 +171,10 @@ def get_projections(samples, seeds, local):
     count = 0
     for index, row in seeds_data.iterrows():
         start = row[["x","y","z"]]
-        end = sample_data.iloc[index][["x","y","z"]]
+        end = sample_data.loc[index][["x","y","z"]]
         line_data = pd.concat([start,end],axis=1).T 
         figs.append(go.Scatter3d(x=line_data["x"], y=line_data["y"], z=line_data["z"],mode="lines", line={"color":"#ffe476"}))
     return figs
-
 
 
 def get_surfaceplot(data, max_col):
@@ -172,9 +186,25 @@ def get_surfaceplot(data, max_col):
     #return go.Scatter3d(x=data["x"],y=data["y"],z=data["z"],mode="markers")#z=data[["z","pdes"]])
     return go.Mesh3d(x=data["x"],y=data["y"],z=data["z"], alphahull=0, intensity=data["pdes"],cmin=0, cmax=max_col)
 
+def get_surfaceplotproj(data, max_col):
+    upper_id = data["z"] >= 0 
+    lower_id = data["z"] <= 0
+    upper, lower = sphere_embeddings(data.values)
+    upper_plot = projection_plot(upper[:,:2], data[upper_id]["pdes"].values)
+    lower_plot = projection_plot(lower[:,:2], data[lower_id]["pdes"].values)
+    return upper_plot, lower_plot
+
+
 def get_scatterplot2(data, local):
     plotdata = get_plotdata(data, local)
     return go.Scatter3d(x=plotdata["x"], y=plotdata["y"], z=np.zeros(len(plotdata)),mode="markers",marker={"size":2})
+
+
+
+def get_scatterplot2proj(data, local):
+    plotdata = get_plotdata(data, local)
+    return go.Scatter(x=plotdata["x"], y=plotdata["y"], mode="markers",marker={"size":5})
+
 
 def get_projections2(samples, seeds, local):
     sample_data = get_plotdata(samples, local)
@@ -183,9 +213,21 @@ def get_projections2(samples, seeds, local):
     count = 0
     for index, row in seeds_data.iterrows():
         start = row[["x","y"]]
-        end = sample_data.iloc[index][["x","y"]]
+        end = sample_data.loc[index][["x","y"]]
         line_data = pd.concat([start,end],axis=1).T 
         figs.append(go.Scatter3d(x=line_data["x"], y=line_data["y"], z=np.zeros(len(line_data)),mode="lines", line={"color":"#ffe476"}))
+    return figs
+
+def get_projections2proj(samples, seeds, local):
+    sample_data = get_plotdata(samples, local)
+    seeds_data = get_plotdata(seeds, local)
+    figs = []
+    count = 0
+    for index, row in seeds_data.iterrows():
+        start = row[["x","y"]]
+        end = sample_data.loc[index][["x","y"]]
+        line_data = pd.concat([start,end],axis=1).T 
+        figs.append(go.Scatter(x=line_data["x"], y=line_data["y"], mode="lines", line={"color":"#ffe476"}))
     return figs
 
 def get_surfaceplot2(data, max_col):
@@ -195,6 +237,12 @@ def get_surfaceplot2(data, max_col):
     #return go.Mesh3d(x=data["x"],y=data["y"],z=data["pdes"], alphahull=0, intensity=data["pdes"],cmin=0, cmax=max_col)
     return go.Surface(x=x,y=y,z=z)
 
+
+def get_surfaceplot2proj(data, max_col):
+    x = np.unique(data["x"].values)
+    y = np.unique(data["y"].values)
+    z = data["pdes"].values.reshape(len(x),len(y))
+    return go.Heatmap(x=x,y=y,z=z)
 
 def get_histogram(data,name):
     return go.Histogram(x=data, nbinsx=100,name=name)
