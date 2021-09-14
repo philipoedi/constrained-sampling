@@ -339,6 +339,7 @@ void Experiment<n,m>::run(){
     int last_n_iter{local_n_iter_};
     
     int total_n_iter = (local_n_iter_ == 0) ? global_n_iter_ : global_n_iter_ * local_n_iter_;
+    std::cout << global_sampler_ << " " << global_optimizer_ << " " << local_sampler_ << " " << local_optimizer_ << std::endl;
 
     std::size_t local_n_iter_old = local_n_iter_;
     if (global_sampler_  == "reference"){ 
@@ -346,8 +347,20 @@ void Experiment<n,m>::run(){
             std::vector<double> lb_sphere{0,-sphere_radius_};
             std::cout << "sphere_radius" << " " << sphere_radius_ << std::endl;
             std::vector<double> ub_sphere{2*M_PI,sphere_radius_};
+            std::vector<double> current(3);
             SphereSampler ssamp(lb_sphere, ub_sphere);
-            ssamp.run(total_n_iter);
+            while (ssamp.results().size() < total_n_iter){
+                ssamp.run(1);
+                current = ssamp.getLast();
+                if (cons_.size() > 0) {
+                    for (int i=0; i<cons_.size(); i++){
+                        if (!isFeasible<3>(current, cons_[i])){
+                            ssamp.removeLast();
+                            break;
+                        }
+                    } 
+                }
+            }
             ssamp.saveSamples(name+"_global");
             ssamp.saveResults(name+"_global");
             ssamp.saveSamples(name+"_local_0");

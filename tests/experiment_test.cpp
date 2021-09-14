@@ -85,10 +85,9 @@ int main(){
     u_b_r_n.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_n.setGlobalBounds(global_lb_sphere,global_ub_sphere);
     u_b_r_n.addConstraints(sphere);
-    //u_b_r_n.addConstraints(x_axis_cons);
-    u_b_r_n.addConstraints(y_z_cons);
+    /*u_b_r_n.addConstraints(y_z_cons);
     u_b_r_n.addConstraints(z_y_cons);
-    u_b_r_n.addConstraints(x_z_cons);
+    u_b_r_n.addConstraints(x_z_cons);*/
     u_b_r_n.setGlobalNumIter(100);
     u_b_r_n.setLocalNumIter(50);
     u_b_r_n.setLocalAlpha(0.01);
@@ -98,10 +97,9 @@ int main(){
     u_b_r_n.setGridSpacing(0.5);
     u_b_r_n.setFilter(0.25);
     u_b_r_n.setSave(true);
-    u_b_r_n.setSuffix("_filter_XXXXXX");
+    u_b_r_n.setSuffix("_filter");
     u_b_r_n.run();  
 
-    return 1;
     // RRT many global no filter
     
     Experiment<sphere_n,1> u_b_r_n2("biased","uniform","biased","RRT");
@@ -117,7 +115,7 @@ int main(){
     u_b_r_n2.setGridSpacing(0.5);
     u_b_r_n2.setSave(true);
     u_b_r_n2.setSuffix("_no_filter");
-    //u_b_r_n2.run();
+    u_b_r_n2.run();
  
     
     // RRT fe global, wide local 
@@ -136,7 +134,7 @@ int main(){
     u_b_r_n3.setGridSpacing(0.5);
     u_b_r_n3.setSave(true);
     u_b_r_n3.setSuffix("_no_filter_wide");
-    //u_b_r_n3.run();
+    u_b_r_n3.run();
 
     // RRT fe global, wide local filter 
     Experiment<sphere_n,1> u_b_r_n4("biased","uniform","biased","RRT");
@@ -153,7 +151,7 @@ int main(){
     u_b_r_n4.setGridSpacing(0.5);
     u_b_r_n4.setSave(true);
     u_b_r_n4.setSuffix("_filter_wide");
-    //u_b_r_n4.run();
+    u_b_r_n4.run();
 
 
 
@@ -248,7 +246,6 @@ int main(){
     sphere_ref.setGridSpacing(0.5);
     sphere_ref.run();
     // reference circle
-    
     /*
     Experiment<2,1> circle_ref("circle","reference","","");
     circle_ref.setLocalBounds(local_lb_circle, local_ub_circle);
@@ -416,7 +413,7 @@ int main(){
     u_b_r_b_t.evaluateKdesForPlot(false);
     u_b_r_b_t2.evaluateKdesForPlot(false);
     u_b.evaluateKdesForPlot(false);
-
+/*
     for (int i=0; i<n_samples_s; i++){
         sphere_ref.setSuffix("_ref_testing_"+to_string(i));
         u_b_r_n.setSuffix("_filter_testing_"+to_string(i));
@@ -436,6 +433,94 @@ int main(){
         u_b.run();
         sphere_ref.run();
     } 
+*/
+    sphere_ref.addConstraints(y_z_cons);
+    sphere_ref.addConstraints(z_y_cons);
+    sphere_ref.addConstraints(x_z_cons);
+    sphere_ref.setSuffix("_disconnected");
+    sphere_ref.evaluateKdesForPlot(true);
+    sphere_ref.run();
+
+    u_b_r_n.evaluateKdesForPlot(true);
+    u_b_r_n.addConstraints(y_z_cons);
+    u_b_r_n.addConstraints(z_y_cons);
+    u_b_r_n.addConstraints(x_z_cons);
+    u_b_r_n.setSuffix("_filter_disconnected");
+    u_b_r_n.run();
+    
+    u_b_r_n2.evaluateKdesForPlot(true);
+    u_b_r_n2.addConstraints(y_z_cons);
+    u_b_r_n2.addConstraints(z_y_cons);
+    u_b_r_n2.addConstraints(x_z_cons);
+    u_b_r_n2.setSuffix("_no_filter_disconnected");
+    u_b_r_n2.run();
+    
+    u_b_r_n3.evaluateKdesForPlot(true);
+    u_b_r_n3.addConstraints(y_z_cons);
+    u_b_r_n3.addConstraints(z_y_cons);
+    u_b_r_n3.addConstraints(x_z_cons);
+    u_b_r_n3.setSuffix("_no_filter_wide_disconnected");
+    u_b_r_n3.run();
+      
+    u_b_r_n4.evaluateKdesForPlot(true);
+    u_b_r_n4.addConstraints(y_z_cons);
+    u_b_r_n4.addConstraints(z_y_cons);
+    u_b_r_n4.addConstraints(x_z_cons);
+    u_b_r_n4.setSuffix("_filter_wide_disconnected");
+    u_b_r_n4.run();
+     
+    u_b_r_b_t.evaluateKdesForPlot(true);
+    u_b_r_b_t.addConstraints(y_z_cons);
+    u_b_r_b_t.addConstraints(z_y_cons);
+    u_b_r_b_t.addConstraints(x_z_cons);
+    u_b_r_b_t.setSuffix("_multiple_disconnected");
+    u_b_r_b_t.run();
+     
+    u_b_r_b_t2.evaluateKdesForPlot(true);
+    u_b_r_b_t2.addConstraints(y_z_cons);
+    u_b_r_b_t2.addConstraints(z_y_cons);
+    u_b_r_b_t2.addConstraints(x_z_cons);
+    u_b_r_b_t2.setSuffix("_single_disconnected");
+    u_b_r_b_t2.run();
+   
+
+    u_b.evaluateKdesForPlot(true);
+    u_b.addConstraints(y_z_cons);
+    u_b.addConstraints(z_y_cons);
+    u_b.addConstraints(x_z_cons);
+    u_b.setSuffix("_disconnected");
+    u_b.run(); 
+
+
+    sphere_ref.evaluateKdesForPlot(false);
+    u_b_r_n.evaluateKdesForPlot(false);
+    u_b_r_n2.evaluateKdesForPlot(false);
+    u_b_r_n3.evaluateKdesForPlot(false);
+    u_b_r_n4.evaluateKdesForPlot(false);
+    u_b_r_b_t.evaluateKdesForPlot(false);
+    u_b_r_b_t2.evaluateKdesForPlot(false);
+    u_b.evaluateKdesForPlot(false);
+/*
+    for (int i=0; i<n_samples_s; i++){
+        sphere_ref.setSuffix("_disconnected_ref_testing_"+to_string(i));
+        u_b_r_n.setSuffix("_disconnected_filter_testing_"+to_string(i));
+        u_b.setSuffix("_disconnected_testing_"+to_string(i));
+        u_b_r_n2.setSuffix("_disconnected_no_filter_testing_"+to_string(i));
+        u_b_r_n3.setSuffix("_disconnected_no_fitler_wide_testing_"+to_string(i));
+        u_b_r_n4.setSuffix("_disconnected_filter_wide_testing_"+to_string(i));
+        u_b_r_b_t.setSuffix("_disconnected_multiple_testing_"+to_string(i));
+        u_b_r_b_t2.setSuffix("_disconnected_single_testing_"+to_string(i));
+        sphere_ref.setSuffix("_disconnected_testing_"+to_string(i));
+        u_b_r_n.run();
+        u_b.run();
+        u_b_r_n2.run();
+        u_b_r_n3.run();
+        u_b_r_n4.run();
+        u_b_r_b_t.run();
+        u_b_r_b_t2.run();
+        sphere_ref.run();
+    } 
+*/
 
     // uniform_biased + metropolis_hastings_rejection
 

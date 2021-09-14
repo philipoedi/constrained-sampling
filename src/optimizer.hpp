@@ -169,11 +169,13 @@ class SlackOptimizer: public BaseOptimizer<n+m+l+l>
 template<std::size_t n>
 BaseOptimizer<n>::BaseOptimizer()
 {
-    std::cout<<"base"<<std::endl;
     local_opt_.set_xtol_rel(1e-4);
     opt_.set_xtol_rel(1e-4);
+    opt_.set_maxeval(10);
+    opt_.set_maxtime(10);
+    local_opt_.set_maxeval(10);
+    local_opt_.set_maxtime(10);
     opt_.set_local_optimizer(local_opt_);
-    std::cout<<"base2"<<std::endl;
 }
 
 template<std::size_t n>
@@ -387,6 +389,8 @@ std::vector<double> BiasedOptimizer<n>::optimize(std::vector<double> &seed){
     double minf;
     this->opt_.set_xtol_rel(1e-4);
     this->local_opt_.set_xtol_rel(1e-4);
+    this->opt_.set_maxeval(300);
+    this->local_opt_.set_maxeval(300);
     this->opt_.set_local_optimizer(this->local_opt_);
     this->opt_.set_min_objective(BiasedObjective<n>, &b_);
     try{

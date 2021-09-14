@@ -298,6 +298,8 @@ class SphereSampler : public UniformSampler<2,1>
         virtual void run (int n_iter);
         void setRadius(double r);
         void setCenter(std::vector<double> x0);
+        std::vector<double> getLast();
+        void removeLast();
 
     private:
         double r_{1};
@@ -332,7 +334,16 @@ void SphereSampler::run(int n_iter) {
         sample_xyz[2] += x0_[2];
         this->samples_.push_back(sample_xyz);
         this->results_.push_back(sample_xyz);
-    }   
+    }    
+}
+
+std::vector<double> SphereSampler::getLast(){
+    return this->samples_[this->samples_.size()-1];
+}
+
+void SphereSampler::removeLast(){
+    this->samples_.pop_back();
+    this->results_.pop_back();
 }
 
 class CircleSampler : public UniformSampler<1,1> {
