@@ -394,12 +394,16 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
             if (boundsCheck<n>(new_node_tangent.location,this->lb_,this->ub_)){
                 tree_tangent_ambient.addNode(new_node_tangent, nearest_node);
                 utils::copyEig2Vec(new_node_tangent.location, x_ambient);
-                this->samples_.push_back(x_ambient);
                 x_ambient = this->optimize(x_ambient);
-                new_node_manifold.location = Matrix<double,n,1>(x_ambient.data());
-                nearest_node = tree_.getNode(nearest_node.id);
-                tree_.addNode(new_node_manifold, nearest_node);
-                this->results_.push_back(x_ambient);
+                if (this->checkFeasible(x_ambient)){
+                    new_node_manifold.location = Matrix<double,n,1>(x_ambient.data());
+                    this->samples_.push_back(x_ambient);
+                    nearest_node = tree_.getNode(nearest_node.id);
+                    tree_.addNode(new_node_manifold, nearest_node);
+                    this->results_.push_back(x_ambient);
+                } else {
+                    this->samples_discarded_.push_back(x_ambient);
+                }
             }
         //this->samples_.push_back(utils::copyEig2Vec(target_node()));
    //     }

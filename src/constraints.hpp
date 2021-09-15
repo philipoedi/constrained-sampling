@@ -178,7 +178,7 @@ template<std::size_t n>
 bool isFeasible(std::vector<double> &x, ConstraintCoeffs<n> &cons){
    double slack = evaluateConstraint<n>(x, cons);
    if (cons.type == "eq") {
-        return (slack ==  0) ? true : false;
+        return (abs(slack) <  1e-6) ? true : false;
     } else if (cons.type == "ineq"){
         return (slack <= 0) ? true : false; 
     } else {
@@ -192,7 +192,7 @@ template<std::size_t n>
 bool isFeasiblePtr(std::vector<double> &x, ConstraintCoeffs<n> *cons){
    double slack = evaluateConstraint<n>(x, *cons);
    if (cons->type == "eq") {
-        return (slack ==  0) ? true : false;
+        return (abs(slack) <  1e-8) ? true : false;
     } else if (cons->type == "ineq"){
         return (slack <= 0) ? true : false; 
     } else {

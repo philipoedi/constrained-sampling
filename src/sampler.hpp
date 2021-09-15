@@ -43,6 +43,7 @@ class BaseSampler
         bool checkFeasible(const std::vector<double> &x);
         bool checkFeasible(const Vector &x);
         void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
+        void addConstraints(std::vector<ConstraintCoeffs<n>> &cons, bool eq_only);
         //void setOptimizer(BaseOptimizer<n> * opt);
         void setOptimizer(std::string method, std::vector<double> &lb, std::vector<double> &ub);
         void saveResults(std::string name);
@@ -55,8 +56,10 @@ class BaseSampler
     protected:
         Vector lb_, ub_, x_;
         std::size_t n_{n};
+        bool eqOnly_{false};
         std::vector<std::vector<double>> results_;
         std::vector<std::vector<double>> samples_;
+        std::vector<std::vector<double>> samples_discarded_;
         std::vector<ConstraintCoeffs<n>*> cons_ptr_;
         std::unique_ptr<BaseOptimizer<n>> opt_ptr_{nullptr};
 };
@@ -163,6 +166,12 @@ void BaseSampler<n,m>::addConstraints(std::vector<ConstraintCoeffs<n>> & cons){
 }
 
 template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::addConstraints(std::vector<ConstraintCoeffs<n>> &cons, bool eq_only){
+    addConstraints(cons);
+    eqOnly_ = eq_only;
+}
+
+template<std::size_t n, std::size_t m>
 bool BaseSampler<n,m>::checkFeasible(const std::vector<double> &x){
     if (cons_ptr_.empty()){
         return true;
@@ -190,7 +199,17 @@ template<std::size_t n, std::size_t m>
 void BaseSampler<n,m>::setOptimizer(std::string method, std::vector<double> &lb, std::vector<double> &ub){
     if (method == "biased"){
         opt_ptr_ = std::make_unique<BiasedOptimizer<n>>(lb, ub);
-        opt_ptr_->addConstraints(cons_ptr_);
+        if (eqOnly_){
+            std::vector<ConstraintCoeffs<n>*> cons_ptr_eq;
+            for (int i=0; i<cons_ptr_.size(); i++){
+                if (cons_ptr_[i]->type == "eq"){
+                    cons_ptr_eq.push_back(cons_ptr_[i]);
+                }
+            }
+            opt_ptr_->addConstraints(cons_ptr_eq);
+        } else {
+            opt_ptr_->addConstraints(cons_ptr_);
+        }
     }
 }
 
@@ -744,16 +763,29 @@ template<std::size_t n, std::size_t m>
 void MetropolisHastings<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub) {
     std::vector<double> x_i_vec = seed;
     std::vector<double> x_star_vec(n,0);
+    std::vector<double> current_vec = seed;
+
     Map<Vector> x_i(x_i_vec.data(), n);
+    Map<Vector> current(current_vec.data(), n);
     Map<Vector> x_star(x_star_vec.data(), n);
+    std::size_t n_samples{0};
     if (project_on_each_step_){
-        for (int i=0; i<n_iter; i++){
+        // x_i can stay same , not needed in tangetn sampling gridwalk
+        while (n_samples < n_iter){
+        //for (int i=0; i<n_iter; i++){
             this->tang_ = tangentSpaceFromConstraints<n,m>(this->cons_ptr_, x_i_vec, 1e-6);
             x_star = Q_(x_i);
-            this->samples_.push_back(x_star_vec);
             if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
                 x_i_vec = this->optimize(x_star_vec);
-                this->results_.push_back(x_i_vec);
+                if (this->checkFeasible(x_i_vec)){
+                    this->results_.push_back(x_i_vec);
+                    this->samples_.push_back(x_star_vec);
+                    n_samples += 1;
+                    current_vec = x_i_vec;
+                } else {
+                    x_i_vec = current_vec;
+                    this->samples_discarded_.push_back(x_star_vec);
+                }
            } 
         }
     }

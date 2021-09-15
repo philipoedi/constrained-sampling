@@ -79,15 +79,52 @@ int main(){
     const double band{2};
     const int local_n_iter{100};
     const int global_n_iter{200};
+     // gridwalk
+    Experiment<sphere_n,1> u_b_r_b_t("biased","uniform","biased","grid-walk");
+    u_b_r_b_t.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    u_b_r_b_t.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    u_b_r_b_t.addConstraints(sphere);
+    u_b_r_b_t.setGlobalNumIter(100);
+    u_b_r_b_t.addConstraints(x_z_cons);
+    u_b_r_b_t.addConstraints(y_z_cons);
+    u_b_r_b_t.setLocalNumIter(50);
+    u_b_r_b_t.setLocalAlpha(0.005);
+    u_b_r_b_t.setLocalWidths(local_w);
+    u_b_r_b_t.setBandwidth(band);
+    u_b_r_b_t.setSphere(1);
+    u_b_r_b_t.setGridSpacing(0.5);
+    u_b_r_b_t.setLocalUseTangent(true);
+    u_b_r_b_t.setSave(true);
+    u_b_r_b_t.setSuffix("_multiple");
+    u_b_r_b_t.setEqOnly(true);
+    u_b_r_b_t.run();
     
+   // gridwalk single global
+    Experiment<sphere_n,1> u_b_r_b_t2("biased","uniform","biased","grid-walk");
+    u_b_r_b_t2.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    u_b_r_b_t2.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    u_b_r_b_t2.addConstraints(sphere);
+    u_b_r_b_t2.setGlobalNumIter(1);
+    u_b_r_b_t2.setLocalNumIter(5000);
+    u_b_r_b_t2.setLocalAlpha(0.005);
+    u_b_r_b_t2.setLocalWidths(local_w);
+    u_b_r_b_t2.setBandwidth(band);
+    u_b_r_b_t2.setSphere(1);
+    u_b_r_b_t2.setGridSpacing(0.5);
+    u_b_r_b_t2.setLocalUseTangent(true);
+    u_b_r_b_t2.setSave(true);
+    u_b_r_b_t2.setSuffix("_single");
+    u_b_r_b_t2.run();
+    
+
     // RRT many global and filter 
     Experiment<sphere_n,1> u_b_r_n("biased","uniform","biased","RRT");
     u_b_r_n.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_n.setGlobalBounds(global_lb_sphere,global_ub_sphere);
     u_b_r_n.addConstraints(sphere);
-    /*u_b_r_n.addConstraints(y_z_cons);
+    u_b_r_n.addConstraints(y_z_cons);
     u_b_r_n.addConstraints(z_y_cons);
-    u_b_r_n.addConstraints(x_z_cons);*/
+    u_b_r_n.addConstraints(x_z_cons);
     u_b_r_n.setGlobalNumIter(100);
     u_b_r_n.setLocalNumIter(50);
     u_b_r_n.setLocalAlpha(0.01);
@@ -98,10 +135,11 @@ int main(){
     u_b_r_n.setFilter(0.25);
     u_b_r_n.setSave(true);
     u_b_r_n.setSuffix("_filter");
+    u_b_r_n.setEqOnly(true);
     u_b_r_n.run();  
-
     // RRT many global no filter
-    
+    return 1;
+
     Experiment<sphere_n,1> u_b_r_n2("biased","uniform","biased","RRT");
     u_b_r_n2.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_n2.setGlobalBounds(global_lb_sphere,global_ub_sphere);
@@ -155,41 +193,7 @@ int main(){
 
 
 
-    // gridwalk
-    Experiment<sphere_n,1> u_b_r_b_t("biased","uniform","biased","grid-walk");
-    u_b_r_b_t.setLocalBounds(local_lb_sphere, local_ub_sphere);
-    u_b_r_b_t.setGlobalBounds(global_lb_sphere, global_ub_sphere);
-    u_b_r_b_t.addConstraints(sphere);
-    u_b_r_b_t.setGlobalNumIter(100);
-    u_b_r_b_t.setLocalNumIter(50);
-    u_b_r_b_t.setLocalAlpha(0.005);
-    u_b_r_b_t.setLocalWidths(local_w);
-    u_b_r_b_t.setBandwidth(band);
-    u_b_r_b_t.setSphere(1);
-    u_b_r_b_t.setGridSpacing(0.5);
-    u_b_r_b_t.setLocalUseTangent(true);
-    u_b_r_b_t.setSave(true);
-    u_b_r_b_t.setSuffix("_multiple");
-    u_b_r_b_t.run();
- 
-
-   // gridwalk single global
-    Experiment<sphere_n,1> u_b_r_b_t2("biased","uniform","biased","grid-walk");
-    u_b_r_b_t2.setLocalBounds(local_lb_sphere, local_ub_sphere);
-    u_b_r_b_t2.setGlobalBounds(global_lb_sphere, global_ub_sphere);
-    u_b_r_b_t2.addConstraints(sphere);
-    u_b_r_b_t2.setGlobalNumIter(1);
-    u_b_r_b_t2.setLocalNumIter(5000);
-    u_b_r_b_t2.setLocalAlpha(0.005);
-    u_b_r_b_t2.setLocalWidths(local_w);
-    u_b_r_b_t2.setBandwidth(band);
-    u_b_r_b_t2.setSphere(1);
-    u_b_r_b_t2.setGridSpacing(0.5);
-    u_b_r_b_t2.setLocalUseTangent(true);
-    u_b_r_b_t2.setSave(true);
-    u_b_r_b_t2.setSuffix("_single");
-    u_b_r_b_t2.run();
-    
+   
     // biased optimizer only
     Experiment<sphere_n,1> u_b("biased","uniform","","");
     u_b.setLocalBounds(local_lb_sphere, local_ub_sphere);

@@ -46,6 +46,7 @@ class Experiment {
         void setGlobalWidths(const std::vector<double> &widths);
         void addConstraints(const ConstraintCoeffs<n> &con);
         void addConstraints(const std::vector<ConstraintCoeffs<n>> &cons);
+        void addConstraints(const std::vector<ConstraintCoeffs<n>> &cons, bool eq_only);
         bool validOptimizer(std::string opt);
         bool validSampler(std::string samp);
         void setBandwidth(double bandwidth);
@@ -59,7 +60,7 @@ class Experiment {
         void evaluateKdesForPlot(bool eval);
         void run();
         void setSuffix(std::string suf);
-    
+        void setEqOnly(bool eq_only); 
 
     private:
         std::string global_sampler_; // "uniform","rrt"
@@ -71,6 +72,7 @@ class Experiment {
         std::vector<double> lb_local_;
         std::vector<double> ub_local_;
         // RRT related parameters
+
         double global_alpha_;
         double local_alpha_;
         double d_min_{0};
@@ -103,6 +105,8 @@ class Experiment {
         bool use_global_optimizer_{true};
         bool save_{false};
         bool evaluate_kdes_for_plot_{true};
+        
+        bool eqOnly_{false};
 };
 
 template<std::size_t n, std::size_t m>
@@ -252,6 +256,18 @@ template<std::size_t n, std::size_t m>
 void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &cons){
     std::copy(cons.begin(),cons.end(),std::back_inserter(cons_));
 }
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &cons, bool eq_only){
+    std::copy(cons.begin(),cons.end(),std::back_inserter(cons_));
+    eqOnly_ = eq_only;
+}
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setEqOnly(bool eq_only){
+    eqOnly_ = eq_only;
+}
+
 
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::setGridSpacing(double delta){
@@ -425,6 +441,7 @@ void Experiment<n,m>::run(){
 
         // global results
         global_sampler_ptr->run(global_n_iter_);
+        std::cout << "finished global run" << std::endl;
         global_samples_ = global_sampler_ptr->samples();
         global_results_ = global_sampler_ptr->results();
         if (save_){
@@ -468,10 +485,9 @@ void Experiment<n,m>::run(){
             local_optimizer_ptr = std::make_shared<BiasedOptimizer<n>>(lb_global_, ub_global_);
         }*/
 
-        
         if (local) {
             // local sampler
-            local_sampler_ptr->addConstraints(cons_);
+            local_sampler_ptr->addConstraints(cons_, eqOnly_);
             if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
 
             // local results 
