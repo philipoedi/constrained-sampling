@@ -338,6 +338,11 @@ void RRT<n,m>::run(int n_iter){
     run(n_iter, this->lb_, this->ub_);
 }
 
+/*
+template<std::size_t n, std::size_t m>
+std::vector<double> RRT<n,m>::runMultipleOnTangent(){
+    return ;
+}*/
 
 template< std::size_t n, std::size_t m>
 void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){

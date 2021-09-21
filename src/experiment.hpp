@@ -61,6 +61,9 @@ class Experiment {
         void run();
         void setSuffix(std::string suf);
         void setEqOnly(bool eq_only); 
+        void setWeightedMultiple(bool use);
+        void setStartSteps(std::size_t steps);
+
 
     private:
         std::string global_sampler_; // "uniform","rrt"
@@ -107,6 +110,8 @@ class Experiment {
         bool evaluate_kdes_for_plot_{true};
         
         bool eqOnly_{false};
+        std::size_t start_steps_{10};
+        bool weighted_multiple_{false};
 };
 
 template<std::size_t n, std::size_t m>
@@ -330,6 +335,16 @@ bool Experiment<n,m>::validSampler(std::string samp){
         return false;
     }
 }
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setWeightedMultiple(bool use){
+    weighted_multiple_ = use;
+}
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setStartSteps(std::size_t steps){
+    start_steps_ = steps;
+}
+
 
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::run(){
@@ -489,32 +504,58 @@ void Experiment<n,m>::run(){
             // local sampler
             local_sampler_ptr->addConstraints(cons_, eqOnly_);
             if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
-
-            // local results 
-            for (int i=0; i<global_results_.size() ;i++){
-                //std::cout << i << std::endl;
-                if (d_min_ > 0){
-                    if (!accepted_results[i]){
-                         continue; 
-                    }
-                }
-                if (i-1 == global_results_.size()){ 
-                    local_n_iter_ = last_n_iter;
-                }
-                if (local_use_tangent_) {
-                   local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
-                } else {
-                   local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
-                }
+            
+            if (weighted_multiple_) {
+                std::vector<std::vector<double>> local_seeds_; 
+                std::vector<int> sample_chain_tracker = local_sampler_ptr->runMultipleOnTangent(total_n_iter, global_results_, lb_local_, ub_local_, start_steps_);
                 if (save_) {
-                    local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
-                    local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
-                    if (use_local_optimizer_) {
-                        local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
+                    for (int i=0; i<global_results_.size(); i++){
+                        for (int j=0; j<sample_chain_tracker.size(); j++){
+                            if (sample_chain_tracker[j] == i){
+                                local_samples_.push_back(local_sampler_ptr->results()[j]);
+                                local_seeds_.push_back(local_sampler_ptr->samples()[j]);
+                                utils::writeVec2File(local_samples_, name+"_local_"+std::to_string(i)+"_samples");
+                                utils::writeVec2File(local_seeds_, name+"_local_"+std::to_string(i)+"_seeds");
+                            }
+                        }
+                        local_samples_.clear();
+                        local_seeds_.clear();
                     }
+                    //local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(0));
+                    //local_sampler_ptr->saveResults(name+"_local_"+std::to_string(0));
+                    if (use_local_optimizer_) {
+                        local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(0));
+                     }
                 }
                 utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
                 local_sampler_ptr->reset();
+            } else {
+            // local results 
+                for (int i=0; i<global_results_.size() ;i++){
+                    //std::cout << i << std::endl;
+                    if (d_min_ > 0){
+                        if (!accepted_results[i]){
+                             continue; 
+                        }
+                    }
+                    if (i-1 == global_results_.size()){ 
+                        local_n_iter_ = last_n_iter;
+                    }
+                    if (local_use_tangent_) {
+                       local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+                    } else {
+                       local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+                    }
+                    if (save_) {
+                        local_sampler_ptr->saveSamples(name+"_local_"+std::to_string(i));
+                        local_sampler_ptr->saveResults(name+"_local_"+std::to_string(i));
+                        if (use_local_optimizer_) {
+                            local_sampler_ptr->saveNumIterations(name+"_local_"+std::to_string(i));
+                        }
+                    }
+                    utils::appendVec2Vec(local_sampler_ptr->results(),local_samples_);
+                    local_sampler_ptr->reset();
+                }
             }
         } 
         // probability density estimation of local samples

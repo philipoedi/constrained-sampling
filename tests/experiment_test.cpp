@@ -58,7 +58,8 @@ int main(){
     vector<double> global_lb_sphere{-3,-2,-4};
     vector<double> global_ub_sphere{4,3,2};
     ConstraintCoeffs<sphere_n> sphere = createSphere<sphere_n>(1);
-    vector<double> local_w{0.5,0.5,0.5};
+    vector<double> local_w{0.25,0.25,0.25};
+    //vector<double> local_w{0.5,0.5,0.5};
 
     //constraint on x axis
     ConstraintCoeffs<3> x_axis_cons = createConstraintParallelAxis<3>(0,1,0.2,"ineq");
@@ -84,10 +85,10 @@ int main(){
     u_b_r_b_t.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_b_t.setGlobalBounds(global_lb_sphere, global_ub_sphere);
     u_b_r_b_t.addConstraints(sphere);
-    u_b_r_b_t.setGlobalNumIter(100);
+    u_b_r_b_t.setGlobalNumIter(2);
     u_b_r_b_t.addConstraints(x_z_cons);
     u_b_r_b_t.addConstraints(y_z_cons);
-    u_b_r_b_t.setLocalNumIter(50);
+    u_b_r_b_t.setLocalNumIter(5000);
     u_b_r_b_t.setLocalAlpha(0.005);
     u_b_r_b_t.setLocalWidths(local_w);
     u_b_r_b_t.setBandwidth(band);
@@ -97,8 +98,11 @@ int main(){
     u_b_r_b_t.setSave(true);
     u_b_r_b_t.setSuffix("_multiple");
     u_b_r_b_t.setEqOnly(true);
+    u_b_r_b_t.setWeightedMultiple(true);
     u_b_r_b_t.run();
     
+
+    return 1;    
    // gridwalk single global
     Experiment<sphere_n,1> u_b_r_b_t2("biased","uniform","biased","grid-walk");
     u_b_r_b_t2.setLocalBounds(local_lb_sphere, local_ub_sphere);

@@ -117,7 +117,37 @@ int main(){
     for (int i=0; i<10 ; i++){
         std::cout << data_to_shuffle[i][0] << std::endl;
     }
-    
-    return 0;
-}
 
+
+    std::vector<std::vector<double>> sample_data;
+    std::vector<double> sample1{1,2};
+    std::vector<double> sample2{4,2};
+    std::vector<double> sample3{2,3};
+    sample_data.push_back(sample1);
+    sample_data.push_back(sample2);
+    sample_data.push_back(sample3);
+    MatrixXd data_eig;
+    data_eig = utils::MatVec2EigMat(sample_data);
+    std::cout << "copy vecvec to eig mat" << std::endl;
+    std::cout << data_eig << std::endl;
+    std::cout << utils::sampleMean<2>(sample_data) << std::endl;
+    std::cout << utils::sampleCovariance<2>(sample_data) << std::endl;
+    MatrixXd cov =  utils::sampleCovariance<2>(sample_data);
+    std::cout << utils::estimateA<2,1>(cov) << std::endl;
+    Vector3d sorter;
+    sorter << 1,3,2;
+    std::sort(sorter.data(), sorter.data()+sorter.size());
+    std::cout << sorter << std::endl;
+
+    std::size_t t{3};
+    utils::updateMean<3>(sorter, t, sorter);
+    std::cout << "mean update: " << sorter << std::endl;
+    Vector2d vec22 = utils::sampleMean<2>(sample_data); 
+    std::cout << vec22.transpose()*vec22 << std::endl;
+
+    utils::updateCovariance<2>(vec22, t, vec22, cov);
+    //std::cout << "mean update: " << sorter << std::endl;
+    return 0;
+
+}
+    

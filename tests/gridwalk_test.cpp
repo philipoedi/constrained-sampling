@@ -55,7 +55,11 @@ int main(){
     gw3.setRunOnTangent(false);
     gw3.runOnTangent(5);
     std::cout << "checking constructors " << std::endl;
-    /*
+
+    GridWalk<n,m> gw4;
+    gw4 = gw2;
+     
+/*
     GridWalk<n,m> gw3(lb, ub, w, true);
     GridWalk<n,m> gw4(lb, ub, w, true, 0.3);
     gw3.addConstraints(cons);

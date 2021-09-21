@@ -16,6 +16,11 @@ class BaseOptimizer;
 template<std::size_t n>
 class BiasedOptimizer;
 
+
+template<std::size_t n, std::size_t m>
+class GridWalk;
+
+
 #include "utils.hpp"
 #include "constraints.hpp"
 #include "optimizer.hpp"
@@ -38,6 +43,8 @@ class BaseSampler
         virtual void run(int n_iter){};
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
         virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){};
+        virtual std::vector<int> runMultipleOnTangent(int n_iter, std::vector<std::vector<double>> &seeds, std::vector<double> &lb, std::vector<double> &ub, std::size_t startsteps){
+            return std::vector<int>();};
         std::vector<std::vector<double>> results();
         std::vector<std::vector<double>> samples();
         bool checkFeasible(const std::vector<double> &x);
@@ -546,6 +553,7 @@ class MetropolisHastings: public BaseSampler<n,m>
         virtual void run(const int n_iter);
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
         virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
+        virtual std::vector<int> runMultipleOnTangent(int n_iter, std::vector<std::vector<double>> &seeds, std::vector<double> &lb, std::vector<double> &ub, std::size_t startsteps);
         double aDefault(const Vector &x_star, const Vector &x_i);
         //void saveResults(const std::string &name);
         //void saveSamples(const std::string &name);
@@ -790,6 +798,127 @@ void MetropolisHastings<n,m>::runOnTangent(int n_iter, std::vector<double> &seed
         }
     }
 }
+
+
+template<std::size_t n, std::size_t m>
+std::vector<int> MetropolisHastings<n,m>::runMultipleOnTangent(int n_iter, std::vector<std::vector<double>> &seeds, std::vector<double> &lb, std::vector<double> &ub, std::size_t startsteps){
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> u_sampler(0.0,1.0);
+    int n_chains = seeds.size();
+    std::size_t n_samples{0};
+    std::vector<double> sample(n);
+    std::vector<std::vector<double>> start_samples, last_samples;
+    std::vector<Matrix<double,n,1>> means;
+    std::vector<Matrix<double,n,n>> covs;
+    std::vector<std::size_t> num_samples;
+    std::vector<double> A;
+    Matrix<double,n,1> sample_eig; 
+    double A_total, prob_tracker{0}, u;
+    std::vector<int> sample_chain_tracker;
+    for (int i=0; i<n_chains; i++){
+        for (int j=0; j<startsteps; j++){
+            if (j==0){
+                runOnTangent(1, seeds[i], lb, ub);
+            } else {
+                runOnTangent(1, sample, lb, ub);
+            }
+            sample = this->results_.back();
+            start_samples.push_back(sample);
+            sample_chain_tracker.push_back(i);
+        }
+        means.push_back(utils::sampleMean<n>(start_samples));
+        covs.push_back(utils::sampleCovariance<n>(start_samples));
+        num_samples.push_back(startsteps); 
+        last_samples.push_back(sample); 
+        A.push_back(utils::estimateA<n,m>(covs.back()));
+        start_samples.clear();
+    }
+    std::size_t iters_left = n_iter - (startsteps * n_chains);
+    int min_ind{0};
+    double min_density{0}, density_i{0};
+    for (int i=0; i<iters_left; i++){
+        u = u_sampler(generator);
+        min_density = std::numeric_limits<double>::infinity();
+        for (int k=0; k<n_chains;k++){
+            density_i =  num_samples[k] / A[k];
+            if (density_i < min_density){
+                min_density = density_i;
+                min_ind = k;
+            }
+        }
+        prob_tracker = 0;
+        A_total = std::accumulate(A.begin(), A.end(), decltype(A)::value_type(0));
+
+        sample = last_samples[min_ind];
+        runOnTangent(1, sample,lb,ub);
+        sample = this->results_.back();
+        sample_eig = Matrix<double,n,1>(sample.data());
+        last_samples[min_ind] = sample;
+        num_samples[min_ind] += 1;
+        utils::updateCovariance<n>(sample_eig, num_samples[min_ind], means[min_ind], covs[min_ind]);                
+        A[min_ind] = utils::estimateA<n,m>(covs[min_ind]);
+        sample_chain_tracker.push_back(min_ind);
+        /* 
+        // random einfügen
+        for (int j=0; j<n_chains; j++){
+            prob_tracker += A[j]/A_total;
+            if (min_ind == j) {
+            //if (u < prob_tracker){
+                sample = last_samples[j];
+                runOnTangent(1, sample, lb, ub);        
+                sample = this->results_.back();
+                sample_eig = Matrix<double,n,1>(sample.data());
+                last_samples[j] = sample;
+                num_samples[j] += 1;
+                utils::updateCovariance<n>(sample_eig, num_samples[j], means[j], covs[j]);                
+                //utils::updateMean<n>(sample_eig, num_samples[j], means[j]);
+                A[j] = utils::estimateA<n,m>(covs[j]);
+                sample_chain_tracker.push_back(j);
+                break;
+                return sample_chain_tracker;
+            }
+        }*/
+    }
+    return sample_chain_tracker;
+}
+
+    /*
+    for (int j=0; j<startsteps){
+        for (int i=0; k<n_chains, i++){
+            sample = chains[k].results_.getlast();
+            chains[k].runOnTangent(1, seeds[i], lb, ub);
+            n_samples += 1;
+        }
+    }
+
+    for (int k=0; k<n_chains; k++){
+        chains[k].updateMean(); // if zero or not set, calculate for all results
+        chains[k].updateCovariance(); // same
+        chains[k].estimateA();
+    }
+    
+    while (n_samples < n_iter){
+        Atotal = getAtotal(chains);
+        randomnum = getRandomnumber();
+        for (int i=0; i<n_chains; i++){
+            prob_edge += chains[i].A/Atotal;
+            if (randomnum < prob_edge){
+                sample = chain[i].resultes_.getlast()
+                chain[i].runOnTangent(1,,lb,ub)
+                chain[i].updateMean();
+                chain[i].updateCovariance();
+                chain[i].estimateA();
+            }
+        }
+        prob_edge = 0;
+    }
+*/
+
+
+    //chain mean, n, cov, 
+
+
+
 
 /*
 template<std::size_t n, std::size_t m>

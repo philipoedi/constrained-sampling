@@ -281,4 +281,17 @@ namespace utils
         std::shuffle(data.begin(), data.end(), std::default_random_engine(seed)); 
     }
 
+    
+    MatrixXd MatVec2EigMat(const std::vector<std::vector<double>> &data){
+        int n_dim, m_dim;
+        n_dim = data.size();
+        m_dim = data[0].size();
+        MatrixXd data_new(n_dim,m_dim);
+        for (int i=0; i<n_dim; i++){
+            for (int j=0; j<m_dim; j++){
+                data_new(i,j) = data[i][j];
+            }
+        }
+        return data_new;
+    }
 }
