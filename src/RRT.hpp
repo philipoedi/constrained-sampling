@@ -162,6 +162,7 @@ class RRT : public BaseSampler<n,m> {
         virtual void run(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
         virtual void run(int n_iter);
         virtual void runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub);
+        virtual std::vector<int>  runMultipleOnTangent(int n_iter, std::vector<std::vector<double>> &seeds, std::vector<double> &lb, std::vector<double> &ub, std::size_t startsteps);
         void run(int n_iter, Vector &lb, Vector &ub);
         void addNode(node<n>, int nearest_ind);
         bool tangentSampleInBounds(const Matrix<double,n-m,1> &u, TangentSpace<n,m> &tang);
@@ -279,7 +280,7 @@ void RRT<n,m>::addNode(node<n> new_node, int nearest_ind){
 template< std::size_t n, std::size_t m>
 void RRT<n,m>::run(int n_iter, Vector &lb, Vector &ub){
     node<n> target_node, nearest_node, new_node;
-    std::vector<double> new_node_vec(n);
+    std::vector<double> new_node_vec(n), new_node_vec2(n);
     while (!tree_.hasRoot()  && n_iter > 0){
         target_node.location = uni_.sample();
         if (this->checkFeasible(target_node.location) && boundsCheck<n>(target_node.location, lb, ub)){
@@ -289,19 +290,32 @@ void RRT<n,m>::run(int n_iter, Vector &lb, Vector &ub){
         n_iter -= 1;
         this->samples_.push_back(utils::copyEig2Vec(target_node()));
     }
+    bool found;
     for (int i=0; i< n_iter; i++)
     {
-        target_node.location = uni_.sample();
-        nearest_node  = tree_.findNearestNode(target_node);
-//        if (squaredDistNodes(nearest_node, target_node) > alpha_) {
-            new_node = getNewNode(nearest_node, target_node, alpha_);
-            if (this->checkFeasible(new_node.location) && boundsCheck<n>(new_node.location,lb,ub)){
-                tree_.addNode(new_node, nearest_node);
-                utils::copyEig2Vec(new_node.location, new_node_vec);
-                this->results_.push_back(new_node_vec);
-            }
-  //      }
-        this->samples_.push_back(utils::copyEig2Vec(target_node()));
+        found=false;
+        while (!found){
+            target_node.location = uni_.sample();
+            nearest_node  = tree_.findNearestNode(target_node);
+    //        if (squaredDistNodes(nearest_node, target_node) > alpha_) {
+                new_node = getNewNode(nearest_node, target_node, alpha_);
+                if (this->checkFeasible(new_node.location) && boundsCheck<n>(new_node.location,lb,ub)){
+                    tree_.addNode(new_node, nearest_node);
+                    utils::copyEig2Vec(new_node.location, new_node_vec);
+                    this->results_.push_back(new_node_vec);
+                    found = true;
+                } else {
+                    new_node_vec2 = this->opt_ptr_->optimize(new_node_vec);
+                    if (this->checkFeasible(new_node_vec2) && boundsCheckVec<n>(new_node_vec2,lb,ub)){
+                        new_node.location = Matrix<double,n,1>(new_node_vec2.data());
+                        tree_.addNode(new_node, nearest_node);
+                        utils::copyEig2Vec(new_node.location, new_node_vec);
+                        this->results_.push_back(new_node_vec2);
+                        found = true;
+                    }
+                }
+            this->samples_.push_back(utils::copyEig2Vec(target_node()));
+        }
     }
 }
 
@@ -344,6 +358,138 @@ std::vector<double> RRT<n,m>::runMultipleOnTangent(){
     return ;
 }*/
 
+
+template< std::size_t n, std::size_t m>
+std::vector<int> RRT<n,m>::runMultipleOnTangent(int n_iter, std::vector<std::vector<double>> &seeds, std::vector<double> &lb, std::vector<double> &ub, std::size_t startsteps){
+    assert (m > 0);
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> u_sampler(0.0,1.0);
+    if (m==0) exit(1);
+    std::vector<std::function<double(std::vector<double>&)>> funcs;
+    ConstraintCoeffs<n> * c_ptr; 
+    for (int i=0; i<this->cons_ptr_.size(); i++){
+        c_ptr = this->cons_ptr_[i]; 
+        if (c_ptr->type == "eq"){
+            auto f = std::bind(evaluateConstraint<n>,_1, *c_ptr);
+            funcs.push_back(f);
+        }
+    }
+    double u;
+    int n_chains = seeds.size();
+    std::vector<TangentSpace<n,m>> tangs;
+    std::vector<Matrix<double,n,n>> covs;
+    std::vector<Matrix<double,n,1>> means;
+    std::vector<double> lb_ambient, ub_ambient;
+    lb_ambient = utils::slice(lb,0,n-m-1);
+    ub_ambient = utils::slice(ub,0,n-m-1);
+    std::vector<tree<n>> trees_tangent;
+    std::vector<tree<n>> trees_manifold;
+    node<n> nearest_node, root_ambient, target_node, new_node_tangent, new_node_manifold;
+    for (int i=0; i<n_chains;i++){
+        Matrix<double,m,n> jac = numericJacobian<n,m>(seeds[i],funcs,h_);
+        tangs.push_back(TangentSpace<n,m>());
+        Matrix<double,n,1> x0(seeds[i].data());
+        tangs.back().findTangentSpace(x0,jac);
+        tree<n> tree_tangent; 
+        tree<n> tree_manifold;
+        root_ambient.location = x0;
+        trees_tangent.push_back(tree<n>());
+        trees_manifold.push_back(tree<n>());
+        trees_tangent.back().setRoot(root_ambient);
+        trees_manifold.back().setRoot(root_ambient);
+    }
+    std::vector<std::vector<double>> start_samples;
+    int nearest_ind;
+    std::vector<double> x_ambient(n),A,x_manifold(n);
+    std::vector<int> num_samples;
+    std::vector<int> chain_tracker;
+    UniformSampler<n-m,0> uni_local(lb_ambient, ub_ambient);
+    std::cout << n_chains << " " << trees_tangent.size()<<std::endl;
+    
+    for (int i=0; i<n_chains; i++){
+        while (start_samples.size() < startsteps){
+        //for (int i=0; i<startsteps;i++){
+            target_node.location = tangs[i].toAmbient(uni_local.sample());
+            nearest_node = trees_tangent[i].findNearestNode(target_node);
+            new_node_tangent = getNewNode(nearest_node, target_node, alpha_);
+            if (boundsCheck<n>(new_node_tangent.location,this->lb_,this->ub_)){
+                utils::copyEig2Vec(new_node_tangent.location, x_ambient);
+                x_manifold = this->optimize(x_ambient);
+                if (this->checkFeasible(x_manifold)){
+                    trees_tangent[i].addNode(new_node_tangent, nearest_node);
+                    new_node_manifold.location = Matrix<double,n,1>(x_manifold.data());
+                    this->samples_.push_back(x_ambient);
+                    nearest_node = trees_manifold[i].getNode(nearest_node.id);
+                    trees_manifold[i].addNode(new_node_manifold, nearest_node);
+                    this->results_.push_back(x_manifold);
+                    chain_tracker.push_back(i);
+                    start_samples.push_back(x_manifold);
+                } else {
+                    this->samples_discarded_.push_back(x_manifold);
+                }
+            }
+        }
+        means.push_back(utils::sampleMean<n>(start_samples));
+        covs.push_back(utils::sampleCovariance<n>(start_samples));
+        start_samples.clear();
+        num_samples.push_back(startsteps);
+        A.push_back(utils::estimateA<n,m>(covs.back()));
+    }
+    double min_density, density_i, prob_tracker{0};
+    int min_ind;
+    int sample_count = startsteps*n_chains;
+    double A_total;
+    while (sample_count < n_iter){
+    //for (int i=0; i<n_iter; i++){
+        A_total = std::accumulate(A.begin(),A.end(), decltype(A)::value_type(0));
+        u = u_sampler(generator);
+        // epsilon greedy off == 0
+        if (u < 0.0){
+            min_density = std::numeric_limits<double>::infinity();
+            for (int i=0; i<n_chains; i++){
+                density_i = num_samples[i] / A[i];
+                if (density_i < min_density){
+                    min_density = density_i;
+                    min_ind = i;     
+                }
+            }
+        } else {
+            u = u_sampler(generator);
+            for (int i=0; i<n_chains; i++){
+                prob_tracker += A[i]/A_total;
+                if (u < prob_tracker){
+                    min_ind = i;
+                    break; 
+                }
+            }   
+        }
+        prob_tracker = 0;
+        target_node.location = tangs[min_ind].toAmbient(uni_local.sample());
+        nearest_node  = trees_tangent[min_ind].findNearestNode(target_node);
+        new_node_tangent = getNewNode(nearest_node, target_node, alpha_);
+        if (boundsCheck<n>(new_node_tangent.location,this->lb_,this->ub_)){
+            utils::copyEig2Vec(new_node_tangent.location, x_ambient);
+            x_manifold = this->optimize(x_ambient);
+            if (this->checkFeasible(x_manifold)){
+                trees_tangent[min_ind].addNode(new_node_tangent, nearest_node);
+                new_node_manifold.location = Matrix<double,n,1>(x_manifold.data());
+                this->samples_.push_back(x_ambient);
+                nearest_node = trees_manifold[min_ind].getNode(nearest_node.id);
+                trees_manifold[min_ind].addNode(new_node_manifold, nearest_node);
+                this->results_.push_back(x_manifold);
+                chain_tracker.push_back(min_ind);
+                ++sample_count;
+            } else {
+                this->samples_discarded_.push_back(x_ambient);
+            }
+            utils::updateCovariance<n>(Matrix<double,n,1>(x_manifold.data()), num_samples[min_ind], means[min_ind], covs[min_ind]);
+            A[min_ind] = utils::estimateA<n,m>(covs[min_ind]);
+        }
+    }
+    return chain_tracker; 
+}
+
+
 template< std::size_t n, std::size_t m>
 void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<double> &lb, std::vector<double> &ub){
     //this->checkNumConstraints();
@@ -362,11 +508,15 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
             funcs.push_back(f);
         }
     }
-    Matrix<double,m,n> jac = numericJacobian<n,m>(seed,funcs,h_);
-    TangentSpace<n,m> tang;
 
+    TangentSpace<n,m> tang;
     Matrix<double,n,1> x0(seed.data());
-    tang.findTangentSpace(x0,jac);
+    if (m == 0){
+        std::cout << "cannot run tang" << std::endl;
+    } else {
+        Matrix<double,m,n> jac = numericJacobian<n,m>(seed,funcs,h_);
+        tang.findTangentSpace(x0,jac);
+    }
     //set lb and ub size to fit smaller rrt tang space
     std::vector<double> lb_ambient, ub_ambient;
     lb_ambient = utils::slice(lb,0,n-m-1);
@@ -389,7 +539,7 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
     //std::pair<node<n-m>,int> sample_pair;
 
     UniformSampler<n-m,0> uni_local(lb_ambient, ub_ambient);
-
+    std::vector<double> x_manifold;
     while (this->results_.size() < n_iter){
     //for (int i=0; i<n_iter; i++){
         target_node.location = tang.toAmbient(uni_local.sample());
@@ -399,13 +549,13 @@ void RRT<n,m>::runOnTangent(int n_iter, std::vector<double> &seed, std::vector<d
             if (boundsCheck<n>(new_node_tangent.location,this->lb_,this->ub_)){
                 tree_tangent_ambient.addNode(new_node_tangent, nearest_node);
                 utils::copyEig2Vec(new_node_tangent.location, x_ambient);
-                x_ambient = this->optimize(x_ambient);
-                if (this->checkFeasible(x_ambient)){
-                    new_node_manifold.location = Matrix<double,n,1>(x_ambient.data());
+                x_manifold = this->optimize(x_ambient);
+                if (this->checkFeasible(x_manifold)){
+                    new_node_manifold.location = Matrix<double,n,1>(x_manifold.data());
                     this->samples_.push_back(x_ambient);
                     nearest_node = tree_.getNode(nearest_node.id);
                     tree_.addNode(new_node_manifold, nearest_node);
-                    this->results_.push_back(x_ambient);
+                    this->results_.push_back(x_manifold);
                 } else {
                     this->samples_discarded_.push_back(x_ambient);
                 }

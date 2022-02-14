@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include "constraints.hpp"
+#include <bitset>
+
 
 using namespace std;
 using namespace Eigen;
@@ -53,12 +55,13 @@ int main(){
 
 
     const int sphere_n{3};
-    vector<double> local_ub_sphere{0.5,0.5,0.5};
-    vector<double> local_lb_sphere{-0.5,-0.5,-0.5};
+    vector<double> local_ub_sphere{1.,1.,1.};
+    vector<double> local_lb_sphere{-1.,-1.,-1.};
     vector<double> global_lb_sphere{-3,-2,-4};
     vector<double> global_ub_sphere{4,3,2};
     ConstraintCoeffs<sphere_n> sphere = createSphere<sphere_n>(1);
     vector<double> local_w{0.25,0.25,0.25};
+    double filter_thresh = 0.5;
     //vector<double> local_w{0.5,0.5,0.5};
 
     //constraint on x axis
@@ -69,6 +72,7 @@ int main(){
     ConstraintCoeffs<3> x_z_cons = createConstraint2in3d<3>(0,2,-200,-1,-2,"ineq");
 
 
+    // bounds circle
     vector<double> global_lb_circle{-2,-2};
     vector<double> global_ub_circle{2,2};
     vector<double> local_lb_circle{-2,-2};
@@ -76,19 +80,32 @@ int main(){
     vector<double> local_lb_2d{-0.5,-0.5};
     vector<double> local_ub_2d{0.5,0.5};
 
+
+    // sphere center
+    vector<double> global_lb_sphere_sym{-2,-2,-2};
+    vector<double> global_ub_sphere_sym{2,2,2};
+    // sphere off center
+    vector<double> global_lb_sphere_non_sym{-3,-2,-4};
+    vector<double> global_ub_sphere_non_sym{4,3,2};
+
+
+
     const double grid{0.025};
     const double band{2};
     const int local_n_iter{100};
     const int global_n_iter{200};
-     // gridwalk
+    
+    
+    
     Experiment<sphere_n,1> u_b_r_b_t("biased","uniform","biased","grid-walk");
     u_b_r_b_t.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_b_t.setGlobalBounds(global_lb_sphere, global_ub_sphere);
     u_b_r_b_t.addConstraints(sphere);
-    u_b_r_b_t.setGlobalNumIter(2);
-    u_b_r_b_t.addConstraints(x_z_cons);
-    u_b_r_b_t.addConstraints(y_z_cons);
-    u_b_r_b_t.setLocalNumIter(5000);
+//    u_b_r_b_t.addConstraints(z_y_cons);
+//    u_b_r_b_t.addConstraints(x_z_cons);
+//    u_b_r_b_t.addConstraints(y_z_cons);
+    u_b_r_b_t.setLocalNumIter(50);
+    u_b_r_b_t.setGlobalNumIter(1);
     u_b_r_b_t.setLocalAlpha(0.005);
     u_b_r_b_t.setLocalWidths(local_w);
     u_b_r_b_t.setBandwidth(band);
@@ -96,20 +113,66 @@ int main(){
     u_b_r_b_t.setGridSpacing(0.5);
     u_b_r_b_t.setLocalUseTangent(true);
     u_b_r_b_t.setSave(true);
-    u_b_r_b_t.setSuffix("_multiple");
-    u_b_r_b_t.setEqOnly(true);
-    u_b_r_b_t.setWeightedMultiple(true);
     u_b_r_b_t.run();
+    //u_b_r_b_t.setSuffix("_multiple");
+    //u_b_r_b_t.setLocalEqOnly(true);
+    //u_b_r_b_t.setWeightedMultiple(true);
+	return 0;
+    
+    // RRT
+    Experiment<sphere_n,1> u_b_r_n("biased","uniform","biased","RRT");
+    u_b_r_n.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    u_b_r_n.setGlobalBounds(global_lb_sphere,global_ub_sphere);
+    u_b_r_n.addConstraints(sphere);
+    //u_b_r_n.addConstraints(y_z_cons);
+    //u_b_r_n.addConstraints(z_y_cons);
+    //u_b_r_n.addConstraints(x_z_cons);
+    u_b_r_n.setGlobalNumIter(2);
+    u_b_r_n.setLocalNumIter(25);
+    u_b_r_n.setLocalAlpha(0.0075);
+    u_b_r_n.setLocalUseTangent(true);
+    u_b_r_n.setBandwidth(band);
+    u_b_r_n.setSphere(1);
+    u_b_r_n.setGridSpacing(0.5);
+    u_b_r_n.setSave(true);
+    //u_b_r_n.setFilter(0.25);
+    //u_b_r_n.setSuffix("_filter");
+    //u_b_r_n.setLocalEqOnly(true);
+    //u_b_r_n.setGlobalEqOnly(true);
+    //u_b_r_n.setWeightedMultiple(true);
+    u_b_r_n.run();  
+    return 1;
+    
+    /*
+    // RRT fe global, wide local 
+    vector<double> local_lb_sphere3{-1,-1,-1};
+    vector<double> local_ub_sphere3{1,1,1};
+    Experiment<sphere_n,1> u_b_r_n3("biased","uniform","biased","RRT");
+    u_b_r_n3.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    //u_b_r_n3.setGlobalBounds(global_lb_sphere,global_ub_sphere);
+    u_b_r_n3.addConstraints(sphere);
+    u_b_r_n3.setGlobalNumIter(100);
+    u_b_r_n3.setLocalNumIter(50);
+    u_b_r_n3.setLocalAlpha(0.005);
+    u_b_r_n3.setLocalUseTangent(true);
+    u_b_r_n3.setBandwidth(band);
+    u_b_r_n3.setSphere(1);
+    u_b_r_n3.setGridSpacing(0.5);
+    u_b_r_n3.setSave(true);
+    //u_b_r_n3.setSuffix("_no_filter_wide");
+    //u_b_r_n3.run();
+    //u_b_r_n.resetConstraints();
+    */
+
     
 
-    return 1;    
-   // gridwalk single global
+
     Experiment<sphere_n,1> u_b_r_b_t2("biased","uniform","biased","grid-walk");
     u_b_r_b_t2.setLocalBounds(local_lb_sphere, local_ub_sphere);
-    u_b_r_b_t2.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    //u_b_r_b_t.setGlobalBounds(global_lb_sphere, global_ub_sphere);
     u_b_r_b_t2.addConstraints(sphere);
-    u_b_r_b_t2.setGlobalNumIter(1);
-    u_b_r_b_t2.setLocalNumIter(5000);
+    u_b_r_b_t2.setLocalNumIter(50);
+    u_b_r_b_t2.setGlobalNumIter(100);
     u_b_r_b_t2.setLocalAlpha(0.005);
     u_b_r_b_t2.setLocalWidths(local_w);
     u_b_r_b_t2.setBandwidth(band);
@@ -117,33 +180,261 @@ int main(){
     u_b_r_b_t2.setGridSpacing(0.5);
     u_b_r_b_t2.setLocalUseTangent(true);
     u_b_r_b_t2.setSave(true);
-    u_b_r_b_t2.setSuffix("_single");
-    u_b_r_b_t2.run();
+    //u_b_r_b_t.run();
+    
+    const int n_samples_s{4};
+    vector<string> factors{"global_filter","global_eq_only","local_eq_only","agent","symmetry"};
+    const int num_factors{5};
+    int num_experiments = pow(2,num_factors);
+    string experiment_bit;
+    /* 
+    for (int i=0; i<num_experiments; i++){
+        experiment_bit = bitset<num_factors>(i).to_string();
+        // global_filter
+        if (experiment_bit[0] == '1'){
+            u_b_r_n.setFilter(filter_thresh);
+            u_b_r_n3.setFilter(filter_thresh);
+            u_b_r_b_t.setFilter(filter_thresh);
+            u_b_r_b_t2.setFilter(filter_thresh);
+        } else {
+            u_b_r_n.setFilter(0);
+            u_b_r_n3.setFilter(0);
+            u_b_r_b_t.setFilter(0);
+            u_b_r_b_t2.setFilter(0);
+        }
+        // global_eq_only
+        if (experiment_bit[1] == '1'){
+            u_b_r_n.setGlobalEqOnly(true);
+            u_b_r_n3.setGlobalEqOnly(true);
+            u_b_r_b_t.setGlobalEqOnly(true);
+            u_b_r_b_t2.setGlobalEqOnly(true);
+        } else {
+            u_b_r_n.setGlobalEqOnly(false);
+            u_b_r_n3.setGlobalEqOnly(false);
+            u_b_r_b_t.setGlobalEqOnly(false);
+            u_b_r_b_t2.setGlobalEqOnly(false);
+        }
+        // local_eq_only
+        if (experiment_bit[2] == '1'){
+            u_b_r_n.setLocalEqOnly(true);
+            u_b_r_n3.setLocalEqOnly(true);
+            u_b_r_b_t.setLocalEqOnly(true);
+            u_b_r_b_t2.setLocalEqOnly(true);
+        } else {
+            u_b_r_n.setLocalEqOnly(false);
+            u_b_r_n3.setLocalEqOnly(false);
+            u_b_r_b_t.setLocalEqOnly(false);
+            u_b_r_b_t2.setLocalEqOnly(false);
+        }
+        //agent
+        if (experiment_bit[3] == '1'){
+            u_b_r_n.setWeightedMultiple(true);
+            u_b_r_n3.setWeightedMultiple(true);
+            u_b_r_b_t.setWeightedMultiple(true);
+            u_b_r_b_t2.setWeightedMultiple(true);
+        } else {
+            u_b_r_n.setWeightedMultiple(false);
+            u_b_r_n3.setWeightedMultiple(false);
+            u_b_r_b_t.setWeightedMultiple(false);
+            u_b_r_b_t2.setWeightedMultiple(false);
+        }
+        //symmetry
+        if (experiment_bit[4] == '1'){
+            u_b_r_n.setGlobalBounds(global_lb_sphere_sym, global_ub_sphere_sym);
+            u_b_r_n3.setGlobalBounds(global_lb_sphere_sym, global_ub_sphere_sym);
+            u_b_r_b_t.setGlobalBounds(global_lb_sphere_sym, global_ub_sphere_sym);
+            u_b_r_b_t2.setGlobalBounds(global_lb_sphere_sym, global_ub_sphere_sym);
+        } else {
+            u_b_r_n.setGlobalBounds(global_lb_sphere_non_sym, global_ub_sphere_non_sym);
+            u_b_r_n3.setGlobalBounds(global_lb_sphere_non_sym, global_ub_sphere_non_sym);
+            u_b_r_b_t.setGlobalBounds(global_lb_sphere_non_sym, global_ub_sphere_non_sym);
+            u_b_r_b_t2.setGlobalBounds(global_lb_sphere_non_sym, global_ub_sphere_non_sym);
+        }
+        u_b_r_n.setSuffix("_disconnected_"+experiment_bit+"_testing_-1");
+        u_b_r_n3.setSuffix("_"+experiment_bit+"_testing_-1");
+        u_b_r_b_t.setSuffix("_disconnected_"+experiment_bit+"_testing_-1");
+        u_b_r_b_t2.setSuffix("_"+experiment_bit+"_testing_-1");
+        u_b_r_n.run();
+        u_b_r_n3.run();
+        u_b_r_b_t.run();
+        u_b_r_b_t2.run();
+        u_b_r_n.evaluateKdesForPlot(false);
+        u_b_r_n3.evaluateKdesForPlot(false);
+        u_b_r_b_t.evaluateKdesForPlot(false);
+        u_b_r_b_t2.evaluateKdesForPlot(false);
+        for (int i=0; i<n_samples_s; i++){
+            u_b_r_n.setSuffix("_disconnected_"+experiment_bit+"_testing_"+to_string(i));
+            u_b_r_n3.setSuffix("_"+experiment_bit+"_testing_"+to_string(i));
+            u_b_r_b_t.setSuffix("_disconnected_"+experiment_bit+"_testing_"+to_string(i));
+            u_b_r_b_t2.setSuffix("_"+experiment_bit+"_testing_"+to_string(i));
+            u_b_r_n.run();
+            u_b_r_n3.run();
+            u_b_r_b_t.run();
+            u_b_r_b_t2.run();
+        } 
+        u_b_r_n.evaluateKdesForPlot(true);
+        u_b_r_n3.evaluateKdesForPlot(true);
+        u_b_r_b_t.evaluateKdesForPlot(true);
+        u_b_r_b_t2.evaluateKdesForPlot(true);
+    
+    }
+    */
+    // biased optimizer only
+    Experiment<sphere_n,1> u_b("biased","uniform","","");
+    u_b.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    //u_b.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    u_b.addConstraints(sphere);
+    u_b.setGlobalNumIter(5000);
+    u_b.setLocalNumIter(0);
+    u_b.setLocalAlpha(0.005);
+    u_b.setLocalWidths(local_w);
+    u_b.setBandwidth(band);
+    u_b.setSphere(1);
+    u_b.setGridSpacing(0.5);
+    u_b.setLocalUseTangent(true);
+    u_b.setSave(true);
+    
+    Experiment<sphere_n,1> u_b2("biased","uniform","","");
+    u_b2.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    //u_b2.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    u_b2.addConstraints(z_y_cons);
+    u_b2.addConstraints(x_z_cons);
+    u_b2.addConstraints(y_z_cons);
+    u_b2.addConstraints(sphere);
+    u_b2.setGlobalNumIter(5000);
+    u_b2.setLocalNumIter(0);
+    u_b2.setLocalAlpha(0.005);
+    u_b2.setLocalWidths(local_w);
+    u_b2.setBandwidth(band);
+    u_b2.setSphere(1);
+    u_b2.setSave(true);
+    u_b2.setGridSpacing(0.5);
+    u_b2.setLocalUseTangent(true);
     
 
-    // RRT many global and filter 
-    Experiment<sphere_n,1> u_b_r_n("biased","uniform","biased","RRT");
-    u_b_r_n.setLocalBounds(local_lb_sphere, local_ub_sphere);
-    u_b_r_n.setGlobalBounds(global_lb_sphere,global_ub_sphere);
-    u_b_r_n.addConstraints(sphere);
-    u_b_r_n.addConstraints(y_z_cons);
-    u_b_r_n.addConstraints(z_y_cons);
-    u_b_r_n.addConstraints(x_z_cons);
-    u_b_r_n.setGlobalNumIter(100);
-    u_b_r_n.setLocalNumIter(50);
-    u_b_r_n.setLocalAlpha(0.01);
-    u_b_r_n.setLocalUseTangent(true);
-    u_b_r_n.setBandwidth(band);
-    u_b_r_n.setSphere(1);
-    u_b_r_n.setGridSpacing(0.5);
-    u_b_r_n.setFilter(0.25);
-    u_b_r_n.setSave(true);
-    u_b_r_n.setSuffix("_filter");
-    u_b_r_n.setEqOnly(true);
-    u_b_r_n.run();  
-    // RRT many global no filter
+    const int num_factors_biased_only{2};
+    int num_experiments_biased_only = pow(2,num_factors_biased_only);
+    string experiment_bit_biased_only;
+    for (int i=0; i<num_experiments_biased_only; i++){
+        experiment_bit_biased_only = bitset<num_factors_biased_only>(i).to_string();
+        if (experiment_bit_biased_only[0] == '1'){
+            u_b.setGlobalEqOnly(true);
+            u_b2.setGlobalEqOnly(true);
+        } else {
+            u_b.setGlobalEqOnly(false);
+            u_b2.setGlobalEqOnly(false);
+        }
+        if (experiment_bit_biased_only[1] == '1'){
+            u_b.setGlobalBounds(global_lb_sphere_sym, global_ub_sphere_sym);
+            u_b2.setGlobalBounds(global_lb_sphere_sym, global_ub_sphere_sym);
+        } else {
+            u_b.setGlobalBounds(global_lb_sphere_non_sym, global_ub_sphere_non_sym);
+            u_b2.setGlobalBounds(global_lb_sphere_non_sym, global_ub_sphere_non_sym);
+        }
+        u_b2.setSuffix("_disconnected_"+experiment_bit_biased_only+"_testing_-1");
+        u_b.setSuffix("_"+experiment_bit_biased_only+"_testing_-1");
+        u_b.run();
+        u_b2.run();
+        u_b.evaluateKdesForPlot(false);
+        u_b2.evaluateKdesForPlot(false);
+        for (int i=0; i<n_samples_s; i++){
+            u_b.setSuffix("_"+experiment_bit_biased_only+"_testing_"+to_string(i));
+            u_b2.setSuffix("_disconnected_"+experiment_bit_biased_only+"_testing_"+to_string(i));
+            u_b.run();
+            u_b2.run();
+        } 
+        u_b.evaluateKdesForPlot(true);
+        u_b2.evaluateKdesForPlot(true);
+    
+    }
+    Experiment<3,1> sphere_ref("sphere","reference","","");
+    sphere_ref.setLocalBounds(local_lb_sphere, local_lb_sphere);
+    sphere_ref.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    sphere_ref.setLocalNumIter(0);
+    sphere_ref.setGlobalNumIter(5000);
+    sphere_ref.setSphere(1);
+    sphere_ref.setSave(true);
+    sphere_ref.setLocalUseTangent(false);
+    sphere_ref.setBandwidth(band);
+    sphere_ref.setGridSpacing(0.5);
+    sphere_ref.setSuffix("_testing_-1");
+    sphere_ref.run();
+
+
+    Experiment<3,1> sphere_ref2("sphere","reference","","");
+    sphere_ref2.setLocalBounds(local_lb_sphere, local_lb_sphere);
+    sphere_ref2.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    sphere_ref2.setLocalNumIter(0);
+    sphere_ref2.setGlobalNumIter(5000);
+    sphere_ref2.setSphere(1);
+    sphere_ref2.setSave(true);
+    sphere_ref2.setLocalUseTangent(false);
+    sphere_ref2.setBandwidth(band);
+    sphere_ref2.addConstraints(z_y_cons);
+    sphere_ref2.addConstraints(x_z_cons);
+    sphere_ref2.addConstraints(y_z_cons);
+    sphere_ref2.setGridSpacing(0.5);
+    sphere_ref2.setSuffix("_disconnnected_testing_-1");
+    sphere_ref2.run();
+
+    sphere_ref.evaluateKdesForPlot(false);
+    sphere_ref2.evaluateKdesForPlot(false);
+
+    for (int i=0; i<n_samples_s; i++){
+        sphere_ref.setSuffix("_testing_"+to_string(i));
+        sphere_ref2.setSuffix("_disconnected_testing_"+to_string(i));
+        sphere_ref.run();
+        sphere_ref2.run();
+    }
+
+
+    return 1;
+    /*
+    for (int i=0; i<n_samples_s; i++){
+    //sphere_ref.setSuffix("_disconnected_ref_testing_"+to_string(i));
+        //u_b_r_n.setSuffix("_disconnected_filter_testing_"+to_string(i));
+        u_b.setSuffix("_disconnected_testing_"+to_string(i));
+        u_b_r_n2.setSuffix("_disconnected_no_filter_testing_"+to_string(i));
+        u_b_r_n3.setSuffix("_disconnected_no_fitler_wide_testing_"+to_string(i));
+        u_b_r_n4.setSuffix("_disconnected_filter_wide_testing_"+to_string(i));
+        u_b_r_b_t.setSuffix("_disconnected_multiple_testing_"+to_string(i));
+        u_b_r_b_t2.setSuffix("_disconnected_single_testing_"+to_string(i));
+        sphere_ref.setSuffix("_disconnected_testing_"+to_string(i));
+        u_b_r_n.run();
+        u_b.run();
+        u_b_r_n2.run();
+        u_b_r_n3.run();
+        u_b_r_n4.run();
+        u_b_r_b_t.run();
+        u_b_r_b_t2.run();
+        sphere_ref.run();
+    } 
+
+
     return 1;
 
+    
+    // gridwalk
+   
+
+   // gridwalk single global
+    Experiment<sphere_n,1> u_b_r_b_t3("biased","uniform","biased","grid-walk");
+    u_b_r_b_t3.setLocalBounds(local_lb_sphere, local_ub_sphere);
+    u_b_r_b_t3.setGlobalBounds(global_lb_sphere, global_ub_sphere);
+    u_b_r_b_t3.addConstraints(sphere);
+    u_b_r_b_t3.setGlobalNumIter(1);
+    u_b_r_b_t3.setLocalNumIter(5000);
+    u_b_r_b_t3.setLocalAlpha(0.005);
+    u_b_r_b_t3.setLocalWidths(local_w);
+    u_b_r_b_t3.setBandwidth(band);
+    u_b_r_b_t3.setSphere(1);
+    u_b_r_b_t3.setGridSpacing(0.5);
+    u_b_r_b_t3.setLocalUseTangent(true);
+    u_b_r_b_t3.setSave(true);
+    u_b_r_b_t3.setSuffix("_single");
+    u_b_r_b_t3.run();
+    
+    // RRT many global no filter
     Experiment<sphere_n,1> u_b_r_n2("biased","uniform","biased","RRT");
     u_b_r_n2.setLocalBounds(local_lb_sphere, local_ub_sphere);
     u_b_r_n2.setGlobalBounds(global_lb_sphere,global_ub_sphere);
@@ -160,23 +451,8 @@ int main(){
     u_b_r_n2.run();
  
     
-    // RRT fe global, wide local 
-    vector<double> local_lb_sphere3{-1,-1,-1};
-    vector<double> local_ub_sphere3{1,1,1};
-    Experiment<sphere_n,1> u_b_r_n3("biased","uniform","biased","RRT");
-    u_b_r_n3.setLocalBounds(local_lb_sphere3, local_ub_sphere3);
-    u_b_r_n3.setGlobalBounds(global_lb_sphere,global_ub_sphere);
-    u_b_r_n3.addConstraints(sphere);
-    u_b_r_n3.setGlobalNumIter(100);
-    u_b_r_n3.setLocalNumIter(50);
-    u_b_r_n3.setLocalAlpha(0.005);
-    u_b_r_n3.setLocalUseTangent(true);
-    u_b_r_n3.setBandwidth(band);
-    u_b_r_n3.setSphere(1);
-    u_b_r_n3.setGridSpacing(0.5);
-    u_b_r_n3.setSave(true);
-    u_b_r_n3.setSuffix("_no_filter_wide");
-    u_b_r_n3.run();
+    return 1;
+    
 
     // RRT fe global, wide local filter 
     Experiment<sphere_n,1> u_b_r_n4("biased","uniform","biased","RRT");
@@ -198,24 +474,7 @@ int main(){
 
 
    
-    // biased optimizer only
-    Experiment<sphere_n,1> u_b("biased","uniform","","");
-    u_b.setLocalBounds(local_lb_sphere, local_ub_sphere);
-    u_b.setGlobalBounds(global_lb_sphere, global_ub_sphere);
-    u_b.addConstraints(sphere);
-    u_b.setGlobalNumIter(5000);
-    u_b.setLocalNumIter(0);
-    u_b.setLocalAlpha(0.005);
-    u_b.setLocalWidths(local_w);
-    u_b.setBandwidth(band);
-    u_b.setSphere(1);
-    u_b.setGridSpacing(0.5);
-    u_b.setLocalUseTangent(true);
-    u_b.setSave(true);
-    u_b.setSuffix("");
-    u_b.run();
-    
-
+    */
 
     // 2d examples
 
@@ -240,7 +499,7 @@ int main(){
     u_b_2d.setSuffix("_2d");
     u_b_2d.run();
     */
-
+/*
     // reference sphere
     Experiment<3,1> sphere_ref("sphere","reference","","");
     sphere_ref.setLocalBounds(local_lb_sphere, local_lb_sphere);
@@ -253,7 +512,7 @@ int main(){
     sphere_ref.setBandwidth(band);
     sphere_ref.setGridSpacing(0.5);
     sphere_ref.run();
-    // reference circle
+ */   // reference circle
     /*
     Experiment<2,1> circle_ref("circle","reference","","");
     circle_ref.setLocalBounds(local_lb_circle, local_ub_circle);
@@ -410,18 +669,7 @@ int main(){
     // Multiple samples
     // ------------------
 
-    const int n_samples_s{100};
-
-
-    sphere_ref.evaluateKdesForPlot(false);
-    u_b_r_n.evaluateKdesForPlot(false);
-    u_b_r_n2.evaluateKdesForPlot(false);
-    u_b_r_n3.evaluateKdesForPlot(false);
-    u_b_r_n4.evaluateKdesForPlot(false);
-    u_b_r_b_t.evaluateKdesForPlot(false);
-    u_b_r_b_t2.evaluateKdesForPlot(false);
-    u_b.evaluateKdesForPlot(false);
-/*
+    /*
     for (int i=0; i<n_samples_s; i++){
         sphere_ref.setSuffix("_ref_testing_"+to_string(i));
         u_b_r_n.setSuffix("_filter_testing_"+to_string(i));
@@ -441,7 +689,7 @@ int main(){
         u_b.run();
         sphere_ref.run();
     } 
-*/
+*/ /*
     sphere_ref.addConstraints(y_z_cons);
     sphere_ref.addConstraints(z_y_cons);
     sphere_ref.addConstraints(x_z_cons);
@@ -507,7 +755,7 @@ int main(){
     u_b_r_n4.evaluateKdesForPlot(false);
     u_b_r_b_t.evaluateKdesForPlot(false);
     u_b_r_b_t2.evaluateKdesForPlot(false);
-    u_b.evaluateKdesForPlot(false);
+    u_b.evaluateKdesForPlot(false);*/
 /*
     for (int i=0; i<n_samples_s; i++){
         sphere_ref.setSuffix("_disconnected_ref_testing_"+to_string(i));
@@ -535,7 +783,4 @@ int main(){
     // uniform_rejection + metropolis_hastings_biased
 
     // uniform_rejection + rrt_rejection
-
-
-
 }

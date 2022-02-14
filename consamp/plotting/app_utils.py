@@ -12,7 +12,7 @@ from scipy.spatial import distance_matrix
 
 root_folder = os.path.abspath(os.path.join(os.path.dirname("__file__"), "..", ".."))
 results_folder = os.path.join(root_folder, "results")
-
+colors = {"global samples": "purple", "global seeds":"red", "local seeds":"orange", "local samples":"green","removed seeds":"blue"}
 
 def experiment_name(path):
     """
@@ -41,10 +41,12 @@ def create_dataframe(folder_path,num_its=False):
     files = glob.glob(os.path.join(results_folder, folder_path,"*"))
     sample_files = [f for f in files if "samples" in f]
     seed_files = [f for f in files if "seeds" in f]
+    print(len(seed_files))
     pdes_file = [f for f in files if "pdes" in f]
     samples = load_data(sample_files)
     seeds = load_data(seed_files)
     pdes = load_pdes(pdes_file[0])
+    print(len(pdes),len(seeds), len(samples))
     return samples, seeds, pdes
 
 def load_pdes(filename):
@@ -149,9 +151,10 @@ def get_plotdata(data, local):
     else:
         return data[data["local"] == -1]
 
-def get_scatterplot(data, local):
+def get_scatterplot(data, local, points,showlegend=True):
     plotdata = get_plotdata(data, local)
-    return go.Scatter3d(x=plotdata["x"], y=plotdata["y"], z=plotdata["z"],mode="markers",marker={"size":2})
+    color = colors[points]
+    return go.Scatter3d(x=plotdata["x"], y=plotdata["y"], z=plotdata["z"],mode="markers",marker={"size":2,"color":color},showlegend=showlegend, name=points)
 
 def get_scatterplotproj(data,local):
     plotdata = get_plotdata(data, local)
@@ -184,7 +187,7 @@ def get_surfaceplot(data, max_col):
     z["ww"] = data["z"]
     #return go.Surface(x=data["x"],y=data["y"],z=z.values)#z=data[["z","pdes"]])
     #return go.Scatter3d(x=data["x"],y=data["y"],z=data["z"],mode="markers")#z=data[["z","pdes"]])
-    return go.Mesh3d(x=data["x"],y=data["y"],z=data["z"], alphahull=0, intensity=data["pdes"],cmin=0, cmax=max_col)
+    return go.Mesh3d(x=data["x"],y=data["y"],z=data["z"], alphahull=0, intensity=data["pdes"],cmin=0, cmax=max_col,showlegend=False)
 
 def get_surfaceplotproj(data, max_col):
     upper_id = data["z"] >= 0 

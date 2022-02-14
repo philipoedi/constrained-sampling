@@ -178,6 +178,7 @@ def store_data(experiment,experiment2):
     seeds2 = seeds2.to_json(orient="split") 
     pdes = pdes.to_json(orient="split") 
     pdes2 = pdes2.to_json(orient="split") 
+    print("hi",len(pdes),len(pdes2),len(samples),len(samples2),len(seeds),len(seeds2))
     return samples, samples2, seeds, seeds2, pdes, pdes2
 
 
@@ -185,7 +186,7 @@ def store_data(experiment,experiment2):
             Output("ref2","data"),
             [Input("reference-select-left","value"),
             Input("reference-select-right","value")])
-def store_data(experiment,experiment2):
+def store_data_ref(experiment,experiment2):
     experiment_name = os.path.join(results_folder,experiment)
     experiment_name2 = os.path.join(results_folder,experiment2)
     samples, seeds, pdes = create_dataframe(experiment_name)
@@ -232,7 +233,7 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
     seeds_removed = find_filtered(seeds_raw, True)
     seeds2_removed = find_filtered(seeds2_raw, True)
 
-
+    
     if -1 not in local_left:
         samples_plot = samples[np.isin(samples["global"].values, np.array(local_left))]
         seeds_plot = seeds[np.isin(seeds["global"].values, np.array(local_left))]
@@ -251,16 +252,16 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
     dim_r = pdes2.shape[1] - 1
     if dim_l == 3:
         if "samples" in global_checklist:
-            plots.append(get_scatterplot(samples_plot, local=False))
+            plots.append(get_scatterplot(samples_plot, local=False, points="global samples",showlegend=False))
         
         if "seeds" in global_checklist:
-            plots.append(get_scatterplot(seeds_plot, local=False))
+            plots.append(get_scatterplot(seeds_plot, local=False, points="global seeds",showlegend=False))
         
         if "samples" in local_checklist:
-            plots.append(get_scatterplot(samples_plot, local=True))
+            plots.append(get_scatterplot(samples_plot, local=True, points="local samples",showlegend=False))
         
         if "seeds" in local_checklist:
-            plots.append(get_scatterplot(seeds_plot, local=True))
+            plots.append(get_scatterplot(seeds_plot, local=True, points="local seeds",showlegend=False))
 
         if "projections" in global_checklist:
             plots.extend(get_projections(samples_plot, seeds_plot, local=False))
@@ -269,7 +270,7 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
             plots.append(get_surfaceplot(pdes,max_col)) 
 
         if "samples_removed" in global_checklist:
-            plots.append(get_scatterplot(samples_removed,local=False))
+            plots.append(get_scatterplot(samples_removed,local=False,points="removed seeds",showlegend=False))
     
     if dim_l  == 2:
         if "samples" in global_checklist:
@@ -292,16 +293,16 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
   
     if dim_r == 3:
         if "samples" in global_checklist:
-            plots2.append(get_scatterplot(samples2_plot, local=False))
+            plots2.append(get_scatterplot(samples2_plot, local=False, points="global samples"))
         
         if "seeds" in global_checklist:
-            plots2.append(get_scatterplot(seeds2_plot, local=False))
+            plots2.append(get_scatterplot(seeds2_plot, local=False, points="global seeds"))
         
         if "samples" in local_checklist:
-            plots2.append(get_scatterplot(samples2_plot, local=True))
+            plots2.append(get_scatterplot(samples2_plot, local=True, points="local samples"))
         
         if "seeds" in local_checklist:
-            plots2.append(get_scatterplot(seeds2_plot, local=True))
+            plots2.append(get_scatterplot(seeds2_plot, local=True, points="local seeds"))
 
         if "projections" in global_checklist:
             plots2.extend(get_projections(samples2_plot, seeds2_plot, local=False))
@@ -310,7 +311,7 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
             plots2.append(get_surfaceplot(pdes2,max_col)) 
 
         if "samples_removed" in global_checklist:
-            plots2.append(get_scatterplot(samples2_removed,local=False))
+            plots2.append(get_scatterplot(samples2_removed,local=False, points="removed seeds"))
     
 
     if dim_r == 2:
@@ -337,8 +338,12 @@ def update_plot(global_checklist, local_checklist, samplesj, samples2j, seedsj, 
     fig = make_subplots(rows=1,cols=2,specs=[[{"type":"surface"},{"type":"surface"}]])
     for c , plot_data in enumerate([plots, plots2]):
         for p in plot_data:
-            fig.add_trace(p, row=1, col=c+1)    
-    fig.update_layout(autosize=False,height=800,width=1600)
+            fig.add_trace(p, row=1, col=c+1)
+    if dim_r == 3:
+        fig.update_layout(autosize=False,height=800,width=1600,template="plotly_white", xaxis_showgrid=True,yaxis_showgrid=True,
+        xaxis_mirror=True,yaxis_mirror=True, font=dict(size=14),legend={"itemsizing":"constant"})
+    else:
+        fig.update_layout(autosize=False,height=800,width=1600)
     return fig
 
 

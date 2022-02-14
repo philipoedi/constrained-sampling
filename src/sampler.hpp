@@ -10,6 +10,8 @@
 #include <memory>
 #include "tangent.hpp"
 
+
+
 template<std::size_t n>
 class BaseOptimizer;
 
@@ -47,6 +49,7 @@ class BaseSampler
             return std::vector<int>();};
         std::vector<std::vector<double>> results();
         std::vector<std::vector<double>> samples();
+        void setResults(std::vector<std::vector<double>> &res);
         bool checkFeasible(const std::vector<double> &x);
         bool checkFeasible(const Vector &x);
         void addConstraints(std::vector<ConstraintCoeffs<n>> &cons);
@@ -67,6 +70,7 @@ class BaseSampler
         std::vector<std::vector<double>> results_;
         std::vector<std::vector<double>> samples_;
         std::vector<std::vector<double>> samples_discarded_;
+        std::vector<std::vector<double>> results_discarded_;
         std::vector<ConstraintCoeffs<n>*> cons_ptr_;
         std::unique_ptr<BaseOptimizer<n>> opt_ptr_{nullptr};
 };
@@ -84,6 +88,13 @@ void BaseSampler<n,m>::setBounds(const Vector &lb, const Vector &ub)
 {
     lb_=lb;
     ub_=ub;
+};
+
+
+template<std::size_t n, std::size_t m>
+void BaseSampler<n,m>::setResults(std::vector<std::vector<double>> &res){
+    results_.clear();
+    results_ = res;
 };
 
 
@@ -284,19 +295,26 @@ void UniformSampler<n,m>::run(int n_iter, Vector &lb, Vector &ub){
     while (num_samples < n_iter) {
     //for (int i=0; i<n_iter; i++){
         utils::copyEig2Vec(sample(), sample_vec);
-        this->samples_.push_back(sample_vec);
+        //this->samples_.push_back(sample_vec);
         if (this->opt_ptr_ == nullptr) {
            //if (isFeasibleM<n>(sample_vec, this->cons_ptr_) && boundsCheckVec<n>(sample_vec,lb,ub)) {
-           if (this->checkFeasible(sample_vec) && boundsCheckVec<n>(sample_vec,lb,ub)) {
-              this->results_.push_back(sample_vec); 
-              num_samples++;
-           }
+            if (this->checkFeasible(sample_vec) && boundsCheckVec<n>(sample_vec,lb,ub)) {
+                this->results_.push_back(sample_vec); 
+                this->samples_.push_back(sample_vec);
+                num_samples++;
+            }
         } else {
-           if (boundsCheckVec<n>(sample_vec,lb,ub)){
-              result = this->opt_ptr_->optimize(sample_vec);
-              this->results_.push_back(result);
-              num_samples++;
-           }
+            if (boundsCheckVec<n>(sample_vec,lb,ub)){
+                result = this->opt_ptr_->optimize(sample_vec);
+                if (this->checkFeasible(result)){
+                    this->samples_.push_back(sample_vec);
+                    this->results_.push_back(result);
+                    num_samples++;
+                } else {
+                    this->samples_discarded_.push_back(sample_vec);
+                    this->results_discarded_.push_back(result);
+                }
+            }
         }
     }
 }
@@ -740,18 +758,26 @@ void MetropolisHastings<n,m>::run(int n_iter, std::vector<double> &seed, std::ve
     std::vector<double> x_star_vec(n,0);
     Map<Vector> x_i(x_i_vec.data(),n);
     Map<Vector> x_star(x_star_vec.data(),n);
+    bool found{false};
     for (int i=0; i<n_iter; i++){
-        x_star = Q_(x_i);
-        this->samples_.push_back(x_star_vec);
-        if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
-            if (!this->checkFeasible(x_star)) {
-                if (this->hasOptimizer()){
-                    x_i_vec = this->optimize(x_star_vec);                  
-                    this->results_.push_back(x_i_vec);
+        found =  false;
+        while (!found){
+            x_star = Q_(x_i);
+            this->samples_.push_back(x_star_vec);
+            if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
+                if (!this->checkFeasible(x_star)) {
+                    if (this->hasOptimizer()){
+                        x_i_vec = this->optimize(x_star_vec);                  
+                        if (this->checkFeasible(x_i_vec)){
+                           this->results_.push_back(x_i_vec);
+                            found = true;
+                        }
+                    }
+                 } else {
+                    this->results_.push_back(x_star_vec);
+                    x_i = x_star;
+                    found = true;
                 }
-             } else {
-                this->results_.push_back(x_i_vec);
-                x_i = x_star;
             }
         }
     }
@@ -785,6 +811,7 @@ void MetropolisHastings<n,m>::runOnTangent(int n_iter, std::vector<double> &seed
             x_star = Q_(x_i);
             if (boundsCheck<n>(x_star, this->lb_, this->ub_)){
                 x_i_vec = this->optimize(x_star_vec);
+                new (&x_i) Map<Vector>(x_i_vec.data(),n);
                 if (this->checkFeasible(x_i_vec)){
                     this->results_.push_back(x_i_vec);
                     this->samples_.push_back(x_star_vec);
@@ -792,7 +819,9 @@ void MetropolisHastings<n,m>::runOnTangent(int n_iter, std::vector<double> &seed
                     current_vec = x_i_vec;
                 } else {
                     x_i_vec = current_vec;
+                    new (&x_i) Map<Vector>(x_i_vec.data(),n);
                     this->samples_discarded_.push_back(x_star_vec);
+                    this->results_discarded_.push_back(x_i_vec);
                 }
            } 
         }
@@ -837,18 +866,30 @@ std::vector<int> MetropolisHastings<n,m>::runMultipleOnTangent(int n_iter, std::
     int min_ind{0};
     double min_density{0}, density_i{0};
     for (int i=0; i<iters_left; i++){
+        A_total = std::accumulate(A.begin(), A.end(), decltype(A)::value_type(0));
         u = u_sampler(generator);
         min_density = std::numeric_limits<double>::infinity();
-        for (int k=0; k<n_chains;k++){
-            density_i =  num_samples[k] / A[k];
-            if (density_i < min_density){
-                min_density = density_i;
-                min_ind = k;
+        // epsilon greedy epsilon, without = 0.0 
+        if (u < 0.0){
+            for (int k=0; k<n_chains;k++){
+                density_i =  num_samples[k] / A[k];
+                if (density_i < min_density){
+                    min_density = density_i;
+                    min_ind = k;
+                }
+            }
+        } else {
+            u = u_sampler(generator);
+            for (int k=0; k<n_chains;k++){
+                prob_tracker += A[k]/A_total;
+                //prob_tracker += 1./n_chains;
+                if (u < prob_tracker){
+                    min_ind = k;
+                    break;
+                }
             }
         }
         prob_tracker = 0;
-        A_total = std::accumulate(A.begin(), A.end(), decltype(A)::value_type(0));
-
         sample = last_samples[min_ind];
         runOnTangent(1, sample,lb,ub);
         sample = this->results_.back();

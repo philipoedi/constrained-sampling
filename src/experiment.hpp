@@ -46,7 +46,7 @@ class Experiment {
         void setGlobalWidths(const std::vector<double> &widths);
         void addConstraints(const ConstraintCoeffs<n> &con);
         void addConstraints(const std::vector<ConstraintCoeffs<n>> &cons);
-        void addConstraints(const std::vector<ConstraintCoeffs<n>> &cons, bool eq_only);
+        void addConstraints(const std::vector<ConstraintCoeffs<n>> &cons, bool local_eq_only, bool global_eq_only);
         bool validOptimizer(std::string opt);
         bool validSampler(std::string samp);
         void setBandwidth(double bandwidth);
@@ -60,10 +60,12 @@ class Experiment {
         void evaluateKdesForPlot(bool eval);
         void run();
         void setSuffix(std::string suf);
-        void setEqOnly(bool eq_only); 
+        void setLocalEqOnly(bool eq_only); 
+        void setGlobalEqOnly(bool eq_only); 
         void setWeightedMultiple(bool use);
         void setStartSteps(std::size_t steps);
-
+        void resetConstraints();
+        void setStartSeeds(std::vector<std::vector<double>> &start);
 
     private:
         std::string global_sampler_; // "uniform","rrt"
@@ -109,9 +111,11 @@ class Experiment {
         bool save_{false};
         bool evaluate_kdes_for_plot_{true};
         
-        bool eqOnly_{false};
+        bool localEqOnly_{false};
+        bool globalEqOnly_{false};
         std::size_t start_steps_{10};
         bool weighted_multiple_{false};
+        std::vector<std::vector<double>> start_seeds_;
 };
 
 template<std::size_t n, std::size_t m>
@@ -132,6 +136,11 @@ Experiment<n,m>::Experiment(
     local_optimizer_(local_optimizer) {
     setLocalOptimizer(local_optimizer);
 
+}
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::resetConstraints(){
+    cons_.clear();
 }
 
 template<std::size_t n, std::size_t m>
@@ -256,6 +265,11 @@ void Experiment<n,m>::addConstraints(const ConstraintCoeffs<n> &con){
     cons_.push_back(con);
 }
 
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setStartSeeds(std::vector<std::vector<double>> &start){
+    global_n_iter_ = 1;
+    start_seeds_ = start;
+}
 
 template<std::size_t n, std::size_t m>
 void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &cons){
@@ -263,14 +277,20 @@ void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &con
 }
 
 template<std::size_t n, std::size_t m>
-void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &cons, bool eq_only){
+void Experiment<n,m>::addConstraints(const std::vector<ConstraintCoeffs<n>> &cons, bool local_eq_only, bool global_eq_only){
     std::copy(cons.begin(),cons.end(),std::back_inserter(cons_));
-    eqOnly_ = eq_only;
+    localEqOnly_ = local_eq_only;
+    globalEqOnly_ = global_eq_only;
 }
 
 template<std::size_t n, std::size_t m>
-void Experiment<n,m>::setEqOnly(bool eq_only){
-    eqOnly_ = eq_only;
+void Experiment<n,m>::setLocalEqOnly(bool eq_only){
+    localEqOnly_ = eq_only;
+}
+
+template<std::size_t n, std::size_t m>
+void Experiment<n,m>::setGlobalEqOnly(bool eq_only){
+    globalEqOnly_ = eq_only;
 }
 
 
@@ -385,7 +405,7 @@ void Experiment<n,m>::run(){
                 current = ssamp.getLast();
                 if (cons_.size() > 0) {
                     for (int i=0; i<cons_.size(); i++){
-                        if (!isFeasible<3>(current, cons_[i])){
+                        if (!isFeasible<n>(current, cons_[i])){
                             ssamp.removeLast();
                             break;
                         }
@@ -450,7 +470,7 @@ void Experiment<n,m>::run(){
         }*/
 
        // global sampler
-        global_sampler_ptr->addConstraints(cons_);
+        global_sampler_ptr->addConstraints(cons_, globalEqOnly_);
         if (use_global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_, lb_global_, ub_global_);
         //if (global_optimizer_) global_sampler_ptr->setOptimizer(global_optimizer_ptr);
 
@@ -459,22 +479,24 @@ void Experiment<n,m>::run(){
         std::cout << "finished global run" << std::endl;
         global_samples_ = global_sampler_ptr->samples();
         global_results_ = global_sampler_ptr->results();
+        if (start_seeds_.size()){
+            global_sampler_ptr->setResults(start_seeds_);
+            global_results_ = start_seeds_;
+        } 
+
         if (save_){
             global_sampler_ptr->saveResults(name+"_global");
             global_sampler_ptr->saveSamples(name+"_global");
             global_sampler_ptr->saveNumIterations(name+"_global");
         }
+        
 
         std::vector<bool> accepted_results;
         if (d_min_ > 0) {
-            std::cout << "global_results_.size()" << global_results_.size() << std::endl;
             int num_accepted{0};
             greedyNodeRemoval(global_results_, d_min_, accepted_results, num_accepted);
             local_n_iter_ = std::floor(total_n_iter / num_accepted);
-            std::cout << "total_n_iter: " << total_n_iter << std::endl;
-            std::cout << "local_n_iter: " << local_n_iter_ << std::endl;
             last_n_iter = local_n_iter_ + total_n_iter - (local_n_iter_ * global_results_.size());
-            std::cout << "global_results_.size()" << global_results_.size() << std::endl;
         } 
 
         bool local{true};
@@ -502,20 +524,38 @@ void Experiment<n,m>::run(){
 
         if (local) {
             // local sampler
-            local_sampler_ptr->addConstraints(cons_, eqOnly_);
+            local_sampler_ptr->addConstraints(cons_, localEqOnly_);
             if (use_local_optimizer_) local_sampler_ptr->setOptimizer(local_optimizer_, lb_global_, ub_global_);
             
             if (weighted_multiple_) {
-                std::vector<std::vector<double>> local_seeds_; 
-                std::vector<int> sample_chain_tracker = local_sampler_ptr->runMultipleOnTangent(total_n_iter, global_results_, lb_local_, ub_local_, start_steps_);
+                std::vector<std::vector<double>> local_seeds_;
+                std::vector<std::vector<double>> filtered_seeds;
+                std::vector<int> sample_chain_tracker,accepted_ind;
+                if (d_min_ > 0){
+                    for (int i=0;i<global_results_.size(); i++){
+                        if (accepted_results[i]){
+                            filtered_seeds.push_back(global_results_[i]);
+                            accepted_ind.push_back(i);
+                        }
+                    }
+                    sample_chain_tracker = local_sampler_ptr->runMultipleOnTangent(total_n_iter, filtered_seeds, lb_local_, ub_local_, start_steps_);
+                } else {
+                    sample_chain_tracker = local_sampler_ptr->runMultipleOnTangent(total_n_iter, global_results_, lb_local_, ub_local_, start_steps_);
+                }
                 if (save_) {
+                    int r;
                     for (int i=0; i<global_results_.size(); i++){
                         for (int j=0; j<sample_chain_tracker.size(); j++){
                             if (sample_chain_tracker[j] == i){
                                 local_samples_.push_back(local_sampler_ptr->results()[j]);
                                 local_seeds_.push_back(local_sampler_ptr->samples()[j]);
-                                utils::writeVec2File(local_samples_, name+"_local_"+std::to_string(i)+"_samples");
-                                utils::writeVec2File(local_seeds_, name+"_local_"+std::to_string(i)+"_seeds");
+                                if (d_min_ > 0){
+                                    r = accepted_ind[i];
+                                } else {
+                                    r = i;
+                                }
+                                utils::writeVec2File(local_samples_, name+"_local_"+std::to_string(r)+"_samples");
+                                utils::writeVec2File(local_seeds_, name+"_local_"+std::to_string(r)+"_seeds");
                             }
                         }
                         local_samples_.clear();
@@ -542,7 +582,8 @@ void Experiment<n,m>::run(){
                         local_n_iter_ = last_n_iter;
                     }
                     if (local_use_tangent_) {
-                       local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
+                       
+                       if (m>0) local_sampler_ptr->runOnTangent(local_n_iter_, global_results_[i], lb_local_, ub_local_);
                     } else {
                        local_sampler_ptr->run(local_n_iter_, global_results_[i], lb_local_, ub_local_);
                     }

@@ -34,9 +34,11 @@ struct ConstraintCoeffs {
 
 template<std::size_t n>
 ConstraintCoeffs<n> createConstraintParallelAxis(int dim, int dir,  double val, std::string type) {
+    // e.g dim 0 , dir -1 , val 0.5 , ineq x1>= 0.5
+
     ConstraintCoeffs<n> coeffs;
-    coeffs.coeffs(dim) = dir;
-    coeffs.cons = val;
+    coeffs.coeffs(dim) = dir*-1;
+    coeffs.cons = val*dir*-1;
     coeffs.constype = "linear";
     coeffs.type = type;
     return coeffs;
@@ -44,7 +46,7 @@ ConstraintCoeffs<n> createConstraintParallelAxis(int dim, int dir,  double val, 
 
 template<std::size_t n>
 ConstraintCoeffs<n> createConstraint2in3d(int dim1, int dim2, double val1, double val2, double val3, std::string type) {
-     // 0.5 * x.T@P@x + q.T@x+ r
+     // 0.5 * x.T@P@x + q.T@x- r
     ConstraintCoeffs<n> coeffs;
     coeffs.P(dim1,dim1) = val1;
     coeffs.q(dim2) = val2;
@@ -123,7 +125,7 @@ double quadraticConstraint(const std::vector<double>& x, std::vector<double>& gr
     double res = 0;
     ConstraintCoeffs<n> *c = (ConstraintCoeffs<n>*) data;
     vec x_vec(x.data());
-    // 0.5 * x.T@P@x + q.T@x+ r
+    // 0.5 * x.T@P@x + q.T@x- r
     if (!grad.empty()){
         utils::copyEig2Vec(c->P.transpose()*x_vec + c->q, grad);
     }
@@ -255,11 +257,10 @@ std::vector<double> numericGradient(const std::vector<double> &x, std::function<
 
 template<std::size_t n, std::size_t m>
 Matrix<double,m,n> numericJacobian(const std::vector<double> &x, std::vector<std::function<double(std::vector<double>&)>> funcs, double h){
-    assert (m>0);
     if (m==0) exit(1);
     Matrix<double,m,n> jac;
     for (int i=0; i<funcs.size(); i++){
-       jac.row(i) = Matrix<double,1,n>(numericGradient(x,funcs[i],h).data()); 
+       jac.row(i) = Matrix<double,(m==0)?m:1,n>(numericGradient(x,funcs[i],h).data()); 
     }
     return jac;
 }

@@ -391,6 +391,8 @@ std::vector<double> BiasedOptimizer<n>::optimize(std::vector<double> &seed){
     this->local_opt_.set_xtol_rel(1e-4);
     this->opt_.set_maxeval(300);
     this->local_opt_.set_maxeval(300);
+    this->local_opt_.set_ftol_abs(0.00001);
+    this->opt_.set_ftol_abs(0.00001);
     this->opt_.set_local_optimizer(this->local_opt_);
     this->opt_.set_min_objective(BiasedObjective<n>, &b_);
     try{
