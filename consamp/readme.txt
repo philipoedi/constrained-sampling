@@ -17,10 +17,12 @@ python app_3d.py
 5. click link in the console output to open a browser and view the app
 
 
+inside the app:
+-two experiments have to be selected. 
+-Seeds, Samples and PDE surface can be displayed, if the data is provided
+-The data will be read in from the results folder
 
 folder/experiment naming:
 -globalsampling_globaloptimization_localsampling_localoptimization_additionalinfo
 -e.g uniform_biased_RRT_biased_no_filter
 
-files:
--summary.xlsx (metrics for 3d examples on sphere) 

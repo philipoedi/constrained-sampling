@@ -114,7 +114,9 @@ The files in a folder is either local or global and has any of the following suf
 
 The file `example_experiment.cpp` contains code for a single experiment run. The comments in the code explain how the scenariom, parameters and algorithms can be specified.
 
-The file `run_experiments.cpp` contains the code to run all sphere experiments.
+The file `run_experiments.cpp` contains the code to run all sphere experiments. `experiment_line_2d.cpp` runs the experiment on the line in 2d with i.i.d-Biased-Sampler.
+
+
 
 Compile these as follows:
 
@@ -127,5 +129,23 @@ and run:
 ```
 ./example_experiment
 ```
+
+The unit-line experiments can be run using python and ipython-notebook from the `experiments_1d_folder` folder.
+
+```
+conda activate constrained_sampling
+jupyter-lab
+```
+
+Then select `cellular sampler.ipynb` or `line experiment.ipynb`.
+
+### Experiment Evaluation
+
+The evaluation has been done using python and ipython notebooks. Within each folder there is an evaluation `*.ipynb`.  
+These can be run using jupyter-lab as above shown.
+
+
+
+
 
 

@@ -8,7 +8,6 @@
 
 
 
-// local_w anpassen 0.5 auf connected, kleiner auf 
 
 using namespace std;
 using namespace Eigen;
