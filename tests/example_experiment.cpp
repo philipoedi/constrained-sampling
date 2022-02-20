@@ -25,12 +25,10 @@ int main(){
     vector<double> global_lb_sphere{-3,-2,-4};
     vector<double> global_ub_sphere{4,3,2};
     ConstraintCoeffs<sphere_n> sphere = createSphere<sphere_n>(1); // creates sphere-constraint with radius 1
-    vector<double> local_w_2{0.2,0.2,0.2};
-    vector<double> local_w{0.5,0.5,0.5};
+    vector<double> local_w{0.5,0.5,0.5}; // gridwalk neighborhood
 
     double filter_thresh = 0.4;
-    //vector<double> local_w{0.5,0.5,0.5};
-
+    
     // quadratic constraints that create disconnected manifold
     ConstraintCoeffs<3> y_z_cons = createConstraint2in3d<3>(1,2,-10,-1,-1.2,"ineq");
     ConstraintCoeffs<3> z_y_cons = createConstraint2in3d<3>(2,1,-10,-1,-1.2,"ineq");
@@ -58,7 +56,7 @@ int main(){
     rrt.addConstraints(z_y_cons); 
     rrt.addConstraints(x_z_cons); 
     // set 0 when 0 filter, or comment out
-    rrt.setFilter(0.5);
+    rrt.setFilter(filter_thresh);
     // set true when bandit sampler is applied
     rrt.setWeightedMultiple(true);
     // set true when on global stage rejection sampling appplied
@@ -76,21 +74,39 @@ int main(){
     rrt.setGridSpacing(0.5); // specifies how dense the grid is to evaluate the KDE for 	
     rrt.evaluateKdesForPlot(false);// can be set to false if many experiments are run and not all necessary to plot
     rrt.setSave(true);
+    rrt.run();
    
     // gridwalk multiple 
     Experiment<sphere_n,1> gw_multi("biased","uniform","biased","grid-walk");
+    gw_multi.setGlobalBounds(global_lb_sphere, global_ub_sphere); // set the bounds of the configuration space
     gw_multi.setLocalBounds(local_lb_sphere_gw, local_ub_sphere_gw);
+    // sphere constraint
     gw_multi.addConstraints(sphere);
+    // comment out below if closed manifold is needed
+    gw_multi.addConstraints(y_z_cons);  
+    gw_multi.addConstraints(z_y_cons); 
+    gw_multi.addConstraints(x_z_cons); 
+    // set 0 when 0 filter, or comment out
+    gw_multi.setFilter(filter_thresh);
+    // set true when bandit sampler is applied
+    gw_multi.setWeightedMultiple(true);
+    // set true when on global stage rejection sampling appplied
+    // if false then projection on to edges possible
+    gw_multi.setGlobalEqOnly(false);
+    gw_multi.setLocalEqOnly(false);
+
+    // iterations
     gw_multi.setLocalNumIter(50);
     gw_multi.setGlobalNumIter(100);
-    gw_multi.setLocalAlpha(0.005);
+    // set neighborhood width
     gw_multi.setLocalWidths(local_w);
     gw_multi.setBandwidth(band);
     gw_multi.setSphere(1);
     gw_multi.setGridSpacing(0.5);
     gw_multi.setLocalUseTangent(true);
     gw_multi.setSave(true);
+    gw_multi.run();
    
-return 1;
+    return 1;
 }
 

@@ -130,6 +130,8 @@ and run:
 ./example_experiment
 ```
 
+This will create a folder in the working directory for each ran experiment.  
+
 The unit-line experiments can be run using python and ipython-notebook from the `experiments_1d_folder` folder.
 
 ```
