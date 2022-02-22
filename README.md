@@ -6,6 +6,8 @@ philip.oedi@gmail.com
 Computational Engineering Science  
 TU Berlin - Learning and Intelligent Systems  
 Prof. Marc Toussaint  
+Ph. D. Jung-Su Ha  
+Joaquim Ortiz-Haro  
 2022/02/22  
 
 
